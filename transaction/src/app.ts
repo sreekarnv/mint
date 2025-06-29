@@ -2,8 +2,8 @@ import express, { type Express } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import healthRouter from '@/routers/health.router';
-import transactionRouter from './routers/transaction.router';
-import { errorHandler } from './controllers/error.controller';
+import transactionRouter from '@/routers/transaction.router';
+import { errorHandler } from '@/controllers/error.controller';
 
 export class TransactionApplication {
 	private app!: Express;

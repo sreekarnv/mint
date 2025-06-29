@@ -1,0 +1,49 @@
+http:
+  port: 4000
+
+apiEndpoints:
+  auth:
+    host: '*'
+    paths: '/api/auth/*'
+  wallet:
+    host: '*'
+    paths: '/api/wallet/*'
+  transaction:
+    host: '*'
+    paths: '/api/transactions/*'
+
+serviceEndpoints:
+  authService:
+    url: 'http://localhost:4001'
+  walletService:
+    url: 'http://localhost:4002'
+  transactionService:
+    url: 'http://localhost:4003'
+
+policies:
+  - proxy
+
+pipelines:
+  authPipeline:
+    apiEndpoints: [auth]
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: authService
+              changeOrigin: true
+
+  walletPipeline:
+    apiEndpoints: [wallet]
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: walletService
+              changeOrigin: true
+
+  transactionPipeline:
+    apiEndpoints: [transaction]
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: transactionService
+              changeOrigin: true
