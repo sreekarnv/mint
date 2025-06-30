@@ -1,5 +1,7 @@
 import BaseRouter from '@/routers/base.router';
 import * as walletController from '@/controllers/wallet.controller';
+import { parseToken } from '@/middleware/token.middleware';
+import { protectRoute } from '@/middleware/protect.middleware';
 
 export class WalletRouter extends BaseRouter {
 	constructor() {
@@ -7,6 +9,9 @@ export class WalletRouter extends BaseRouter {
 	}
 
 	protected addRoutes() {
+		this.router.use(parseToken);
+		this.router.use(protectRoute);
+
 		this.router.get(
 			'/:userId',
 			walletController.getInputValidation,

@@ -1,4 +1,3 @@
-import BadRequestError from '@/errors/bad-request-error';
 import NotFoundError from '@/errors/not-found-error';
 import TransactionModel from '@/models/transaction.model';
 import { getTransferStatusSchemaValidator } from '@/schemas/transfer-status.schema';
@@ -54,9 +53,15 @@ export async function getTransferStatus(
 	next: NextFunction
 ) {
 	const { transactionId } = req.params;
+	const userId = req.userId;
 
 	try {
-		const txn = await TransactionModel.findById(transactionId).lean();
+		const txn = await TransactionModel.findOne({
+			$and: [
+				{ _id: { $eq: transactionId } },
+				{ $or: [{ from: { $eq: userId } }, { to: { $eq: userId } }] },
+			],
+		});
 
 		if (!txn) {
 			throw new NotFoundError('Transaction Not Found');

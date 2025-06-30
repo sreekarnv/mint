@@ -5,7 +5,7 @@ import { connectRabbit, startTransferResultConsumer } from '@/utils/rabbitmq';
 
 (async () => {
 	try {
-		await mongoose.connect('mongodb://127.0.0.1:27017/mint_txn_dev');
+		await mongoose.connect(Bun.env.MONGO_URI);
 		mongoose.set('debug', true);
 
 		await connectRabbit();
@@ -14,8 +14,8 @@ import { connectRabbit, startTransferResultConsumer } from '@/utils/rabbitmq';
 		const app = txnApplication.getApplication();
 		const server = createServer(app);
 
-		server.listen(4003, () => {
-			console.log(`Transaction service is running on port 4003`);
+		server.listen(Bun.env.PORT, () => {
+			console.log(`Transaction service is running on port ${Bun.env.PORT}`);
 		});
 	} catch (err) {
 		console.log(err);

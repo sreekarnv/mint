@@ -25,7 +25,7 @@ export async function get(
 
 		res.status(StatusCodes.OK).json({
 			status: 'success',
-			message: 'Fetched user successfully',
+			message: 'Fetched wallet successfully',
 			data: {
 				wallet,
 			},

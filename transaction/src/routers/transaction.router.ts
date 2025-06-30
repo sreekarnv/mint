@@ -1,6 +1,7 @@
 import BaseRouter from '@/routers/base.router';
 import * as txnController from '@/controllers/transaction.controller';
 import { parseToken } from '@/middleware/token.middleware';
+import { protectRoute } from '@/middleware/protect.middleware';
 
 export class TransactionRouter extends BaseRouter {
 	constructor() {
@@ -9,6 +10,7 @@ export class TransactionRouter extends BaseRouter {
 
 	protected addRoutes() {
 		this.router.use(parseToken);
+		this.router.use(protectRoute);
 		this.router.post(
 			'/transfer',
 			txnController.transferValidation,

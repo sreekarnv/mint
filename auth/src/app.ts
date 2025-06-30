@@ -1,9 +1,9 @@
 import express, { type Express } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
-import healthRouter from './routers/health.router';
-import authRouter from './routers/auth.router';
-import { errorHandler } from './controllers/error.controller';
+import healthRouter from '@/routers/health.router';
+import authRouter from '@/routers/auth.router';
+import { errorHandler } from '@/controllers/error.controller';
 
 export class AuthApplication {
 	private app!: Express;

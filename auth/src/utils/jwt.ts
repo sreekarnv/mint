@@ -2,12 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { sign, verify, type JwtPayload } from 'jsonwebtoken';
 
-const privateKey = fs.readFileSync(
-	path.resolve(process.env.JWT_PRIVATE_KEY_PATH!)
-);
-const publicKey = fs.readFileSync(
-	path.resolve(process.env.JWT_PUBLIC_KEY_PATH!)
-);
+const privateKey = fs.readFileSync(path.resolve(Bun.env.JWT_PRIVATE_KEY_PATH));
+const publicKey = fs.readFileSync(path.resolve(Bun.env.JWT_PUBLIC_KEY_PATH));
 
 export function signToken(id: string, email: string): string {
 	// @ts-expect-error "Sign Token Private Key Type Error"
