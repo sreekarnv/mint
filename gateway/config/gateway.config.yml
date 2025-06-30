@@ -16,13 +16,13 @@ apiEndpoints:
 
 serviceEndpoints:
   authService:
-    url: 'http://localhost:4001'
+    url: 'http://auth_service:4001'
 
   walletService:
-    url: 'http://localhost:4002'
+    url: 'http://wallet_service:4002'
 
   transactionService:
-    url: 'http://localhost:4003'
+    url: 'http://transaction_service:4003'
 
 policies:
   - rate-limit
