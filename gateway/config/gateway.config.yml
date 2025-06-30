@@ -5,9 +5,11 @@ apiEndpoints:
   auth:
     host: '*'
     paths: '/api/auth/*'
+
   wallet:
     host: '*'
     paths: '/api/wallet/*'
+
   transaction:
     host: '*'
     paths: '/api/transactions/*'
@@ -15,18 +17,31 @@ apiEndpoints:
 serviceEndpoints:
   authService:
     url: 'http://localhost:4001'
+
   walletService:
     url: 'http://localhost:4002'
+
   transactionService:
     url: 'http://localhost:4003'
 
 policies:
+  - rate-limit
   - proxy
 
 pipelines:
   authPipeline:
     apiEndpoints: [auth]
     policies:
+      - rate-limit:
+          - action:
+              max: 10
+              windowMs: 60000
+              message: "Too many auth requests. Please slow down."
+              key: req.ip
+              headers:
+                limit: X-RateLimit-Limit
+                remaining: X-RateLimit-Remaining
+                reset: X-RateLimit-Reset
       - proxy:
           - action:
               serviceEndpoint: authService
@@ -43,6 +58,16 @@ pipelines:
   transactionPipeline:
     apiEndpoints: [transaction]
     policies:
+      - rate-limit:
+          - action:
+              max: 10
+              windowMs: 60000
+              message: "Too many transactions. Please slow down."
+              key: req.ip
+              headers:
+                limit: X-RateLimit-Limit
+                remaining: X-RateLimit-Remaining
+                reset: X-RateLimit-Reset
       - proxy:
           - action:
               serviceEndpoint: transactionService
