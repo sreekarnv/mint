@@ -1,7 +1,11 @@
 import { createServer } from 'http';
 import txnApplication from '@/app';
 import mongoose from 'mongoose';
-import { connectRabbit, startTransferResultConsumer } from '@/utils/rabbitmq';
+import {
+	connectRabbit,
+	startTopUpResultConsumer,
+	startTransferResultConsumer,
+} from '@/utils/rabbitmq';
 
 (async () => {
 	try {
@@ -10,6 +14,7 @@ import { connectRabbit, startTransferResultConsumer } from '@/utils/rabbitmq';
 
 		await connectRabbit();
 		await startTransferResultConsumer();
+		await startTopUpResultConsumer();
 
 		const app = txnApplication.getApplication();
 		const server = createServer(app);

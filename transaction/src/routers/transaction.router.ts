@@ -1,5 +1,6 @@
 import BaseRouter from '@/routers/base.router';
 import * as txnController from '@/controllers/transaction.controller';
+import * as walletController from '@/controllers/wallet.controller';
 import { parseToken } from '@/middleware/token.middleware';
 import { protectRoute } from '@/middleware/protect.middleware';
 
@@ -20,6 +21,11 @@ export class TransactionRouter extends BaseRouter {
 			'/transfer/:transactionId/status',
 			txnController.getTransferStatusValidation,
 			txnController.getTransferStatus
+		);
+		this.router.post(
+			'/wallet/topup',
+			walletController.postInputValidation,
+			walletController.post
 		);
 	}
 }

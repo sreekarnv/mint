@@ -1,4 +1,4 @@
-import TransactionModel from '@/models/transaction.model';
+import TransactionModel, { Transaction } from '@/models/transaction.model';
 import amqplib from 'amqplib';
 
 let channel: amqplib.Channel;
@@ -9,6 +9,9 @@ export const connectRabbit = async () => {
 	await channel.assertQueue('transfer.initiated', { durable: true });
 	await channel.assertQueue('transfer.completed', { durable: true });
 	await channel.assertQueue('transfer.failed', { durable: true });
+	await channel.assertQueue('topup.initiated', { durable: true });
+	await channel.assertQueue('topup.completed', { durable: true });
+
 	console.log('Transaction Service RabbitMQ connected');
 };
 
@@ -44,3 +47,24 @@ export const startTransferResultConsumer = async () => {
 		}
 	});
 };
+
+export async function publishTopUpInitiated(data: any) {
+	channel.sendToQueue('topup.initiated', Buffer.from(JSON.stringify(data)), {
+		persistent: true,
+	});
+}
+
+export async function startTopUpResultConsumer() {
+	await channel.consume('topup.completed', async (msg) => {
+		if (!msg) return;
+
+		const data = JSON.parse(msg.content.toString());
+
+		await TransactionModel.updateOne(
+			{ _id: data.transactionId },
+			{ status: data.status }
+		);
+
+		channel.ack(msg);
+	});
+}

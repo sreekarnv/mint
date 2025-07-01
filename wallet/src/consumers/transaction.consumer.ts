@@ -42,3 +42,50 @@ export const startTransferConsumer = async () => {
 		channel.ack(msg);
 	});
 };
+
+export async function startTopUpConsumer() {
+	await channel.assertQueue('topup.initiated', { durable: true });
+
+	await channel.consume('topup.initiated', async (msg) => {
+		if (!msg) return;
+
+		const data = JSON.parse(msg.content.toString());
+
+		try {
+			const wallet = await WalletModel.findOneAndUpdate(
+				{ userId: data.userId },
+				{ $inc: { balance: data.amount } },
+				{ new: true }
+			);
+			wallet?.save();
+
+			channel.sendToQueue(
+				'topup.completed',
+				Buffer.from(
+					JSON.stringify({
+						wallet,
+						transactionId: data.transactionId,
+						status: 'success',
+					})
+				),
+				{ persistent: true }
+			);
+
+			channel.ack(msg);
+		} catch (error) {
+			channel.sendToQueue(
+				'topup.completed',
+				Buffer.from(
+					JSON.stringify({
+						wallet: null,
+						transactionId: data.transactionId,
+						status: 'failed',
+					})
+				),
+				{ persistent: true }
+			);
+
+			channel.ack(msg);
+		}
+	});
+}

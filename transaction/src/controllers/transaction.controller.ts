@@ -24,6 +24,7 @@ export async function transfer(
 			to,
 			amount,
 			status: 'pending',
+			type: 'transfer',
 		});
 
 		await publishTransferInitiated({
@@ -51,7 +52,7 @@ export async function getTransferStatus(
 	req: Request,
 	res: Response,
 	next: NextFunction
-) {
+): Promise<void> {
 	const { transactionId } = req.params;
 	const userId = req.userId;
 

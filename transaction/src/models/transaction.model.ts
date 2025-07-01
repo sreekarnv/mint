@@ -21,9 +21,10 @@ export class Transaction {
 
 	@Property({
 		type: mongoose.SchemaTypes.ObjectId,
-		required: true,
+		required: false,
+		default: null,
 	})
-	from!: string;
+	from?: string | null;
 
 	@Property({
 		type: mongoose.SchemaTypes.ObjectId,
@@ -41,6 +42,12 @@ export class Transaction {
 		default: 'pending',
 	})
 	status!: string;
+
+	@Property({
+		required: true,
+		enum: ['topup', 'transfer'],
+	})
+	type!: string;
 
 	@Property()
 	reason?: string;

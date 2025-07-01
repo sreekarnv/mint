@@ -2,7 +2,10 @@ import { createServer } from 'http';
 import walletApplication from '@/app';
 import mongoose from 'mongoose';
 import { startWalletConsumer } from '@/consumers/wallet.consumer';
-import { startTransferConsumer } from './consumers/transaction.consumer';
+import {
+	startTopUpConsumer,
+	startTransferConsumer,
+} from './consumers/transaction.consumer';
 import { connectRabbit, declareQueues } from './utils/rabbitmq';
 import { connectMongoDB } from './utils/mongodb';
 
@@ -15,6 +18,7 @@ import { connectMongoDB } from './utils/mongodb';
 
 		await startWalletConsumer();
 		await startTransferConsumer();
+		await startTopUpConsumer();
 
 		const app = walletApplication.getApplication();
 		const server = createServer(app);
