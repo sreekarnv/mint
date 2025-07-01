@@ -1,16 +1,16 @@
 import * as Yup from 'yup';
 import { type ExpressYupMiddlewareInterface } from 'express-yup-middleware';
 
-export const getWalletByUserIdSchema = Yup.object()
+export const topUpWalletSchema = Yup.object()
 	.shape({
-		userId: Yup.string().required(),
+		amount: Yup.number().min(1).required(),
 	})
 	.required();
 
-export const getWalletByUserIdSchemaValidator: ExpressYupMiddlewareInterface = {
+export const topUpWalletSchemaValidator: ExpressYupMiddlewareInterface = {
 	schema: {
-		params: {
-			yupSchema: getWalletByUserIdSchema,
+		body: {
+			yupSchema: topUpWalletSchema,
 			validateOptions: {
 				abortEarly: false,
 			},

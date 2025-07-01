@@ -12,11 +12,9 @@ export class WalletRouter extends BaseRouter {
 		this.router.use(parseToken);
 		this.router.use(protectRoute);
 
-		this.router.get(
-			'/:userId',
-			walletController.getInputValidation,
-			walletController.get
-		);
+		this.router.get('/', walletController.get);
+
+		this.router.post('/', walletController.postInputValidation, walletController.post);
 	}
 }
 
