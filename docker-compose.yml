@@ -52,8 +52,6 @@ services:
       context: ./auth
     container_name: auth_service_container
     restart: always
-    ports:
-      - '4001:4001'
     environment:
       MONGO_URI: mongodb://mongo_auth:27017/auth_db
       RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
@@ -67,6 +65,7 @@ services:
         condition: service_started
     volumes:
       - ./auth/keys:/keys
+      - ./auth/src:/app/src
 
   # ------------------------------
   wallet_service:
@@ -74,8 +73,6 @@ services:
       context: ./wallet
     container_name: wallet_service_container
     restart: always
-    ports:
-      - '4002:4002'
     environment:
       MONGO_URI: mongodb://mongo_wallet:27017/wallet_db
       RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
@@ -87,6 +84,7 @@ services:
         condition: service_started
     volumes:
       - ./wallet/keys:/keys
+      - ./wallet/src:/app/src
 
   # ------------------------------
   transaction_service:
@@ -94,8 +92,6 @@ services:
       context: ./transaction
     container_name: transaction_service_container
     restart: always
-    ports:
-      - '4003:4003'
     environment:
       MONGO_URI: mongodb://mongo_transaction:27017/transaction_db
       RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
@@ -107,6 +103,7 @@ services:
         condition: service_started
     volumes:
       - ./transaction/keys:/keys
+      - ./transaction/src:/app/src
 
   # ------------------------------
   gateway:
