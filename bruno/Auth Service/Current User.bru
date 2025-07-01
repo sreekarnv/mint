@@ -1,0 +1,15 @@
+meta {
+  name: Current User
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{URL}}/api/auth/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjAxYzM3NjRmOTNkYjE1OGQ3MzU0MSIsImVtYWlsIjoic3JlZWthckB0ZXN0My5jb20iLCJpYXQiOjE3NTEzMTQ0ODgsImV4cCI6MTc1MTMxNTM4OH0.l8f4_0R9_p4q6wHGoboFRGVkHCPPDwt9tmATAnZ9V6TGDudbiZ6NgmRoJxKS9v68Gn0RupZ6qh6sSlOQYafZlMiJsvD0Dhs43qSWrJZouC3IdGvgfLG5gkVpVM8uQ4O-pCzaeNK3Er1H-mAJwRgMUfB-jasGnofGTkJb-Z-N9khT23nhx3Jqg1wEvcR2tZRmdfSBGbOq5rU3sIr2pE8iK2QIMGTLR4AJ_z_6_1tQU2wqpCLG_BP1yLJd5wOFxnSws-CvnJGq0QWfdIpcmDrwxZcMz3b0HIFjr9wuAhpB2_GM3QYG1x85bcfK75BXzO6kBr9ZhoGPCsD9lwU6QaZrQA
+}

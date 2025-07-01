@@ -1,0 +1,23 @@
+meta {
+  name: Transfer
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{URL}}/api/transactions/transfer
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0MDcxNjUsImV4cCI6MTc1MTQwODA2NX0.QBwJSoCWxNHXd0Vwbbr1q3qib4bs6KZBUsesNpFlL1dZw8VOqRcOEL9jyBfiYgDTZPrud3agFWD16TTFeRw6j2PSEg2OZWkMc6vxTyakYKnvpkWi_JqfvBSWfgHsbZ-ZAGBHLWrekiRkgINKNXidjdQLsXlCep8vLMSjC9OHFQhEX7hb4GqiYw4Uz1flgczgrefSZ_2SoZe94ZdnSneYpUTjz4vNWmqTD1rMXuQdkQxGHKUpLzJLnRx13OgLDeKk9CIHOrn2-mTcocNDlwOzNidkHVqfZv1hPso054IsqXfWsUoHHeXRm7OlEtIUCrxZpCrdo8jgdDUYyr1HTs9KnQ
+}
+
+body:json {
+  {
+    "to": "68645a20694a2f5e1b94a151",
+    "amount": 18
+  }
+  
+}

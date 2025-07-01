@@ -1,0 +1,21 @@
+meta {
+  name: Wallet TopUp
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{URL}}/api/transactions/wallet/topup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0MDY5OTIsImV4cCI6MTc1MTQwNzg5Mn0.TKhwZH5ov8MipbKHvjKz3owS8euED_3LOJK-BFgdsyGfMoiegyQiA5fxfq0ks54g-KaPj2Dv6wXfJ8i-f9KDzi3aPWd4RwIEcnB2I4H3QMHGipy9ta2EWSF86lUsFUxJ6larmoTaLC-6c54F7F-uxd787EzuKbX8w7_U36prqg2LVcmF6KV93UIc6x4MoC1zvAwtbePnhzGAk6nfjIOmeLeFSLi-f4hUdULFNKMjhR5ZZ0OC_CERq9mWRTjLUu_1SVIWpVb96N_bmJ0c5tdYajYdOLHQMT4itDjU83nNhqBt3jCFGXYObbqVzGwBQb8kPQcwyzP1Ze2lXR7knAqwUw
+}
+
+body:json {
+  {
+    "amount": 3
+  }
+}
