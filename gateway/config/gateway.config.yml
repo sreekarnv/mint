@@ -4,7 +4,9 @@ http:
 apiEndpoints:
   auth:
     host: '*'
-    paths: '/api/auth/*'
+    paths:
+      - '/api/auth/*'
+      - '/api/users/*'
 
   wallet:
     host: '*'

@@ -4,6 +4,7 @@ import cors from 'cors';
 import healthRouter from '@/routers/health.router';
 import authRouter from '@/routers/auth.router';
 import { errorHandler } from '@/controllers/error.controller';
+import userRouter from '@/routers/user.router';
 
 export class AuthApplication {
 	private app!: Express;
@@ -34,6 +35,7 @@ export class AuthApplication {
 	private addApiRoutes(): void {
 		this.app.use('/healthz', healthRouter.getRouter());
 		this.app.use('/api/auth', authRouter.getRouter());
+		this.app.use('/api/users', userRouter.getRouter());
 
 		this.app.use(errorHandler);
 	}

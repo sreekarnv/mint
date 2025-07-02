@@ -57,7 +57,7 @@ services:
       RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
       JWT_PRIVATE_KEY_PATH: /keys/private.pem
       JWT_PUBLIC_KEY_PATH: /keys/public.pem
-      JWT_EXPIRES_IN: 15m
+      JWT_EXPIRES_IN: 1d
     depends_on:
       rabbitmq:
         condition: service_healthy

@@ -21,11 +21,6 @@ import bcrypt from 'bcryptjs';
 		},
 	},
 })
-@pre<User>('find', async function (next) {
-	(this as any).find({ isActive: true });
-
-	next();
-})
 @pre<User>('save', async function (next) {
 	if (!this.isNew && !this.isModified('password')) {
 		return next();

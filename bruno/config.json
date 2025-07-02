@@ -1,0 +1,260 @@
+{
+  "name": "Mint",
+  "version": "1",
+  "items": [
+    {
+      "type": "folder",
+      "name": "Auth Service",
+      "items": [
+        {
+          "type": "http",
+          "name": "Current User",
+          "seq": 3,
+          "request": {
+            "url": "{{URL}}/api/auth/me",
+            "method": "GET",
+            "headers": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "bearer",
+              "bearer": {
+                "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjAxYzM3NjRmOTNkYjE1OGQ3MzU0MSIsImVtYWlsIjoic3JlZWthckB0ZXN0My5jb20iLCJpYXQiOjE3NTEzMTQ0ODgsImV4cCI6MTc1MTMxNTM4OH0.l8f4_0R9_p4q6wHGoboFRGVkHCPPDwt9tmATAnZ9V6TGDudbiZ6NgmRoJxKS9v68Gn0RupZ6qh6sSlOQYafZlMiJsvD0Dhs43qSWrJZouC3IdGvgfLG5gkVpVM8uQ4O-pCzaeNK3Er1H-mAJwRgMUfB-jasGnofGTkJb-Z-N9khT23nhx3Jqg1wEvcR2tZRmdfSBGbOq5rU3sIr2pE8iK2QIMGTLR4AJ_z_6_1tQU2wqpCLG_BP1yLJd5wOFxnSws-CvnJGq0QWfdIpcmDrwxZcMz3b0HIFjr9wuAhpB2_GM3QYG1x85bcfK75BXzO6kBr9ZhoGPCsD9lwU6QaZrQA"
+              }
+            },
+            "query": []
+          }
+        },
+        {
+          "type": "http",
+          "name": "Sign Up",
+          "seq": 1,
+          "request": {
+            "url": "{{URL}}/api/auth/signup",
+            "method": "POST",
+            "headers": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"name\": \"sreekar\",\n  \"email\": \"sreekar@test.com\",\n  \"password\": \"Pass1234#\",\n  \"passwordConfirm\": \"Pass1234#\"\n}\n",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            },
+            "query": []
+          }
+        },
+        {
+          "type": "http",
+          "name": "Login",
+          "seq": 2,
+          "request": {
+            "url": "{{URL}}/api/auth/login",
+            "method": "POST",
+            "headers": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"email\": \"shanmukh@test.com\",\n  \"password\": \"Pass1234#\"\n}",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            },
+            "query": []
+          }
+        },
+        {
+          "type": "http",
+          "name": "Search User",
+          "seq": 4,
+          "request": {
+            "url": "{{URL}}/api/users/search?q=sreekar",
+            "method": "GET",
+            "headers": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "bearer",
+              "bearer": {
+                "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0OTE0OTAsImV4cCI6MTc1MTQ5MjM5MH0.TTDRZ2CeXpX6dCrCgJszG_-VbclxXnWm8B89qAUPFuIdU06OM6H1hJ6Tu02cwBdwN8WS1_RQubxc8zLdYriofluiyqRWXzrcHkM95gIMX_FWS1BIyIq3f_RzE6n6Acg78xDDqhR_dIFDFmGxqpw4Qjhm1EjMawlGJBnOP4Gj3gDQ84oWgduu2T8zsk65hWrdOuLGC66LwxJRxx3wpyWMO7yYXPHucLlpNuU8b1U_v-CKf7tpidTJM8BM3YZFSJhFkQzcEu3y1MofAZzHWoiLIpNUfyN4qxT-WJJqJvn3_D1_OKwPcg36Bw7u8DuS4qx4M0sDtbghv51900j-lMIEKg"
+              }
+            },
+            "query": [
+              {
+                "name": "q",
+                "value": "sreekar",
+                "enabled": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Wallet Service",
+      "items": [
+        {
+          "type": "http",
+          "name": "Get Logged In User Wallet",
+          "seq": 2,
+          "request": {
+            "url": "{{URL}}/api/wallet/",
+            "method": "GET",
+            "headers": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "bearer",
+              "bearer": {
+                "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0MDY5OTIsImV4cCI6MTc1MTQwNzg5Mn0.TKhwZH5ov8MipbKHvjKz3owS8euED_3LOJK-BFgdsyGfMoiegyQiA5fxfq0ks54g-KaPj2Dv6wXfJ8i-f9KDzi3aPWd4RwIEcnB2I4H3QMHGipy9ta2EWSF86lUsFUxJ6larmoTaLC-6c54F7F-uxd787EzuKbX8w7_U36prqg2LVcmF6KV93UIc6x4MoC1zvAwtbePnhzGAk6nfjIOmeLeFSLi-f4hUdULFNKMjhR5ZZ0OC_CERq9mWRTjLUu_1SVIWpVb96N_bmJ0c5tdYajYdOLHQMT4itDjU83nNhqBt3jCFGXYObbqVzGwBQb8kPQcwyzP1Ze2lXR7knAqwUw"
+              }
+            },
+            "query": []
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Transaction Service",
+      "items": [
+        {
+          "type": "http",
+          "name": "Transfer Status",
+          "seq": 2,
+          "request": {
+            "url": "{{URL}}/api/transactions/transfer/68645a475683a076cdf4b1ec/status",
+            "method": "GET",
+            "headers": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "bearer",
+              "bearer": {
+                "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0MDcxNjUsImV4cCI6MTc1MTQwODA2NX0.QBwJSoCWxNHXd0Vwbbr1q3qib4bs6KZBUsesNpFlL1dZw8VOqRcOEL9jyBfiYgDTZPrud3agFWD16TTFeRw6j2PSEg2OZWkMc6vxTyakYKnvpkWi_JqfvBSWfgHsbZ-ZAGBHLWrekiRkgINKNXidjdQLsXlCep8vLMSjC9OHFQhEX7hb4GqiYw4Uz1flgczgrefSZ_2SoZe94ZdnSneYpUTjz4vNWmqTD1rMXuQdkQxGHKUpLzJLnRx13OgLDeKk9CIHOrn2-mTcocNDlwOzNidkHVqfZv1hPso054IsqXfWsUoHHeXRm7OlEtIUCrxZpCrdo8jgdDUYyr1HTs9KnQ"
+              }
+            },
+            "query": []
+          }
+        },
+        {
+          "type": "http",
+          "name": "Transfer",
+          "seq": 1,
+          "request": {
+            "url": "{{URL}}/api/transactions/transfer",
+            "method": "POST",
+            "headers": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"to\": \"68645a20694a2f5e1b94a151\",\n  \"amount\": 18\n}\n",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "bearer",
+              "bearer": {
+                "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0MDcxNjUsImV4cCI6MTc1MTQwODA2NX0.QBwJSoCWxNHXd0Vwbbr1q3qib4bs6KZBUsesNpFlL1dZw8VOqRcOEL9jyBfiYgDTZPrud3agFWD16TTFeRw6j2PSEg2OZWkMc6vxTyakYKnvpkWi_JqfvBSWfgHsbZ-ZAGBHLWrekiRkgINKNXidjdQLsXlCep8vLMSjC9OHFQhEX7hb4GqiYw4Uz1flgczgrefSZ_2SoZe94ZdnSneYpUTjz4vNWmqTD1rMXuQdkQxGHKUpLzJLnRx13OgLDeKk9CIHOrn2-mTcocNDlwOzNidkHVqfZv1hPso054IsqXfWsUoHHeXRm7OlEtIUCrxZpCrdo8jgdDUYyr1HTs9KnQ"
+              }
+            },
+            "query": []
+          }
+        },
+        {
+          "type": "http",
+          "name": "Wallet TopUp",
+          "seq": 3,
+          "request": {
+            "url": "{{URL}}/api/transactions/wallet/topup",
+            "method": "POST",
+            "headers": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"amount\": 3\n}",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "bearer",
+              "bearer": {
+                "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE0MDY5OTIsImV4cCI6MTc1MTQwNzg5Mn0.TKhwZH5ov8MipbKHvjKz3owS8euED_3LOJK-BFgdsyGfMoiegyQiA5fxfq0ks54g-KaPj2Dv6wXfJ8i-f9KDzi3aPWd4RwIEcnB2I4H3QMHGipy9ta2EWSF86lUsFUxJ6larmoTaLC-6c54F7F-uxd787EzuKbX8w7_U36prqg2LVcmF6KV93UIc6x4MoC1zvAwtbePnhzGAk6nfjIOmeLeFSLi-f4hUdULFNKMjhR5ZZ0OC_CERq9mWRTjLUu_1SVIWpVb96N_bmJ0c5tdYajYdOLHQMT4itDjU83nNhqBt3jCFGXYObbqVzGwBQb8kPQcwyzP1Ze2lXR7knAqwUw"
+              }
+            },
+            "query": []
+          }
+        }
+      ]
+    }
+  ],
+  "activeEnvironmentUid": "lrkSdWWJOBqJe3VdjoLI7",
+  "environments": [
+    {
+      "variables": [
+        {
+          "name": "URL",
+          "value": "http://localhost:4000",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        }
+      ],
+      "name": "Mint "
+    }
+  ],
+  "brunoConfig": {
+    "version": "1",
+    "name": "Mint",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ]
+  }
+}
