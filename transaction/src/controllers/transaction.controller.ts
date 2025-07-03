@@ -95,6 +95,7 @@ export async function getAllTransactions(
 ) {
 	try {
 		const userId = req.userId;
+
 		const limit = parseInt(req.query.limit as string) || 10;
 
 		let cursorCreatedAt: Date | null = null;
@@ -103,8 +104,10 @@ export async function getAllTransactions(
 		if (req.query.cursor) {
 			const [createdAtStr, idStr] = (req.query.cursor as string).split('|');
 
-			cursorCreatedAt = new Date(createdAtStr!);
-			cursorId = idStr!;
+			if (createdAtStr && idStr) {
+				cursorCreatedAt = new Date(createdAtStr);
+				cursorId = idStr;
+			}
 		}
 
 		let cursorCondition: any = {};
@@ -133,12 +136,33 @@ export async function getAllTransactions(
 			.sort({ createdAt: -1, _id: -1 })
 			.limit(limit + 1);
 
+		console.log('Fetched:', transactions.length);
+
 		let nextCursor = null;
 
-		if (transactions.length > limit) {
+		console.log({ tl: transactions.length, limit: limit + 1 });
+
+		if (transactions.length === limit + 1) {
 			const lastTxn = transactions[limit];
-			nextCursor = `${lastTxn?.createdAt?.toISOString()}|${lastTxn?._id}`;
-			transactions.pop();
+			const remaining = await TransactionModel.countDocuments({
+				$and: [
+					userFilter,
+					{
+						$or: [
+							{ createdAt: { $lt: lastTxn?.createdAt } },
+							{
+								createdAt: lastTxn?.createdAt,
+								_id: { $lt: lastTxn?._id },
+							},
+						],
+					},
+				],
+			});
+
+			if (remaining > 0) {
+				nextCursor = `${lastTxn?.createdAt?.toISOString()}|${lastTxn?._id}`;
+				transactions.pop();
+			}
 		}
 
 		res.status(StatusCodes.OK).json({
