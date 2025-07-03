@@ -12,6 +12,11 @@ export class TransactionRouter extends BaseRouter {
 	protected addRoutes() {
 		this.router.use(parseToken);
 		this.router.use(protectRoute);
+		this.router.get(
+			'/',
+			txnController.getAllTransactionsValidation,
+			txnController.getAllTransactions
+		);
 		this.router.post(
 			'/transfer',
 			txnController.transferValidation,

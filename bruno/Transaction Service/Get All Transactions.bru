@@ -1,0 +1,20 @@
+meta {
+  name: Get All Transactions
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{URL}}/api/transactions/?cursor=2025-07-01T21:44:43.552Z|686456cb7f970fbfc3a08baf&limit=4
+  body: none
+  auth: bearer
+}
+
+query {
+  cursor: 2025-07-01T21:44:43.552Z|686456cb7f970fbfc3a08baf
+  limit: 4
+}
+
+auth:bearer {
+  token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ1MmEwNjk0YTJmNWUxYjk0YTE0YiIsImVtYWlsIjoic2hhbm11a2hAdGVzdC5jb20iLCJpYXQiOjE3NTE1NzQ3MDAsImV4cCI6MTc1MTY2MTEwMH0.tedq__QOYf0ebyc72k3qz0joipcQhU6-PbYVWYy5vv5xIZ8l1SXPbbug0PM-ChOAYSYyRXE-mwBTiKLBXlHm1UKGFb23rGaBxFPv8IRjKS_Fs4wS2Ual4LXF6l86AsndhZ9eWHggEYKyoayGbScAaKJ2XSVaJYKuJpMO237zxKkh32JaUSqsIxnsmyOZAI9RR6x_5vt5blI6lBaFoGsOoxs3K65Hgb1FqvA-VJdsfTtZcqlbl2nSS8O3sEmhdutu4UXEoOxrlYzsP9fqn5TLyul0ahnOjinDYwO4bXoG_7w83w8N1WQxwyYcyDcMKAo9gOEOgXnW0AcIISR890pEJA
+}
