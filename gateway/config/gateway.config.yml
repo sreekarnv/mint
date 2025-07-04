@@ -36,7 +36,7 @@ pipelines:
     policies:
       - rate-limit:
           - action:
-              max: 10
+              max: 50
               windowMs: 60000
               message: "Too many auth requests. Please slow down."
               key: req.ip

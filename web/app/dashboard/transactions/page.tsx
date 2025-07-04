@@ -1,19 +1,24 @@
 import { transactionsQuery } from '../_queries/transactions-query';
 import TransactionTable from '@/components/transactions/transactions-table';
 
-async function DashboardTransactionsPage({
+export default async function DashboardTransactionsPage({
 	searchParams,
 }: {
-	searchParams?: { [key: string]: string | string[] };
+	searchParams: Promise<{ [key: string]: string | string[] }>;
 }) {
 	const _searchParams = await searchParams;
+
 	const cursor =
 		typeof _searchParams?.cursor === 'string'
 			? _searchParams.cursor
 			: undefined;
 
 	const limit = _searchParams?.limit
-		? parseInt(_searchParams.limit as string)
+		? parseInt(
+				Array.isArray(_searchParams.limit)
+					? _searchParams.limit[0]
+					: _searchParams.limit
+		  )
 		: 5;
 
 	const initialData = await transactionsQuery({ cursor, limit });
@@ -24,5 +29,3 @@ async function DashboardTransactionsPage({
 		</div>
 	);
 }
-
-export default DashboardTransactionsPage;

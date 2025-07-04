@@ -21,7 +21,7 @@ export async function signupAction(
 		passwordConfirm: formData.get('passwordConfirm'),
 	};
 
-	const response = await fetch('http://localhost:4000/api/auth/signup', {
+	const response = await fetch(`${process.env.SERVER_URL}/api/auth/signup`, {
 		body: JSON.stringify(body),
 		method: 'POST',
 		credentials: 'include',

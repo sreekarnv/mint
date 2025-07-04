@@ -26,7 +26,7 @@ export async function walletTopUpAction(
 	};
 
 	const response = await fetch(
-		'http://localhost:4000/api/transactions/wallet/topup',
+		`${process.env.SERVER_URL}/api/transactions/wallet/topup`,
 		{
 			body: JSON.stringify(body),
 			method: 'POST',

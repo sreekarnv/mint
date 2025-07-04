@@ -26,7 +26,7 @@ export async function loggedInUserQuery(): Promise<LoggedInUserResponse> {
 
 	if (!token) return null;
 
-	const response = await fetch('http://localhost:4000/api/auth/me', {
+	const response = await fetch(`${process.env.SERVER_URL}/api/auth/me`, {
 		method: 'GET',
 		credentials: 'include',
 		headers: {

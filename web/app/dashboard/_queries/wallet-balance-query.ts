@@ -26,7 +26,7 @@ export async function walletBalanceQuery() {
 
 	if (!token) return null;
 
-	const response = await fetch('http://localhost:4000/api/wallet/', {
+	const response = await fetch(`${process.env.SERVER_URL}/api/wallet/`, {
 		method: 'GET',
 		credentials: 'include',
 		headers: {

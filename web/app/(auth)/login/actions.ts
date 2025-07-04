@@ -19,7 +19,7 @@ export async function loginAction(
 		password: formData.get('password'),
 	};
 
-	const response = await fetch('http://localhost:4000/api/auth/login', {
+	const response = await fetch(`${process.env.SERVER_URL}/api/auth/login`, {
 		body: JSON.stringify(body),
 		method: 'POST',
 		credentials: 'include',

@@ -42,7 +42,9 @@ export async function transactionsQuery({
 		params.set('cursor', cursor);
 	}
 
-	const url = `http://localhost:4000/api/transactions/?${params.toString()}`;
+	const url = `${
+		process.env.SERVER_URL
+	}/api/transactions/?${params.toString()}`;
 
 	const response = await fetch(url, {
 		method: 'GET',

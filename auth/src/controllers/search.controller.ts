@@ -7,8 +7,6 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 		let query = req.query.q as string;
 		query = query.trim();
 
-		console.log({ query });
-
 		const users = await UserModel.find({
 			$or: [
 				{ name: { $regex: query, $options: 'i' } },
