@@ -128,18 +128,3 @@ services:
         condition: service_started
     volumes:
       - ./gateway:/app
-
-  # ------------------------------
-  # web:
-  #   build:
-  #     context: ./web
-  #     dockerfile: Dockerfile
-  #   container_name: web_container
-  #   restart: always
-  #   ports:
-  #     - '3000:3000'
-  #   environment:
-  #     - SERVER_URL=http://gateway:4000
-  #   depends_on:
-  #     gateway:
-  #       condition: service_started
