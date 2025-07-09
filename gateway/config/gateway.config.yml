@@ -29,6 +29,7 @@ serviceEndpoints:
 policies:
   - rate-limit
   - proxy
+  - cors
 
 pipelines:
   authPipeline:
@@ -44,6 +45,11 @@ pipelines:
                 limit: X-RateLimit-Limit
                 remaining: X-RateLimit-Remaining
                 reset: X-RateLimit-Reset
+      - cors:
+        - action:
+            origin: http://localhost:3000
+            credentials: true
+            methods: '*'
       - proxy:
           - action:
               serviceEndpoint: authService
@@ -52,6 +58,21 @@ pipelines:
   walletPipeline:
     apiEndpoints: [wallet]
     policies:
+      - rate-limit:
+          - action:
+              max: 50
+              windowMs: 60000
+              message: "Too many auth requests. Please slow down."
+              key: req.ip
+              headers:
+                limit: X-RateLimit-Limit
+                remaining: X-RateLimit-Remaining
+                reset: X-RateLimit-Reset
+      - cors:
+        - action:
+            origin: http://localhost:3000
+            credentials: true
+            methods: '*'
       - proxy:
           - action:
               serviceEndpoint: walletService
@@ -60,6 +81,11 @@ pipelines:
   transactionPipeline:
     apiEndpoints: [transaction]
     policies:
+      - cors:
+        - action:
+            origin: http://localhost:3000
+            credentials: true
+            methods: '*'
       - rate-limit:
           - action:
               max: 10

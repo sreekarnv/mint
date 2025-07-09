@@ -26,6 +26,12 @@ export async function post(
 
 		const token = signToken(user._id, user.email);
 
+		res.cookie('mint.auth.token', token, {
+			httpOnly: true,
+			maxAge: 7 * 24 * 60 * 60,
+			sameSite: 'lax',
+		});
+
 		res.status(StatusCodes.OK).json({
 			status: 'success',
 			message: 'Fetched user successfully',

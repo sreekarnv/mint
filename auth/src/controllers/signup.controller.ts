@@ -31,6 +31,12 @@ export async function post(
 
 		await userRegisteredPublisher({ email: user.email, userId: user._id });
 
+		res.cookie('mint.auth.token', token, {
+			httpOnly: true,
+			maxAge: 7 * 24 * 60 * 60,
+			sameSite: 'lax',
+		});
+
 		res.status(StatusCodes.CREATED).json({
 			status: 'success',
 			message: 'User created successfully',

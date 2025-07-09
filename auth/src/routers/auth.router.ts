@@ -2,6 +2,7 @@ import BaseRouter from '@/routers/base.router';
 import * as signupController from '@/controllers/signup.controller';
 import * as loginController from '@/controllers/login.controller';
 import * as meController from '@/controllers/me.controller';
+import * as logoutController from '@/controllers/logout.controller';
 import { parseToken } from '@/middlewares/token.middleware';
 
 export class AuthRouter extends BaseRouter {
@@ -25,6 +26,7 @@ export class AuthRouter extends BaseRouter {
 		this.router.use(parseToken);
 
 		this.router.get('/me', meController.get);
+		this.router.post('/logout', logoutController.post);
 	}
 }
 

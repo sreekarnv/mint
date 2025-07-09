@@ -4,6 +4,7 @@ import cors from 'cors';
 import healthRouter from '@/routers/health.router';
 import transactionRouter from '@/routers/transaction.router';
 import { errorHandler } from '@/controllers/error.controller';
+import cookieParser from 'cookie-parser';
 
 export class TransactionApplication {
 	private app!: Express;
@@ -24,7 +25,11 @@ export class TransactionApplication {
 	}
 
 	private addSecurityMiddleware(): void {
-		this.app.use(cors());
+		this.app.use(cors({
+			origin: ["http://localhost:3000"],
+			credentials: true
+		}));
+		this.app.use(cookieParser())
 	}
 
 	private addLoggingMiddleware(): void {

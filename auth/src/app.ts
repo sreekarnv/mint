@@ -5,6 +5,7 @@ import healthRouter from '@/routers/health.router';
 import authRouter from '@/routers/auth.router';
 import { errorHandler } from '@/controllers/error.controller';
 import userRouter from '@/routers/user.router';
+import cookieParser from 'cookie-parser';
 
 export class AuthApplication {
 	private app!: Express;
@@ -25,7 +26,11 @@ export class AuthApplication {
 	}
 
 	private addSecurityMiddleware(): void {
-		this.app.use(cors());
+		this.app.use(cors({
+			origin: ["http://localhost:3000"],
+			credentials: true
+		}));
+		this.app.use(cookieParser());
 	}
 
 	private addLoggingMiddleware(): void {

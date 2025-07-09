@@ -7,9 +7,7 @@ export async function parseToken(
 	_: Response,
 	next: NextFunction
 ): Promise<void> {
-	// TODO: will implement cookie based auth ??
-	const authHeader = req.headers.authorization;
-	const token = authHeader?.split(' ')[1]?.trim();
+	const token = req.cookies['mint.auth.token'];
 
 	if (!token) {
 		next();

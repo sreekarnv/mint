@@ -4,6 +4,7 @@ import cors from 'cors';
 import healthRouter from '@/routers/health.router';
 import walletRouter from '@/routers/wallet.router';
 import { errorHandler } from './controllers/error.controller';
+import cookieParser from 'cookie-parser';
 
 export class WalletApplication {
 	private app!: Express;
@@ -24,7 +25,11 @@ export class WalletApplication {
 	}
 
 	private addSecurityMiddleware(): void {
-		this.app.use(cors());
+		this.app.use(cors({
+			origin: ["http://localhost:3000"],
+			credentials: true
+		}));
+		this.app.use(cookieParser())
 	}
 
 	private addLoggingMiddleware(): void {
