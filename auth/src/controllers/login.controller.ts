@@ -32,14 +32,7 @@ export async function post(
 			sameSite: 'lax',
 		});
 
-		res.status(StatusCodes.OK).json({
-			status: 'success',
-			message: 'Fetched user successfully',
-			data: {
-				token,
-				user,
-			},
-		});
+		res.status(StatusCodes.OK).json(user);
 	} catch (error) {
 		next(error);
 	}

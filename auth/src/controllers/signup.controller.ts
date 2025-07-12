@@ -37,14 +37,7 @@ export async function post(
 			sameSite: 'lax',
 		});
 
-		res.status(StatusCodes.CREATED).json({
-			status: 'success',
-			message: 'User created successfully',
-			data: {
-				token,
-				user,
-			},
-		});
+		res.status(StatusCodes.CREATED).json(user);
 	} catch (error) {
 		next(error);
 	}

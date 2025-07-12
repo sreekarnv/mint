@@ -7,15 +7,9 @@ export async function get(
 	next: NextFunction
 ): Promise<void> {
 	try {
-		let user = req.user;
+		let user = req.user ?? null;
 
-		res.status(StatusCodes.OK).json({
-			status: 'success',
-			message: req.user ? 'User fetched successfully' : 'You are not logged in',
-			data: {
-				user,
-			},
-		});
+		res.status(StatusCodes.OK).json(user);
 	} catch (error) {
 		next(error);
 	}

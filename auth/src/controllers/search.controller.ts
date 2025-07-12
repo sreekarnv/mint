@@ -16,12 +16,7 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 			.select('_id name email')
 			.limit(10);
 
-		res.status(StatusCodes.OK).json({
-			status: 'success',
-			data: {
-				users,
-			},
-		});
+		res.status(StatusCodes.OK).json(users);
 	} catch (err) {
 		next(err);
 	}

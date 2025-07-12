@@ -17,13 +17,9 @@ export async function get(
 			throw new NotFoundError('Wallet not found!');
 		}
 
-		res.status(StatusCodes.OK).json({
-			status: 'success',
-			message: 'Fetched wallet successfully',
-			data: {
-				wallet,
-			},
-		});
+		res.status(StatusCodes.OK).json(
+			wallet
+		);
 	} catch (error) {
 		next(error);
 	}

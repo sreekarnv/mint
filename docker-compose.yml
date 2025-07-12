@@ -128,3 +128,17 @@ services:
         condition: service_started
     volumes:
       - ./gateway:/app
+
+  # ----------------------------------------
+  web:
+    build:
+      context: ./web
+    container_name: web_container
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    ports:
+      - '3000:3000'
+    depends_on:
+      - gateway
