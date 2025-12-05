@@ -1,17 +1,19 @@
 # Welcome to Mint Documentation
 
-<div align="center">
+<div align="center" markdown="1">
 
 **A production-ready, event-driven microservices wallet system featuring secure authentication, real-time transaction processing, and automated notifications.**
 
-[![Node.js](https://img.shields.io/badge/Node.js-22.x-green?logo=node.js)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Event--Driven-orange?logo=rabbitmq)](https://www.rabbitmq.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-7.x-green?logo=mongodb)](https://www.mongodb.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/sreekarnv/mint/blob/main/LICENSE)
-
 </div>
+
+<p align="center">
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-22.x-green?logo=node.js" alt="Node.js"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript" alt="TypeScript"></a>
+  <a href="https://www.rabbitmq.com/"><img src="https://img.shields.io/badge/RabbitMQ-Event--Driven-orange?logo=rabbitmq" alt="RabbitMQ"></a>
+  <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-7.x-green?logo=mongodb" alt="MongoDB"></a>
+  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Compose-blue?logo=docker" alt="Docker"></a>
+  <a href="https://github.com/sreekarnv/mint/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
+</p>
 
 ---
 
@@ -200,9 +202,9 @@ Mint's architecture is suitable for:
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
-**Built with ❤️ by [Sreekar Venkata Nutulapati](https://github.com/sreekarnv)**
+**Built with :heart: by [Sreekar Venkata Nutulapati](https://github.com/sreekarnv)**
 
 [GitHub](https://github.com/sreekarnv) · [LinkedIn](https://in.linkedin.com/in/sreekar-venkata-nutulapati-63672120a)
 
