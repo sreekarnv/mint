@@ -1,55 +1,84 @@
-import express, { type Express } from 'express';
-import morgan from 'morgan';
-import cors from 'cors';
-import healthRouter from '@/routers/health.router';
-import authRouter from '@/routers/auth.router';
-import { errorHandler } from '@/controllers/error.controller';
-import userRouter from '@/routers/user.router';
-import cookieParser from 'cookie-parser';
+import express from "express";
+import { authRouter } from "~/routers/auth.router";
+import { usersRouter } from "~/routers/users.router";
+import { jwksRouter } from "~/routers/jwks.router";
+import cookieParser from "cookie-parser";
+import { errorHandler, notFoundHandler } from "~/middleware/error-handler";
+import helmet from "helmet";
+import cors from "cors";
+import { rateLimit } from "express-rate-limit";
+import hpp from "hpp";
+import compression from "compression";
+import { env } from "~/env";
 
-export class AuthApplication {
-	private app!: Express;
+const app = express();
 
-	constructor() {
-		this.app = express();
+app.set("trust proxy", 1);
 
-		this.addStandardMiddleware();
-		this.addSecurityMiddleware();
-		this.addLoggingMiddleware();
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 
-		this.addApiRoutes();
-	}
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN === "*" ? "*" : env.CORS_ORIGIN.split(","),
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
+    maxAge: 600,
+  }),
+);
 
-	private addStandardMiddleware(): void {
-		this.app.use(express.json({ limit: '200mb' }));
-		this.app.use(express.urlencoded({ extended: true, limit: '200mb' }));
-	}
+const limiter = rateLimit({
+  windowMs: env.RATE_LIMIT_WINDOW_MS,
+  max: env.RATE_LIMIT_MAX,
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-	private addSecurityMiddleware(): void {
-		this.app.use(cors({
-			origin: ["http://localhost:3000"],
-			credentials: true
-		}));
-		this.app.use(cookieParser());
-	}
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: "Too many authentication attempts, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+});
 
-	private addLoggingMiddleware(): void {
-		this.app.use(morgan('dev'));
-	}
+app.use(limiter);
 
-	private addApiRoutes(): void {
-		this.app.use('/healthz', healthRouter.getRouter());
-		this.app.use('/api/auth', authRouter.getRouter());
-		this.app.use('/api/users', userRouter.getRouter());
+app.use(hpp());
+app.use(compression());
+app.use(cookieParser());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-		this.app.use(errorHandler);
-	}
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok", service: "auth" });
+});
 
-	public getApplication(): Express {
-		return this.app;
-	}
-}
+app.use("/.well-known", jwksRouter);
+app.use("/api/v1/auth", authLimiter, authRouter);
+app.use("/api/v1/users", usersRouter);
 
-const authApplication = new AuthApplication();
+app.use(notFoundHandler);
 
-export default authApplication;
+app.use(errorHandler);
+
+export { app };

@@ -1,21 +1,10 @@
-import BaseRouter from '@/routers/base.router';
-import * as walletController from '@/controllers/wallet.controller';
-import { parseToken } from '@/middleware/token.middleware';
-import { protectRoute } from '@/middleware/protect.middleware';
+import { Router } from "express";
+import { authMiddleware } from "~/middleware/auth.middleware";
+import * as walletController from "~/controllers/wallet.controller";
 
-export class WalletRouter extends BaseRouter {
-	constructor() {
-		super();
-	}
+const walletRouter = Router();
 
-	protected addRoutes() {
-		this.router.use(parseToken);
-		this.router.use(protectRoute);
+walletRouter.use(authMiddleware);
+walletRouter.get("/user", walletController.userWallet);
 
-		this.router.route('/').get(walletController.get);
-	}
-}
-
-const walletRouter = new WalletRouter();
-
-export default walletRouter;
+export { walletRouter };

@@ -1,41 +1,37 @@
-import mongoose from 'mongoose';
-import type { ReturnModelType } from '@typegoose/typegoose';
-import {
-	prop as Property,
-	modelOptions,
-	getModelForClass,
-	index,
-} from '@typegoose/typegoose';
+import { omit } from "lodash";
+import { Schema, model, SchemaTypes, Types } from "mongoose";
+import { z } from "zod";
 
-@index({ userId: 1 })
-@modelOptions({
-	schemaOptions: {
-		timestamps: true,
-		toJSON: {
-			versionKey: false,
-		},
-	},
-})
-export class Wallet {
-	readonly _id!: string;
+export const walletSchemaZod = z.object({
+  userId: z.string().transform((id) => new Types.ObjectId(id)),
+  balance: z.int().default(0),
+});
 
-	@Property({
-		type: mongoose.SchemaTypes.ObjectId,
-		required: true,
-	})
-	userId!: string;
+export type WalletSchemaType = z.infer<typeof walletSchemaZod>;
 
-	@Property({
-		default: 0,
-	})
-	balance!: number;
+export const walletSchema = new Schema<WalletSchemaType>(
+  {
+    userId: {
+      type: SchemaTypes.ObjectId,
+      required: [true, "user_id is a required"],
+    },
+    balance: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+    toJSON: {
+      virtuals: true,
+      transform(_, ret) {
+        return omit(ret, ["_id"]);
+      },
+    },
+  },
+);
 
-	readonly createdAt?: Date;
+walletSchema.index({ userId: 1 }, { unique: true });
 
-	readonly updatedAt?: Date;
-}
-
-const WalletModel = (mongoose.models.Wallet ||
-	getModelForClass(Wallet)) as ReturnModelType<typeof Wallet, {}>;
-
-export default WalletModel;
+export const WalletModel = model("wallet", walletSchema);

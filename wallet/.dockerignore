@@ -1,3 +1,10 @@
-Dockerfile
-.dockerignore
 node_modules
+.git
+.gitignore
+.env.local
+.env
+README.md
+.vscode
+.prettierrc.json
+.prettierignore
+eslint.config.mts

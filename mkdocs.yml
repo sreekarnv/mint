@@ -1,0 +1,106 @@
+site_name: Mint - Event-Driven Wallet Microservices
+site_description: Production-ready, event-driven microservices wallet system with secure authentication, real-time transaction processing, and automated notifications
+site_author: Sreekar Venkata Nutulapati
+site_url: https://sreekarnv.github.io/mint/
+
+repo_name: sreekarnv/mint
+repo_url: https://github.com/sreekarnv/mint
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - scheme: default
+      primary: green
+      accent: green
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: green
+      accent: green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/sreekarnv
+    - icon: fontawesome/brands/linkedin
+      link: https://in.linkedin.com/in/sreekar-venkata-nutulapati-63672120a
+
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - Configuration: getting-started/configuration.md
+  - Architecture:
+      - Overview: architecture.md
+      - Event Architecture: events.md
+      - Services:
+          - Auth Service: services/auth.md
+          - Wallet Service: services/wallet.md
+          - Transactions Service: services/transactions.md
+          - Notifications Service: services/notifications.md
+  - API Reference:
+      - Authentication: api/auth.md
+      - Wallet: api/wallet.md
+      - Transactions: api/transactions.md
+  - Development:
+      - Development Guide: development.md
+      - Deployment: deployment.md
+      - Troubleshooting: troubleshooting.md
+  - About:
+      - License: about/license.md
+      - Contributing: about/contributing.md
+
+copyright: Copyright &copy; 2025 Sreekar Venkata Nutulapati

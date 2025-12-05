@@ -1,53 +1,70 @@
-import express, { type Express } from 'express';
-import morgan from 'morgan';
-import cors from 'cors';
-import healthRouter from '@/routers/health.router';
-import walletRouter from '@/routers/wallet.router';
-import { errorHandler } from './controllers/error.controller';
-import cookieParser from 'cookie-parser';
+import express from "express";
+import cookieParser from "cookie-parser";
+import { walletRouter } from "~/routers/wallet.router";
+import { errorHandler, notFoundHandler } from "~/middleware/error-handler";
+import helmet from "helmet";
+import cors from "cors";
+import { rateLimit } from "express-rate-limit";
+import hpp from "hpp";
+import compression from "compression";
+import { env } from "~/env";
 
-export class WalletApplication {
-	private app!: Express;
+const app = express();
 
-	constructor() {
-		this.app = express();
+app.set("trust proxy", 1);
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 
-		this.addStandardMiddleware();
-		this.addSecurityMiddleware();
-		this.addLoggingMiddleware();
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN === "*" ? "*" : env.CORS_ORIGIN.split(","),
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
+    maxAge: 600,
+  }),
+);
 
-		this.addApiRoutes();
-	}
+const limiter = rateLimit({
+  windowMs: env.RATE_LIMIT_WINDOW_MS,
+  max: env.RATE_LIMIT_MAX,
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-	private addStandardMiddleware(): void {
-		this.app.use(express.json({ limit: '200mb' }));
-		this.app.use(express.urlencoded({ extended: true, limit: '200mb' }));
-	}
+app.use(limiter);
+app.use(hpp());
+app.use(compression());
 
-	private addSecurityMiddleware(): void {
-		this.app.use(cors({
-			origin: ["http://localhost:3000"],
-			credentials: true
-		}));
-		this.app.use(cookieParser())
-	}
+app.use(cookieParser());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-	private addLoggingMiddleware(): void {
-		this.app.use(morgan('dev'));
-	}
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok", service: "wallet" });
+});
 
-	private addApiRoutes(): void {
-		this.app.use('/healthz', healthRouter.getRouter());
-		this.app.use('/api/wallet', walletRouter.getRouter());
+app.use("/api/v1/wallet", walletRouter);
 
-		this.app.use(errorHandler);
-	}
+app.use(notFoundHandler);
 
-	public getApplication(): Express {
-		return this.app;
-	}
-}
+app.use(errorHandler);
 
-const walletApplication = new WalletApplication();
-
-export default walletApplication;
+export { app };

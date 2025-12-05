@@ -1,35 +1,13 @@
-import BaseRouter from '@/routers/base.router';
-import * as signupController from '@/controllers/signup.controller';
-import * as loginController from '@/controllers/login.controller';
-import * as meController from '@/controllers/me.controller';
-import * as logoutController from '@/controllers/logout.controller';
-import { parseToken } from '@/middlewares/token.middleware';
+import { Router } from "express";
+import validate from "express-zod-safe";
+import * as authController from "~/controllers/auth.controller";
+import { loginReqBodySchema, signupReqBodySchema } from "~/schemas/auth.schema";
 
-export class AuthRouter extends BaseRouter {
-	constructor() {
-		super();
-	}
+const authRouter = Router();
 
-	protected addRoutes() {
-		this.router.post(
-			'/signup',
-			signupController.postInputValidation,
-			signupController.post
-		);
+authRouter.route("/signup").post(validate({ body: signupReqBodySchema }), authController.signup);
+authRouter.route("/login").post(validate({ body: loginReqBodySchema }), authController.login);
+authRouter.route("/logout").post(authController.logout);
+authRouter.route("/user").get(authController.user);
 
-		this.router.post(
-			'/login',
-			loginController.postInputValidation,
-			loginController.post
-		);
-
-		this.router.use(parseToken);
-
-		this.router.get('/me', meController.get);
-		this.router.post('/logout', logoutController.post);
-	}
-}
-
-const authRouter = new AuthRouter();
-
-export default authRouter;
+export { authRouter };

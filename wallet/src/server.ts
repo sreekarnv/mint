@@ -1,32 +1,22 @@
-import { createServer } from 'http';
-import walletApplication from '@/app';
-import mongoose from 'mongoose';
-import { startWalletConsumer } from '@/consumers/wallet.consumer';
-import {
-	startTopUpConsumer,
-	startTransferConsumer,
-} from './consumers/transaction.consumer';
-import { connectRabbit, declareQueues } from './utils/rabbitmq';
-import { connectMongoDB } from './utils/mongodb';
+import http from "http";
+import { app } from "~/app";
+import { env } from "~/env";
+import { logger } from "~/utils/logger";
+import { bootstrapMQ } from "~/rabbitmq/bootstrap";
+import mongoose from "mongoose";
 
 (async () => {
-	try {
-		await connectMongoDB();
+  await bootstrapMQ();
 
-		await connectRabbit();
-		await declareQueues();
+  await mongoose.connect(env.DATABASE_URL);
 
-		await startWalletConsumer();
-		await startTransferConsumer();
-		await startTopUpConsumer();
+  if (env.NODE_ENV === "development") {
+    mongoose.set("debug", true);
+  }
 
-		const app = walletApplication.getApplication();
-		const server = createServer(app);
+  const server = http.createServer(app);
 
-		server.listen(Bun.env.PORT, () => {
-			console.log(`Wallet service is running on port ${Bun.env.PORT}`);
-		});
-	} catch (err) {
-		console.log(err);
-	}
+  server.listen(env.PORT, () => {
+    logger.info(`Server running on port ${env.PORT}`);
+  });
 })();

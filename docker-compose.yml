@@ -1,144 +1,200 @@
 services:
-  # ------------------------------
-  rabbitmq:
-    container_name: rabbitmq_container
-    image: rabbitmq:3.13-management-alpine
-    restart: always
+  mongodb:
+    image: mongo:7
+    container_name: mint-mongodb
+    restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: pass123#
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-      - '5672:5672'
-      - '15672:15672'
+      - "27017:27017"
     volumes:
-      - ./.data/rabbitmq:/var/lib/rabbitmq
+      - mongodb_data:/data/db
+    networks:
+      - mint-network
     healthcheck:
-      test: ['CMD', 'rabbitmqctl', 'status']
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ------------------------------
-  mongo_auth:
-    image: mongo:6
-    container_name: mongo_auth_container
-    restart: always
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mint-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - '27016:27017'
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-      - ./.data/mongo_auth:/data/db
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - mint-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  mongo_wallet:
-    image: mongo:6
-    container_name: mongo_wallet_container
-    restart: always
-    ports:
-      - '27018:27017'
-    volumes:
-      - ./.data/mongo_wallet:/data/db
-
-  mongo_transaction:
-    image: mongo:6
-    container_name: mongo_transaction_container
-    restart: always
-    ports:
-      - '27019:27017'
-    volumes:
-      - ./.data/mongo_transaction:/data/db
-
-  # ------------------------------
-  auth_service:
+  auth:
     build:
       context: ./auth
-    container_name: auth_service_container
-    restart: always
-    ports:
-      - '4001:4001'
-    environment:
-      MONGO_URI: mongodb://mongo_auth:27017/auth_db
-      RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
-      JWT_PRIVATE_KEY_PATH: /keys/private.pem
-      JWT_PUBLIC_KEY_PATH: /keys/public.pem
-      JWT_EXPIRES_IN: 1d
+      dockerfile: Dockerfile
+      target: production
+    container_name: mint-auth
+    restart: unless-stopped
+    env_file:
+      - ./auth/.env.docker
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mint-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4001/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  notifications:
+    build:
+      context: ./notifications
+      dockerfile: Dockerfile
+      target: production
+    container_name: mint-notifications
+    restart: unless-stopped
+    env_file:
+      - ./notifications/.env.docker
     depends_on:
       rabbitmq:
         condition: service_healthy
-      mongo_auth:
-        condition: service_started
-    volumes:
-      - ./auth/keys:/keys
-      - ./auth/src:/app/src
+    networks:
+      - mint-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4002/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # ------------------------------
-  wallet_service:
+  wallet:
     build:
       context: ./wallet
-    container_name: wallet_service_container
-    restart: always
-    ports:
-      - '4002:4002'
-    environment:
-      MONGO_URI: mongodb://mongo_wallet:27017/wallet_db
-      RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
-      JWT_PUBLIC_KEY_PATH: /keys/public.pem
+      dockerfile: Dockerfile
+      target: production
+    container_name: mint-wallet
+    restart: unless-stopped
+    env_file:
+      - ./wallet/.env.docker
     depends_on:
+      mongodb:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      mongo_wallet:
-        condition: service_started
-    volumes:
-      - ./wallet/keys:/keys
-      - ./wallet/src:/app/src
+    networks:
+      - mint-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4003/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # ------------------------------
-  transaction_service:
+  transactions:
     build:
-      context: ./transaction
-    container_name: transaction_service_container
-    restart: always
-    ports:
-      - '4003:4003'
-    environment:
-      MONGO_URI: mongodb://mongo_transaction:27017/transaction_db
-      RABBITMQ_URI: amqp://admin:pass123%23@rabbitmq:5672
-      JWT_PUBLIC_KEY_PATH: /keys/public.pem
+      context: ./transactions
+      dockerfile: Dockerfile
+      target: production
+    container_name: mint-transactions
+    restart: unless-stopped
+    env_file:
+      - ./transactions/.env.docker
     depends_on:
+      mongodb:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      mongo_transaction:
-        condition: service_started
-    volumes:
-      - ./transaction/keys:/keys
-      - ./transaction/src:/app/src
+      auth:
+        condition: service_healthy
+    networks:
+      - mint-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4004/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # ------------------------------
-  gateway:
-    build:
-      context: ./gateway
-    container_name: gateway_container
-    restart: always
+  nginx:
+    image: nginx:alpine
+    container_name: mint-nginx
+    restart: unless-stopped
     ports:
-      - '4000:4000'
-    depends_on:
-      auth_service:
-        condition: service_started
-      wallet_service:
-        condition: service_started
-      transaction_service:
-        condition: service_started
+      - "80:80"
     volumes:
-      - ./gateway:/app
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth
+      - notifications
+      - wallet
+      - transactions
+    networks:
+      - mint-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # ----------------------------------------
-  web:
-    build:
-      context: ./web
-    container_name: web_container
-    working_dir: /app
-    volumes:
-      - ./web:/app
-      - /app/node_modules
-    ports:
-      - '3000:3000'
-    depends_on:
-      - gateway
+networks:
+  mint-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:

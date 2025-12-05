@@ -1,20 +1,22 @@
-import { createServer } from 'http';
-import authApplication from '@/app';
-import { connectRabbit, declareQueues } from '@/utils/rabbitmq';
-import { connectMongoDB } from '@/utils/mongodb';
+import http from "http";
+import { logger } from "~/utils/logger";
+import { app } from "~/app";
+import { env } from "~/env";
+import mongoose from "mongoose";
+import { initRabbitMQ } from "~/rabbitmq/bootstrap";
 
 (async () => {
-	try {
-		await connectMongoDB();
+  await initRabbitMQ();
 
-		await connectRabbit();
-		await declareQueues();
+  await mongoose.connect(env.DATABASE_URL);
 
-		const app = authApplication.getApplication();
-		const server = createServer(app);
+  if (env.NODE_ENV === "development") {
+    mongoose.set("debug", true);
+  }
 
-		server.listen(Bun.env.PORT, () => {
-			console.log(`Auth service is running on port ${Bun.env.PORT}`);
-		});
-	} catch (err) {}
+  const server = http.createServer(app);
+
+  server.listen(env.PORT, () => {
+    logger.info(`Server running on port ${env.PORT}`);
+  });
 })();

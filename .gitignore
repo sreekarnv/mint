@@ -1,1 +1,24 @@
-.data
+# Docker environment files (keep examples)
+.claude/
+**/.env.docker
+!**/.env.docker.example
+
+# Docker volumes and data
+**/node_modules
+.docker-data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# MkDocs
+site/
+.cache/

@@ -1,73 +1,74 @@
-import mongoose from 'mongoose';
-import type { ReturnModelType } from '@typegoose/typegoose';
-import {
-	prop as Property,
-	modelOptions,
-	getModelForClass,
-	pre,
-} from '@typegoose/typegoose';
-import bcrypt from 'bcryptjs';
+import { Schema, model } from "mongoose";
+import { omit } from "lodash";
+import { z } from "zod";
 
-@modelOptions({
-	schemaOptions: {
-		timestamps: true,
-		toJSON: {
-			transform(_, ret) {
-				delete ret.password;
+export const userRole = z.enum(["user", "admin"]);
 
-				return ret;
-			},
-			versionKey: false,
-		},
-	},
-})
-@pre<User>('save', async function (next) {
-	if (!this.isNew && !this.isModified('password')) {
-		return next();
-	}
+export const userSchemaZod = z.object({
+  firstName: z.string(),
+  middleName: z.string().optional(),
+  lastName: z.string(),
+  role: userRole,
+  isActive: z.boolean(),
+  emailVerifiedAt: z.date().nullable(),
+  email: z.email(),
+  password: z.string(),
+});
 
-	this.password = await this.hashPassword(this.password);
-	next();
-})
-export class User {
-	readonly _id!: string;
+export type UserSchemaType = z.infer<typeof userSchemaZod>;
 
-	@Property({
-		required: [true, 'User must provide their name'],
-		trim: true,
-		lowercase: true,
-	})
-	name!: string;
+export const userSchema = new Schema<UserSchemaType>(
+  {
+    firstName: {
+      type: String,
+      required: [true, "first name is a required field"],
+      trim: true,
+    },
+    middleName: {
+      type: String,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: [true, "last name is a required field"],
+      trim: true,
+    },
+    role: {
+      type: String,
+      default: "user",
+    },
+    email: {
+      type: String,
+      required: [true, "email is a required field"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    emailVerifiedAt: {
+      type: Date,
+      default: null,
+    },
+    password: {
+      type: String,
+      required: [true, "password is a required field"],
+      minLength: [6, "password should be atleast 6 characters"],
+      select: false,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+    toJSON: {
+      virtuals: true,
+      transform(_, ret) {
+        return omit(ret, ["password", "isActive", "_id"]);
+      },
+    },
+  },
+);
 
-	@Property({
-		required: [true, 'User must provide their email address'],
-		unique: true,
-		lowercase: true,
-		trim: true,
-	})
-	email!: string;
-
-	@Property({
-		required: [true, 'User must have a password'],
-		minlength: [6, 'Password must contain atleast 6 characters'],
-		select: false,
-	})
-	password!: string;
-
-	readonly createdAt?: Date;
-
-	readonly updatedAt?: Date;
-
-	public async checkPassword(plain: string, hash: string): Promise<boolean> {
-		return bcrypt.compare(plain, hash);
-	}
-
-	public async hashPassword(plain: string): Promise<string> {
-		return await bcrypt.hash(plain, 12);
-	}
-}
-
-const UserModel = (mongoose.models.User ||
-	getModelForClass(User)) as ReturnModelType<typeof User, {}>;
-
-export default UserModel;
+export const UserModel = model("users", userSchema);
