@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🟩 Mint — Event-Driven Wallet Microservices
+# Mint - Event-Driven Wallet Microservices
 
 [![Node.js](https://img.shields.io/badge/Node.js-20.x-green?logo=node.js)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -10,97 +10,34 @@
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen?logo=readthedocs)](https://sreekarnv.github.io/mint/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**A production-ready, event-driven microservices wallet system featuring secure authentication, real-time transaction processing, and automated notifications — all powered by Node.js, TypeScript, RabbitMQ, MongoDB, and NGINX.**
+**A production-ready, event-driven microservices wallet system featuring secure authentication, real-time transaction processing, and automated notifications.**
 
-[Features](#-features) • [Architecture](#-architecture-overview) • [Getting Started](#-getting-started) • [**📖 Documentation**](https://sreekarnv.github.io/mint/) • [API Reference](https://sreekarnv.github.io/mint/api/auth/) • [Development](#-development)
+[**📖 Documentation**](https://sreekarnv.github.io/mint/) • [API Reference](https://sreekarnv.github.io/mint/api/auth/) • [Quick Start](#-quick-start) • [Architecture](#-architecture)
 
 </div>
 
 ---
 
-## 📚 Table of Contents
+## Overview
 
-- [🌟 Features](#-features)
-- [🏗️ Architecture Overview](#️-architecture-overview)
-- [🧱 Services](#-services)
-  - [🔐 Auth Service](#-auth-service)
-  - [💰 Wallet Service](#-wallet-service)
-  - [🔁 Transactions Service](#-transactions-service)
-  - [📨 Notifications Service](#-notifications-service)
-  - [🔗 API Gateway (NGINX)](#-api-gateway-nginx)
-- [📨 RabbitMQ Event Architecture](#-rabbitmq-event-architecture)
-- [🚀 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-- [⚙️ Environment Configuration](#️-environment-configuration)
-- [📡 API Documentation](#-api-documentation)
-- [🔁 Transaction Lifecycle](#-transaction-lifecycle)
-- [📁 Project Structure](#-project-structure)
-- [🛠️ Development](#️-development)
-- [🧪 Testing](#-testing)
-- [🐛 Troubleshooting](#-troubleshooting)
-- [🧬 Future Enhancements](#-future-enhancements)
-- [📄 License](#-license)
-- [👤 Author](#-author)
+Mint is a modern wallet platform built with microservices architecture and event-driven communication. It demonstrates production-ready patterns including JWT authentication, distributed transactions, message queuing, and API gateway design.
+
+**Tech Stack**: Node.js • TypeScript • RabbitMQ • MongoDB • NGINX • Docker
 
 ---
 
-## 🌟 Features
+## Features
 
-### 🔐 Secure Authentication
-- **User Registration & Login** with secure password hashing using Argon2
-- **JWT-based Authentication** with RS256 asymmetric encryption
-- **JWKS Endpoint** (`.well-known/jwks.json`) for public key distribution
-- **Session Management** with HTTP-only cookies
-- **Request Validation** using Zod schemas for type-safe API contracts
-- **User Profile Management** with search and update capabilities
-
-### 💰 Intelligent Wallet Management
-- **Automatic Wallet Creation** when users sign up (event-driven)
-- **Real-time Balance Updates** through event consumers
-- **Balance Tracking** with transaction history
-- **Concurrent Transaction Handling** with proper database locking
-- **Wallet Reversal** support for failed transactions
-
-### 🔁 Robust Transaction Processing
-- **Top-Up Transactions** to add funds to wallets
-- **Transfer Transactions** to send money between users
-- **Transaction States**: PENDING → PROCESSING → COMPLETED/FAILED
-- **Event-Driven Workflow** for reliable transaction processing
-- **Transaction History** with filtering and pagination
-- **Idempotency** to prevent duplicate transactions
-- **Automatic Rollback** on transaction failures
-
-### 📨 Smart Notifications
-- **Welcome Emails** on user registration
-- **Transaction Notifications** for completed and failed transactions
-- **Event-Driven Delivery** using RabbitMQ consumers
-- **Email Service Integration** with Nodemailer
-- **Customizable Templates** for different notification types
-
-### 🔗 Production-Ready API Gateway
-- **Centralized Routing** through NGINX reverse proxy
-- **Rate Limiting** (10 requests/second with burst capability)
-- **Health Checks** for all services
-- **Load Balancing** with keepalive connections
-- **Error Handling** with graceful fallbacks
-- **Request/Response Buffering** for optimal performance
-- **CORS Support** for cross-origin requests
-
-### 🏗️ Microservices Architecture
-- **Service Independence** with clear boundaries
-- **Event-Driven Communication** via RabbitMQ
-- **Horizontal Scalability** ready
-- **Database per Service** pattern
-- **Health Monitoring** endpoints for each service
-- **Docker Containerization** for consistent deployments
+- **🔐 Secure Authentication**: JWT (RS256) with JWKS, Argon2 password hashing, HTTP-only cookies
+- **💰 Wallet Management**: Event-driven wallet creation, real-time balance updates, transaction history
+- **🔁 Transaction Processing**: Top-ups and transfers with PENDING → PROCESSING → COMPLETED/FAILED states
+- **📨 Smart Notifications**: Automated emails for signups and transactions via RabbitMQ consumers
+- **🔗 API Gateway**: NGINX reverse proxy with rate limiting, health checks, and load balancing
+- **🏗️ Microservices Design**: Independent services, database-per-service pattern, horizontal scalability
 
 ---
 
-## 🏗️ Architecture Overview
-
-Mint follows a **microservices architecture** with **event-driven communication** using RabbitMQ. Each service is independently deployable, scalable, and maintains its own database.
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -137,1254 +74,185 @@ Mint follows a **microservices architecture** with **event-driven communication*
          └──────────────────────────────────────────┘
 ```
 
-### Communication Patterns
+**Communication Patterns**:
+- **Client → Services**: HTTP/REST via NGINX Gateway
+- **Service → Service**: Asynchronous events via RabbitMQ
+- **Event Flow**: No direct service-to-service HTTP calls
 
-1. **Synchronous (HTTP/REST)**: Client → NGINX → Microservices
-2. **Asynchronous (Events)**: Service → RabbitMQ → Consumer Services
-3. **Service-to-Service**: Via RabbitMQ events (no direct HTTP calls between services)
-
----
-
-## 🧱 Services
-
-### 🔐 Auth Service
-
-The **Auth Service** handles all authentication and user management operations.
-
-**Port**: 4001
-
-#### Features
-- User registration with email validation
-- Secure login with Argon2 password hashing
-- JWT token generation (RS256 algorithm)
-- JWKS endpoint for public key distribution
-- Session management with HTTP-only cookies
-- User profile CRUD operations
-- User search functionality
-- Current user information retrieval
-
-#### Tech Stack
-- **Express.js** - Web framework
-- **MongoDB/Mongoose** - Database
-- **Argon2** - Password hashing
-- **Jose** - JWT handling
-- **Zod** - Request validation
-- **RabbitMQ** - Event publishing
-
-#### Key Endpoints
-- `POST /api/v1/auth/signup` - Register new user
-- `POST /api/v1/auth/login` - Login user
-- `POST /api/v1/auth/logout` - Logout user
-- `GET /api/v1/auth/user` - Get current user
-- `GET /api/v1/users` - List all users (protected)
-- `GET /api/v1/users/search?q=<query>` - Search users (protected)
-- `GET /api/v1/users/:id` - Get user profile (protected)
-- `PUT /api/v1/users/me` - Update current user (protected)
-- `GET /.well-known/jwks.json` - JWKS endpoint
-
-#### Events Published
-- **user.signup** → Triggers wallet creation and welcome email
+📖 [Detailed Architecture Guide](https://sreekarnv.github.io/mint/architecture/) • [Event Flows](https://sreekarnv.github.io/mint/events/)
 
 ---
 
-### 💰 Wallet Service
-
-The **Wallet Service** manages user wallet balances and processes wallet updates.
-
-**Port**: 4003
-
-#### Features
-- Automatic wallet creation on user signup
-- Real-time balance updates from transaction events
-- Wallet balance retrieval
-- Transaction history tracking
-- Concurrent transaction handling with optimistic locking
-- Automatic wallet reversal on failed transactions
-
-#### Tech Stack
-- **Express.js** - Web framework
-- **MongoDB/Mongoose** - Database
-- **RabbitMQ** - Event consumption & publishing
-- **Jose** - JWT verification
-
-#### Key Endpoints
-- `GET /api/v1/wallet/user` - Get current user's wallet (protected)
-
-#### Events Consumed
-- **user.signup** → Creates new wallet with initial balance
-- **transaction.completed** → Updates wallet balances
-- **transaction.failed** → Reverts wallet changes
-
-#### Events Published
-- **wallet.transactionFinalized** → Notifies transaction service of completion
-
----
-
-### 🔁 Transactions Service
-
-The **Transactions Service** orchestrates all financial transactions between users.
-
-**Port**: 4004
-
-#### Features
-- Top-up transactions (add funds)
-- Transfer transactions (send money to other users)
-- Transaction state management (PENDING → PROCESSING → COMPLETED/FAILED)
-- Transaction history with filtering
-- Individual transaction retrieval
-- Event-driven transaction lifecycle
-- Validation for insufficient balance scenarios
-
-#### Tech Stack
-- **Express.js** - Web framework
-- **MongoDB/Mongoose** - Database
-- **RabbitMQ** - Event consumption & publishing
-- **Zod** - Request validation
-- **Jose** - JWT verification
-
-#### Key Endpoints
-- `GET /api/v1/transactions` - List all transactions (protected)
-- `GET /api/v1/transactions/:id` - Get transaction details (protected)
-- `POST /api/v1/transactions/topup` - Add funds to wallet (protected)
-- `POST /api/v1/transactions/transfer` - Transfer funds (protected)
-
-#### Transaction Types
-
-##### Top-Up
-```json
-{
-  "type": "topup",
-  "amount": 100.00,
-  "description": "Adding funds to wallet"
-}
-```
-
-##### Transfer
-```json
-{
-  "type": "transfer",
-  "recipientId": "507f1f77bcf86cd799439011",
-  "amount": 50.00,
-  "description": "Payment for services"
-}
-```
-
-#### Events Consumed
-- **transaction.created** → Begins transaction processing
-- **wallet.transactionFinalized** → Finalizes transaction state
-
-#### Events Published
-- **transaction.created** → Initiates transaction workflow
-- **transaction.completed** → Notifies successful completion
-- **transaction.failed** → Notifies transaction failure
-
----
-
-### 📨 Notifications Service
-
-The **Notifications Service** handles all user notifications via email.
-
-**Port**: 4002
-
-#### Features
-- Welcome emails on user registration
-- Transaction completion notifications
-- Transaction failure alerts
-- Event-driven notification delivery
-- Email templating support
-- Nodemailer integration
-
-#### Tech Stack
-- **Express.js** - Web framework
-- **RabbitMQ** - Event consumption
-- **Nodemailer** - Email sending
-- **Winston** - Logging
-
-#### Events Consumed
-- **user.signup** → Sends welcome email
-- **transaction.completed** → Sends success notification
-- **transaction.failed** → Sends failure alert
-
----
-
-### 🔗 API Gateway (NGINX)
-
-The **NGINX API Gateway** serves as the single entry point for all client requests.
-
-**Port**: 80
-
-#### Features
-- Centralized routing to microservices
-- Rate limiting (10 req/s, burst 20)
-- Health check monitoring
-- Load balancing with keepalive connections
-- Request/response buffering
-- Error handling with graceful fallbacks
-- Service failure detection (3 fails, 10s timeout)
-- Automatic retry on backend errors
-
-#### Route Configuration
-- `/api/v1/auth/*` → Auth Service (4001)
-- `/api/v1/users/*` → Auth Service (4001)
-- `/api/v1/wallet/*` → Wallet Service (4003)
-- `/api/v1/transactions/*` → Transactions Service (4004)
-- `/.well-known/*` → Auth Service (4001)
-- `/health` → Gateway health check
-
----
-
-## 📨 RabbitMQ Event Architecture
-
-The system uses **RabbitMQ** for asynchronous, event-driven communication between services.
-
-### Exchanges
-
-| Exchange | Type | Description |
-|----------|------|-------------|
-| `auth.events` | topic | Authentication and user events |
-| `transaction.events` | topic | Transaction lifecycle events |
-
-### Queues & Bindings
-
-| Queue | Bound To Exchange | Routing Key | Consumer Service |
-|-------|-------------------|-------------|------------------|
-| `email.signup.q` | `auth.events` | `user.signup` | Notifications |
-| `wallet.user.q` | `auth.events` | `user.signup` | Wallet |
-| `transaction.created.q` | `transaction.events` | `transaction.created` | Transactions |
-| `wallet.update.q` | `transaction.events` | `transaction.completed` | Wallet |
-| `wallet.revert.q` | `transaction.events` | `transaction.failed` | Wallet |
-| `email.transactionCompleted.q` | `transaction.events` | `transaction.completed` | Notifications |
-| `email.transactionFailed.q` | `transaction.events` | `transaction.failed` | Notifications |
-| `transaction.finalized.q` | `transaction.events` | `wallet.transactionFinalized` | Transactions |
-
-### Event Flow Examples
-
-#### User Registration Flow
-```
-1. Client → Auth Service: POST /api/v1/auth/signup
-2. Auth Service → auth.events: user.signup
-3. Wallet Service ← user.signup: Creates wallet
-4. Notifications Service ← user.signup: Sends welcome email
-```
-
-#### Transfer Transaction Flow
-```
-1. Client → Transactions Service: POST /api/v1/transactions/transfer
-2. Transactions Service → transaction.events: transaction.created
-3. Transactions Service ← transaction.created: Validates & processes
-4. Transactions Service → transaction.events: transaction.completed
-5. Wallet Service ← transaction.completed: Updates balances
-6. Wallet Service → transaction.events: wallet.transactionFinalized
-7. Transactions Service ← wallet.transactionFinalized: Finalizes transaction
-8. Notifications Service ← transaction.completed: Sends email
-```
-
----
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
-
-- **Docker** (v20.10 or higher) - [Install Docker](https://docs.docker.com/get-docker/)
-- **Docker Compose** (v2.0 or higher) - [Install Docker Compose](https://docs.docker.com/compose/install/)
-- **Git** - [Install Git](https://git-scm.com/downloads)
+- Docker (v20.10+) & Docker Compose (v2.0+)
+- Git
 
 ### Installation
 
-1. **Clone the repository**
-
 ```bash
+# 1. Clone the repository
 git clone https://github.com/sreekarnv/mint.git
 cd mint
-```
 
-2. **Set up environment files**
-
-Each service requires environment variables. Create `.env.docker` files for each service:
-
-```bash
-# Auth Service
+# 2. Set up environment files
 cp auth/.env.example auth/.env.docker
-
-# Wallet Service
 cp wallet/.env.example wallet/.env.docker
-
-# Transactions Service
 cp transactions/.env.example transactions/.env.docker
-
-# Notifications Service
 cp notifications/.env.example notifications/.env.docker
-```
 
-3. **Generate RSA Keys for JWT** (if not already present)
-
-The auth service requires RSA keys for JWT signing. Generate them:
-
-```bash
-cd auth
-mkdir keys
-cd keys
+# 3. Generate RSA keys for JWT
+cd auth/keys
 openssl genrsa -out private_key.pem 2048
 openssl rsa -in private_key.pem -pubout -out public_key.pem
-cd ..
-```
+cd ../..
 
-### Running the Application
-
-#### Production Mode
-
-Run the application in production mode:
-
-```bash
+# 4. Start all services
 docker compose up --build
 ```
 
-This will:
-- Build all service images
-- Start MongoDB and RabbitMQ
-- Launch all microservices
-- Start the NGINX gateway
-
-#### Development Mode
-
-For development with hot-reloading:
+### Verify Installation
 
 ```bash
-docker compose -f docker-compose.dev.yml up --build
-```
-
-Development mode features:
-- Volume mounts for source code
-- Automatic restart on file changes
-- Debug logging enabled
-- Service stdout/stderr visible
-
-#### Running Specific Services
-
-To run only specific services:
-
-```bash
-# Start only infrastructure
-docker compose up mongodb rabbitmq
-
-# Start a specific service
-docker compose up auth wallet
-```
-
-### Accessing the Application
-
-Once running, the services are available at:
-
-- **API Gateway**: http://localhost
-- **Auth Service**: http://localhost:4001 (internal)
-- **Notifications Service**: http://localhost:4002 (internal)
-- **Wallet Service**: http://localhost:4003 (internal)
-- **Transactions Service**: http://localhost:4004 (internal)
-- **RabbitMQ Management**: http://localhost:15672 (guest/guest)
-- **MongoDB**: mongodb://localhost:27017 (root/example)
-
-**Note**: All client requests should go through the API Gateway at http://localhost
-
-### Verifying the Installation
-
-Check if all services are healthy:
-
-```bash
-# Gateway health
+# Check gateway health
 curl http://localhost/health
 
-# Auth service health
-curl http://localhost/api/v1/auth/health
-
-# Check Docker containers
+# View running services
 docker compose ps
 ```
 
-All containers should show status as `healthy` or `running`.
+**Access Points**:
+- API Gateway: http://localhost
+- RabbitMQ Management: http://localhost:15672 (guest/guest)
+- MongoDB: mongodb://localhost:27017
+
+📖 [Detailed Setup Guide](https://sreekarnv.github.io/mint/getting-started/installation/) • [Configuration](https://sreekarnv.github.io/mint/getting-started/configuration/)
 
 ---
 
-## ⚙️ Environment Configuration
+## Services
 
-Each service requires specific environment variables. Here's a comprehensive guide:
+| Service | Port | Description | Documentation |
+|---------|------|-------------|---------------|
+| **Auth** | 4001 | User authentication, JWT, JWKS, user management | [Docs](https://sreekarnv.github.io/mint/services/auth/) |
+| **Wallet** | 4003 | Wallet creation, balance management, event consumers | [Docs](https://sreekarnv.github.io/mint/services/wallet/) |
+| **Transactions** | 4004 | Top-ups, transfers, transaction orchestration | [Docs](https://sreekarnv.github.io/mint/services/transactions/) |
+| **Notifications** | 4002 | Email notifications via RabbitMQ events | [Docs](https://sreekarnv.github.io/mint/services/notifications/) |
+| **API Gateway** | 80 | NGINX reverse proxy, rate limiting, routing | [Docs](https://sreekarnv.github.io/mint/architecture/#api-gateway) |
 
-### Auth Service (`.env.docker`)
-
-```env
-# Server Configuration
-PORT=4001
-NODE_ENV=production
-
-# Database
-DATABASE_URL=mongodb://root:example@mongodb:27017/auth_db?authSource=admin
-
-# RabbitMQ
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-
-# JWT Configuration (RS256)
-JWT_PRIVATE_KEY_PATH=/app/private_key.pem
-JWT_PUBLIC_KEY_PATH=/app/public_key.pem
-JWT_ISSUER=mint-auth-service
-JWT_AUDIENCE=mint-api
-JWT_EXPIRES_IN=7d
-
-# Cookie Configuration
-COOKIE_SECRET=your-cookie-secret-here-change-in-production
-COOKIE_NAME=mint_session
-COOKIE_DOMAIN=localhost
-COOKIE_MAX_AGE=604800000
-
-# CORS
-CORS_ORIGIN=http://localhost
-```
-
-### Wallet Service (`.env.docker`)
-
-```env
-# Server Configuration
-PORT=4003
-NODE_ENV=production
-
-# Database
-DATABASE_URL=mongodb://root:example@mongodb:27017/wallet_db?authSource=admin
-
-# RabbitMQ
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-
-# JWT Configuration
-JWT_ISSUER=mint-auth-service
-JWT_AUDIENCE=mint-api
-JWKS_URI=http://auth:4001/.well-known/jwks.json
-
-# Initial Wallet Balance
-INITIAL_WALLET_BALANCE=0
-```
-
-### Transactions Service (`.env.docker`)
-
-```env
-# Server Configuration
-PORT=4004
-NODE_ENV=production
-
-# Database
-DATABASE_URL=mongodb://root:example@mongodb:27017/transactions_db?authSource=admin
-
-# RabbitMQ
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-
-# JWT Configuration
-JWT_ISSUER=mint-auth-service
-JWT_AUDIENCE=mint-api
-JWKS_URI=http://auth:4001/.well-known/jwks.json
-```
-
-### Notifications Service (`.env.docker`)
-
-```env
-# Server Configuration
-PORT=4002
-NODE_ENV=production
-
-# RabbitMQ
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-
-# Email Configuration (SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-EMAIL_FROM=noreply@mint.com
-EMAIL_FROM_NAME=Mint Wallet
-```
-
-**Security Note**: Never commit `.env` files with real credentials to version control. Use `.env.example` as templates.
+📖 [API Reference](https://sreekarnv.github.io/mint/api/auth/) • [Service Details](https://sreekarnv.github.io/mint/services/auth/)
 
 ---
 
-## 📡 API Documentation
+## API Examples
 
-### Authentication Endpoints
-
-#### Register User
-
-```http
-POST /api/v1/auth/signup
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "SecurePass123!"
-}
-```
-
-**Response**: 201 Created
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "createdAt": "2025-01-15T10:30:00Z"
-}
-```
-
-#### Login
-
-```http
-POST /api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "SecurePass123!"
-}
-```
-
-**Response**: 200 OK (Sets HTTP-only cookie)
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "john@example.com"
-}
-```
-
-#### Get Current User
-
-```http
-GET /api/v1/auth/user
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "john@example.com"
-}
-```
-
-#### Logout
-
-```http
-POST /api/v1/auth/logout
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-
----
-
-### Wallet Endpoints
-
-#### Get User Wallet
-
-```http
-GET /api/v1/wallet/user
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-```json
-{
-  "id": "507f1f77bcf86cd799439012",
-  "userId": "507f1f77bcf86cd799439011",
-  "balance": 150.00,
-  "createdAt": "2025-01-15T10:30:05Z",
-  "updatedAt": "2025-01-15T12:45:30Z"
-}
-```
-
----
-
-### Transaction Endpoints
-
-#### Create Top-Up Transaction
-
-```http
-POST /api/v1/transactions/topup
-Cookie: mint_session=<jwt-token>
-Content-Type: application/json
-
-{
-  "amount": 100.00,
-  "description": "Adding funds"
-}
-```
-
-**Response**: 201 Created
-```json
-{
-  "id": "507f1f77bcf86cd799439013",
-  "type": "topup",
-  "amount": 100.00,
-  "description": "Adding funds",
-  "status": "pending",
-  "createdAt": "2025-01-15T11:00:00Z"
-}
-```
-
-#### Create Transfer Transaction
-
-```http
-POST /api/v1/transactions/transfer
-Cookie: mint_session=<jwt-token>
-Content-Type: application/json
-
-{
-  "recipientId": "507f1f77bcf86cd799439020",
-  "amount": 50.00,
-  "description": "Payment for services"
-}
-```
-
-**Response**: 201 Created
-```json
-{
-  "id": "507f1f77bcf86cd799439014",
-  "type": "transfer",
-  "senderId": "507f1f77bcf86cd799439011",
-  "recipientId": "507f1f77bcf86cd799439020",
-  "amount": 50.00,
-  "description": "Payment for services",
-  "status": "pending",
-  "createdAt": "2025-01-15T11:15:00Z"
-}
-```
-
-#### List Transactions
-
-```http
-GET /api/v1/transactions
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-```json
-{
-  "transactions": [
-    {
-      "id": "507f1f77bcf86cd799439013",
-      "type": "topup",
-      "amount": 100.00,
-      "status": "completed",
-      "createdAt": "2025-01-15T11:00:00Z"
-    },
-    {
-      "id": "507f1f77bcf86cd799439014",
-      "type": "transfer",
-      "amount": 50.00,
-      "status": "completed",
-      "createdAt": "2025-01-15T11:15:00Z"
-    }
-  ],
-  "total": 2
-}
-```
-
-#### Get Transaction Details
-
-```http
-GET /api/v1/transactions/507f1f77bcf86cd799439013
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-```json
-{
-  "id": "507f1f77bcf86cd799439013",
-  "type": "topup",
-  "amount": 100.00,
-  "description": "Adding funds",
-  "status": "completed",
-  "createdAt": "2025-01-15T11:00:00Z",
-  "completedAt": "2025-01-15T11:00:05Z"
-}
-```
-
----
-
-### User Management Endpoints
-
-#### Search Users
-
-```http
-GET /api/v1/users/search?q=john
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-```json
-{
-  "users": [
-    {
-      "id": "507f1f77bcf86cd799439011",
-      "name": "John Doe",
-      "email": "john@example.com"
-    }
-  ]
-}
-```
-
-#### Get User Profile
-
-```http
-GET /api/v1/users/507f1f77bcf86cd799439011
-Cookie: mint_session=<jwt-token>
-```
-
-**Response**: 200 OK
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "createdAt": "2025-01-15T10:30:00Z"
-}
-```
-
----
-
-## 🔁 Transaction Lifecycle
-
-Understanding how transactions flow through the system:
-
-### Top-Up Transaction Flow
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway
-    participant Transactions
-    participant RabbitMQ
-    participant Wallet
-
-    Client->>Gateway: POST /transactions/topup
-    Gateway->>Transactions: Forward request
-    Transactions->>Transactions: Create PENDING transaction
-    Transactions->>RabbitMQ: Publish transaction.created
-    Transactions->>Client: Return transaction ID
-
-    RabbitMQ->>Transactions: Consume transaction.created
-    Transactions->>Transactions: Update to PROCESSING
-    Transactions->>RabbitMQ: Publish transaction.completed
-
-    RabbitMQ->>Wallet: Consume transaction.completed
-    Wallet->>Wallet: Update balance
-    Wallet->>RabbitMQ: Publish wallet.transactionFinalized
-
-    RabbitMQ->>Transactions: Consume wallet.transactionFinalized
-    Transactions->>Transactions: Update to COMPLETED
-```
-
-### Transfer Transaction Flow
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway
-    participant Transactions
-    participant RabbitMQ
-    participant Wallet
-
-    Client->>Gateway: POST /transactions/transfer
-    Gateway->>Transactions: Forward request
-    Transactions->>Transactions: Create PENDING transaction
-    Transactions->>RabbitMQ: Publish transaction.created
-    Transactions->>Client: Return transaction ID
-
-    RabbitMQ->>Transactions: Consume transaction.created
-    Transactions->>Transactions: Validate sender balance
-
-    alt Sufficient Balance
-        Transactions->>Transactions: Update to PROCESSING
-        Transactions->>RabbitMQ: Publish transaction.completed
-
-        RabbitMQ->>Wallet: Consume transaction.completed
-        Wallet->>Wallet: Deduct from sender
-        Wallet->>Wallet: Add to recipient
-        Wallet->>RabbitMQ: Publish wallet.transactionFinalized
-
-        RabbitMQ->>Transactions: Consume wallet.transactionFinalized
-        Transactions->>Transactions: Update to COMPLETED
-    else Insufficient Balance
-        Transactions->>RabbitMQ: Publish transaction.failed
-
-        RabbitMQ->>Wallet: Consume transaction.failed
-        Wallet->>Wallet: Revert changes (if any)
-
-        Transactions->>Transactions: Update to FAILED
-    end
-```
-
-### Transaction States
-
-| State | Description |
-|-------|-------------|
-| `PENDING` | Transaction created, awaiting processing |
-| `PROCESSING` | Transaction is being processed |
-| `COMPLETED` | Transaction successfully completed |
-| `FAILED` | Transaction failed (insufficient balance, errors) |
-
----
-
-## 📁 Project Structure
-
-```
-mint/
-├── auth/                          # Authentication Service
-│   ├── src/
-│   │   ├── controllers/          # Request handlers
-│   │   ├── middleware/           # Auth & error middleware
-│   │   ├── models/               # MongoDB models
-│   │   ├── rabbitmq/             # RabbitMQ setup & consumers
-│   │   ├── routers/              # Express routes
-│   │   ├── schemas/              # Zod validation schemas
-│   │   ├── services/             # Business logic
-│   │   ├── utils/                # Utilities (JWT, logger)
-│   │   ├── app.ts                # Express app setup
-│   │   ├── env.ts                # Environment validation
-│   │   └── server.ts             # Entry point
-│   ├── Dockerfile                # Multi-stage Docker build
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── .env.example
-│   └── .env.docker
-│
-├── wallet/                        # Wallet Service
-│   ├── src/
-│   │   ├── consumers/            # Event consumers
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── rabbitmq/
-│   │   ├── routers/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── app.ts
-│   │   ├── env.ts
-│   │   └── server.ts
-│   ├── Dockerfile
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── transactions/                  # Transactions Service
-│   ├── src/
-│   │   ├── consumers/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── rabbitmq/
-│   │   ├── routers/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── app.ts
-│   │   ├── env.ts
-│   │   └── server.ts
-│   ├── Dockerfile
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── notifications/                 # Notifications Service
-│   ├── src/
-│   │   ├── consumers/
-│   │   ├── rabbitmq/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── app.ts
-│   │   ├── env.ts
-│   │   └── server.ts
-│   ├── Dockerfile
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── nginx/                         # API Gateway
-│   └── nginx.conf                # NGINX configuration
-│
-├── docker-compose.yml            # Production compose file
-├── docker-compose.dev.yml        # Development compose file
-├── .gitignore
-├── LICENSE
-└── README.md
-```
-
----
-
-## 🛠️ Development
-
-### Local Development Setup
-
-1. **Install dependencies for each service**:
+### Authentication
 
 ```bash
-# Navigate to each service and install
-cd auth && pnpm install && cd ..
-cd wallet && pnpm install && cd ..
-cd transactions && pnpm install && cd ..
-cd notifications && pnpm install && cd ..
-```
-
-2. **Run services locally** (without Docker):
-
-Start MongoDB and RabbitMQ:
-```bash
-docker compose up mongodb rabbitmq
-```
-
-Run each service in separate terminals:
-```bash
-# Terminal 1 - Auth Service
-cd auth && pnpm dev
-
-# Terminal 2 - Wallet Service
-cd wallet && pnpm dev
-
-# Terminal 3 - Transactions Service
-cd transactions && pnpm dev
-
-# Terminal 4 - Notifications Service
-cd notifications && pnpm dev
-```
-
-### Code Quality
-
-Each service includes linting and formatting:
-
-```bash
-# Lint code
-pnpm lint
-
-# Format code
-pnpm format
-```
-
-### Database Management
-
-**Access MongoDB**:
-```bash
-docker exec -it mint-mongodb mongosh -u root -p example
-```
-
-**View databases**:
-```javascript
-show dbs
-use auth_db
-db.users.find()
-```
-
-### RabbitMQ Management
-
-**Access RabbitMQ UI**: http://localhost:15672
-- Username: `guest`
-- Password: `guest`
-
-View exchanges, queues, bindings, and message rates.
-
-### Logs
-
-View logs for specific services:
-
-```bash
-# All services
-docker compose logs -f
-
-# Specific service
-docker compose logs -f auth
-
-# Last 100 lines
-docker compose logs --tail=100 wallet
-```
-
----
-
-## 🧪 Testing
-
-### Health Check Tests
-
-Verify all services are running:
-
-```bash
-# Gateway health
-curl http://localhost/health
-
-# Auth service health
-curl http://localhost/api/v1/auth/health
-
-# Check JWKS endpoint
-curl http://localhost/.well-known/jwks.json
-```
-
-### Integration Tests
-
-Test the complete user flow:
-
-```bash
-# 1. Register a user
+# Register
 curl -X POST http://localhost/api/v1/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{
-    "name": "Test User",
-    "email": "test@example.com",
-    "password": "SecurePass123!"
-  }'
+  -d '{"name": "John Doe", "email": "john@example.com", "password": "SecurePass123!"}'
 
-# 2. Login (save the cookie)
+# Login
 curl -X POST http://localhost/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "SecurePass123!"
-  }' \
+  -d '{"email": "john@example.com", "password": "SecurePass123!"}' \
   -c cookies.txt
+```
 
-# 3. Get current user
-curl http://localhost/api/v1/auth/user \
-  -b cookies.txt
+### Transactions
 
-# 4. Get wallet
-curl http://localhost/api/v1/wallet/user \
-  -b cookies.txt
-
-# 5. Top-up wallet
+```bash
+# Top-up wallet
 curl -X POST http://localhost/api/v1/transactions/topup \
   -H "Content-Type: application/json" \
   -b cookies.txt \
-  -d '{
-    "amount": 100.00,
-    "description": "Test top-up"
-  }'
+  -d '{"amount": 100.00, "description": "Adding funds"}'
 
-# 6. View transactions
-curl http://localhost/api/v1/transactions \
-  -b cookies.txt
+# Transfer funds
+curl -X POST http://localhost/api/v1/transactions/transfer \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"recipientId": "507f1f77bcf86cd799439011", "amount": 50.00, "description": "Payment"}'
 ```
 
-### Load Testing
+📖 [Complete API Documentation](https://sreekarnv.github.io/mint/api/auth/)
 
-Use tools like [Apache Bench](https://httpd.apache.org/docs/2.4/programs/ab.html) or [k6](https://k6.io/) for load testing:
+---
+
+## Development
 
 ```bash
-# Apache Bench - 1000 requests, 10 concurrent
-ab -n 1000 -c 10 http://localhost/health
+# Run in development mode with hot-reload
+docker compose -f docker-compose.dev.yml up --build
+
+# View logs for a specific service
+docker compose logs -f auth
+
+# Access MongoDB
+docker exec -it mint-mongodb mongosh -u root -p example
+
+# Access RabbitMQ UI
+open http://localhost:15672
+```
+
+📖 [Development Guide](https://sreekarnv.github.io/mint/development/) • [Troubleshooting](https://sreekarnv.github.io/mint/troubleshooting/)
+
+---
+
+## Project Structure
+
+```
+mint/
+├── auth/              # Authentication Service
+├── wallet/            # Wallet Service
+├── transactions/      # Transactions Service
+├── notifications/     # Notifications Service
+├── nginx/             # API Gateway Configuration
+├── docs/              # Documentation (MkDocs)
+├── docker-compose.yml # Production setup
+└── docker-compose.dev.yml # Development setup
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## Documentation
 
-### Common Issues
+Comprehensive documentation is available at **[sreekarnv.github.io/mint](https://sreekarnv.github.io/mint/)**
 
-#### Services won't start
-
-**Problem**: Containers exit immediately
-
-**Solution**:
-```bash
-# Check logs
-docker compose logs <service-name>
-
-# Rebuild containers
-docker compose down -v
-docker compose up --build
-```
-
-#### Port already in use
-
-**Problem**: `Error: bind: address already in use`
-
-**Solution**:
-```bash
-# Find process using the port
-lsof -i :80  # or :4001, :5672, etc.
-
-# Kill the process
-kill -9 <PID>
-
-# Or change ports in docker-compose.yml
-```
-
-#### Database connection issues
-
-**Problem**: `MongoServerError: Authentication failed`
-
-**Solution**:
-- Verify `DATABASE_URL` in `.env.docker`
-- Ensure MongoDB is healthy: `docker compose ps`
-- Reset MongoDB: `docker compose down -v mongodb && docker compose up mongodb`
-
-#### RabbitMQ connection failed
-
-**Problem**: `Error: connect ECONNREFUSED`
-
-**Solution**:
-- Wait for RabbitMQ to be fully ready (check health)
-- Verify `RABBITMQ_URL` in environment files
-- Check RabbitMQ logs: `docker compose logs rabbitmq`
-
-#### JWT verification failed
-
-**Problem**: `401 Unauthorized` on protected routes
-
-**Solution**:
-- Ensure you're logged in and cookie is set
-- Verify `JWKS_URI` points to auth service
-- Check auth service is healthy
-- Verify JWT issuer and audience match across services
-
-#### Events not being consumed
-
-**Problem**: Events published but not consumed
-
-**Solution**:
-- Check RabbitMQ Management UI for queue depths
-- Verify consumers are running: `docker compose logs <service>`
-- Check exchange and queue bindings in RabbitMQ UI
-- Ensure routing keys match between publisher and consumer
-
-### Debug Mode
-
-Enable debug logging:
-
-```bash
-# Set in .env.docker for each service
-NODE_ENV=development
-LOG_LEVEL=debug
-```
-
-### Reset Everything
-
-Complete reset:
-
-```bash
-# Stop and remove all containers, networks, volumes
-docker compose down -v
-
-# Remove all images
-docker compose down --rmi all -v
-
-# Rebuild and start fresh
-docker compose up --build
-```
+**Quick Links**:
+- [Installation Guide](https://sreekarnv.github.io/mint/getting-started/installation/)
+- [Architecture Overview](https://sreekarnv.github.io/mint/architecture/)
+- [Event Flows](https://sreekarnv.github.io/mint/events/)
+- [API Reference](https://sreekarnv.github.io/mint/api/auth/)
+- [Service Documentation](https://sreekarnv.github.io/mint/services/auth/)
+- [Troubleshooting](https://sreekarnv.github.io/mint/troubleshooting/)
+- [Contributing Guide](https://sreekarnv.github.io/mint/about/contributing/)
 
 ---
 
-## 🧬 Future Enhancements
+## License
 
-### Planned Features
-
-- [ ] **Redis Caching Layer**
-  - Cache user sessions
-  - Cache wallet balances for faster reads
-  - Reduce database load
-
-- [ ] **Distributed Tracing**
-  - OpenTelemetry integration
-  - Request tracing across services
-  - Performance monitoring
-
-- [ ] **Metrics & Monitoring**
-  - Prometheus metrics
-  - Grafana dashboards
-  - Service health dashboards
-
-- [ ] **Dead Letter Queue (DLQ)**
-  - Handle failed messages
-  - Retry mechanisms
-  - Message poisoning prevention
-
-- [ ] **Saga Orchestration**
-  - Distributed transaction management
-  - Compensation logic for failures
-  - Transaction consistency guarantees
-
-- [ ] **API Rate Limiting per User**
-  - User-specific rate limits
-  - Redis-backed rate limiting
-  - Quota management
-
-- [ ] **Transaction Scheduling**
-  - Scheduled future transactions
-  - Recurring payments
-  - Transaction automation
-
-- [ ] **Multi-Currency Support**
-  - Multiple wallet types
-  - Currency conversion
-  - Exchange rate integration
-
-- [ ] **KYC/Compliance Features**
-  - Identity verification
-  - Transaction limits
-  - Compliance reporting
-
-- [ ] **GraphQL API**
-  - Flexible querying
-  - Real-time subscriptions
-  - Reduced over-fetching
-
-- [ ] **Mobile Push Notifications**
-  - FCM/APNS integration
-  - Real-time transaction alerts
-  - Customizable notification preferences
-
-- [ ] **Audit Logging**
-  - Immutable audit trail
-  - Compliance logging
-  - Security event tracking
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2025 Sreekar Venkata Nutulapati
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-## 👤 Author
+## Author
 
 **Sreekar Venkata Nutulapati**
 
-- GitHub: [@sreekarnv](https://github.com/sreekarnv)
-- LinkedIn: [@sreekarnv](https://in.linkedin.com/in/sreekar-venkata-nutulapati-63672120a)
+[![GitHub](https://img.shields.io/badge/GitHub-sreekarnv-181717?logo=github)](https://github.com/sreekarnv)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-sreekarnv-0077B5?logo=linkedin)](https://in.linkedin.com/in/sreekar-venkata-nutulapati-63672120a)
 
 ---
 
 <div align="center">
 
-### Made with ❤️ using TypeScript, Node.js, and Docker
+**Built with TypeScript, Node.js, RabbitMQ, MongoDB, and Docker**
 
-**Star ⭐ this repository if you find it helpful!**
+⭐ Star this repository if you find it helpful!
 
 </div>
