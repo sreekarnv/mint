@@ -7,7 +7,7 @@
 </div>
 
 <p align="center">
-  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-22.x-green?logo=node.js" alt="Node.js"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript" alt="TypeScript"></a>
   <a href="https://www.rabbitmq.com/"><img src="https://img.shields.io/badge/RabbitMQ-Event--Driven-orange?logo=rabbitmq" alt="RabbitMQ"></a>
   <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-7.x-green?logo=mongodb" alt="MongoDB"></a>
