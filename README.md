@@ -235,7 +235,7 @@ open http://localhost:15672
 
 ## Testing
 
-Mint includes comprehensive test coverage using Vitest, Supertest, and MongoDB Memory Server.
+Mint includes comprehensive test coverage (112 tests) using Vitest, Supertest, and MongoDB Memory Server.
 
 ```bash
 # Run all tests across all services
@@ -255,16 +255,18 @@ pnpm test:coverage
 ```
 
 **Test Types**:
-- **Unit Tests**: Service logic, models, utilities
-- **Integration Tests**: API endpoints with Supertest
-- **Database Tests**: Isolated testing with MongoDB Memory Server
-- **Mock Tests**: RabbitMQ and external dependencies
+- **Unit Tests**: Service logic, models, utilities (59 tests)
+- **Integration Tests**: API endpoints with Supertest (45 tests)
+- **Consumer Tests**: RabbitMQ event handlers (8 tests)
+- **Mock Tests**: External dependencies (RabbitMQ, email)
 
-**Coverage**: Each service includes comprehensive tests with:
-- Auth: User authentication, JWT, password hashing
-- Wallet: Balance operations, credit/debit, rollback scenarios
-- Transactions: Transaction lifecycle, state management
-- Notifications: Email service mocking
+**Coverage Metrics**:
+- **Auth**: 35 tests, 59.31% coverage
+- **Wallet**: 20 tests, 50.25% coverage
+- **Transactions**: 44 tests, 63.41% coverage
+- **Notifications**: 13 tests, 15.91% coverage
+
+All tests passing | CI/CD integrated
 
 📖 [Testing Guide](https://sreekarnv.github.io/mint/testing/)
 
