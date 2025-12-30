@@ -1,7 +1,10 @@
 import type { ValidatedRequest } from "express-zod-safe";
 import type { Response } from "express";
 import z from "zod";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { userRole } from "~/models/user.model";
+
+extendZodWithOpenApi(z);
 
 export const userResSchema = z.object({
   id: z.coerce.string(),

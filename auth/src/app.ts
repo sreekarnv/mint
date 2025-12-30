@@ -10,6 +10,8 @@ import { rateLimit } from "express-rate-limit";
 import hpp from "hpp";
 import compression from "compression";
 import { env } from "~/env";
+import swaggerUi from "swagger-ui-express";
+import { openApiDocument } from "~/swagger";
 
 const app = express();
 
@@ -21,8 +23,9 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "http://localhost:*", "https://api.mint.com"],
       },
     },
     hsts: {
@@ -44,27 +47,28 @@ app.use(
   }),
 );
 
-// Disable rate limiting in test environment
-const limiter = env.NODE_ENV === "test"
-  ? ((_req, _res, next) => next())
-  : rateLimit({
-      windowMs: env.RATE_LIMIT_WINDOW_MS,
-      max: env.RATE_LIMIT_MAX,
-      message: "Too many requests from this IP, please try again later.",
-      standardHeaders: true,
-      legacyHeaders: false,
-    });
+const limiter =
+  env.NODE_ENV === "test"
+    ? (_req, _res, next) => next()
+    : rateLimit({
+        windowMs: env.RATE_LIMIT_WINDOW_MS,
+        max: env.RATE_LIMIT_MAX,
+        message: "Too many requests from this IP, please try again later.",
+        standardHeaders: true,
+        legacyHeaders: false,
+      });
 
-const authLimiter = env.NODE_ENV === "test"
-  ? ((_req, _res, next) => next())
-  : rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-      message: "Too many authentication attempts, please try again later.",
-      standardHeaders: true,
-      legacyHeaders: false,
-      skipSuccessfulRequests: true,
-    });
+const authLimiter =
+  env.NODE_ENV === "test"
+    ? (_req, _res, next) => next()
+    : rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 5,
+        message: "Too many authentication attempts, please try again later.",
+        standardHeaders: true,
+        legacyHeaders: false,
+        skipSuccessfulRequests: true,
+      });
 
 app.use(limiter);
 
@@ -81,6 +85,15 @@ app.get("/health", (_req, res) => {
 app.use("/.well-known", jwksRouter);
 app.use("/api/v1/auth", authLimiter, authRouter);
 app.use("/api/v1/users", usersRouter);
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiDocument, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Mint Auth API Docs",
+  }),
+);
 
 app.use(notFoundHandler);
 

@@ -12,11 +12,11 @@ COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies stage
 FROM base AS dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Production dependencies stage
 FROM base AS prod-dependencies
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --prod
 
 # Build stage
 FROM base AS build

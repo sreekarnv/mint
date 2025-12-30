@@ -1,8 +1,10 @@
 import { ValidatedRequest } from "express-zod-safe";
 import z from "zod";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { objectId } from "~/schemas/common/objectid.schema";
 
-// Transaction limits
+extendZodWithOpenApi(z);
+
 export const MIN_TOPUP_AMOUNT = 1;
 export const MAX_TOPUP_AMOUNT = 100000;
 export const MIN_TRANSFER_AMOUNT = 1;

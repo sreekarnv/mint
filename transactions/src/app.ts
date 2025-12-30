@@ -8,6 +8,8 @@ import { rateLimit } from "express-rate-limit";
 import hpp from "hpp";
 import compression from "compression";
 import { env } from "~/env";
+import swaggerUi from "swagger-ui-express";
+import { openApiDocument } from "~/swagger";
 
 const app = express();
 
@@ -19,8 +21,9 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "http://localhost:*", "https://api.mint.com"],
       },
     },
     hsts: {
@@ -62,6 +65,15 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/v1/transactions", transactionRouter);
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiDocument, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Mint Transactions API Docs",
+  }),
+);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
