@@ -1301,6 +1301,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Test Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jwt-keys-for-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JWT Keys for Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1355,6 +1383,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#coverage-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#coverage-exclusions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1378,6 +1417,67 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-coverage-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Coverage Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Coverage Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auth-service-35-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auth Service (35 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wallet-service-20-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wallet Service (20 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transactions-service-44-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transactions Service (44 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notifications-service-13-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notifications Service (13 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1821,6 +1921,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Test Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jwt-keys-for-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JWT Keys for Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1875,6 +2003,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#coverage-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#coverage-exclusions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1898,6 +2037,67 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-coverage-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Coverage Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Coverage Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auth-service-35-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auth Service (35 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wallet-service-20-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wallet Service (20 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transactions-service-44-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transactions Service (44 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notifications-service-13-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notifications Service (13 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1996,13 +2196,15 @@
 <h1 id="testing-guide">Testing Guide<a class="headerlink" href="#testing-guide" title="Permanent link">&para;</a></h1>
 <p>This guide covers the testing infrastructure for the Mint microservices wallet system.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Mint uses <strong>Vitest</strong> as the testing framework with <strong>Supertest</strong> for API integration testing. Each service has its own comprehensive test suite including:</p>
+<p>Mint includes <strong>112 comprehensive tests</strong> using <strong>Vitest</strong> as the testing framework with <strong>Supertest</strong> for API integration testing. Each service has its own test suite including:</p>
 <ul>
-<li><strong>Unit Tests</strong>: Testing individual functions and services in isolation</li>
-<li><strong>Integration Tests</strong>: Testing API endpoints end-to-end</li>
+<li><strong>Unit Tests</strong> (59): Testing individual functions and services in isolation</li>
+<li><strong>Integration Tests</strong> (45): Testing API endpoints end-to-end</li>
+<li><strong>Consumer Tests</strong> (8): Testing RabbitMQ event handlers</li>
 <li><strong>Database Tests</strong>: Using MongoDB Memory Server for isolated database testing</li>
 <li><strong>Mock Testing</strong>: RabbitMQ and external dependencies are mocked</li>
 </ul>
+<p><strong>All tests passing</strong> | CI/CD integrated with GitHub Actions</p>
 <h2 id="test-stack">Test Stack<a class="headerlink" href="#test-stack" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Vitest</strong>: Fast, modern test framework with excellent TypeScript support</li>
@@ -2116,30 +2318,55 @@
 </span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="p">});</span>
 </span></code></pre></div>
 <h2 id="test-environment">Test Environment<a class="headerlink" href="#test-environment" title="Permanent link">&para;</a></h2>
+<h3 id="environment-configuration">Environment Configuration<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h3>
 <p>Each service has a <code>.env.test</code> file with test-specific configuration:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>NODE_ENV=test
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>PORT=4001
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>DATABASE_URL=mongodb://localhost:27017/mint-auth-test
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>RABBITMQ_URL=amqp://localhost:5672
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>JWT_ISS=mint-auth
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>JWT_AUD=mint-services
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>JWKS_ENDPOINT=http://localhost:4001/.well-known/jwks.json
 </span></code></pre></div>
-<p>Note: Database URL is overridden by MongoDB Memory Server in tests, so actual MongoDB connection is not required.</p>
+<p><strong>Note</strong>: Database URL is overridden by MongoDB Memory Server in tests, so actual MongoDB connection is not required.</p>
+<h3 id="jwt-keys-for-testing">JWT Keys for Testing<a class="headerlink" href="#jwt-keys-for-testing" title="Permanent link">&para;</a></h3>
+<p>The auth service automatically generates RSA key pairs for JWT signing during test setup:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// auth/src/__tests__/setup.ts</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kd">function</span><span class="w"> </span><span class="nx">ensureJWTKeys</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">keysDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;..&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;..&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;keys&quot;</span><span class="p">);</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">publicKeyPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">keysDir</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;public.pem&quot;</span><span class="p">);</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">privateKeyPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">keysDir</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;private.pem&quot;</span><span class="p">);</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">publicKeyPath</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">privateKeyPath</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">publicKey</span><span class="p">,</span><span class="w"> </span><span class="nx">privateKey</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">generateKeyPairSync</span><span class="p">(</span><span class="s2">&quot;rsa&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">      </span><span class="nx">modulusLength</span><span class="o">:</span><span class="w"> </span><span class="kt">2048</span><span class="p">,</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">      </span><span class="nx">publicKeyEncoding</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;spki&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pem&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">      </span><span class="nx">privateKeyEncoding</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pkcs8&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pem&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="p">});</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span><span class="p">(</span><span class="nx">publicKeyPath</span><span class="p">,</span><span class="w"> </span><span class="nx">publicKey</span><span class="p">);</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span><span class="p">(</span><span class="nx">privateKeyPath</span><span class="p">,</span><span class="w"> </span><span class="nx">privateKey</span><span class="p">);</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>This ensures JWT functionality works in tests without committing sensitive keys to version control. Keys are gitignored (<code>**/keys/*.pem</code>).</p>
 <h2 id="mocking-external-dependencies">Mocking External Dependencies<a class="headerlink" href="#mocking-external-dependencies" title="Permanent link">&para;</a></h2>
 <h3 id="rabbitmq">RabbitMQ<a class="headerlink" href="#rabbitmq" title="Permanent link">&para;</a></h3>
 <p>RabbitMQ is mocked in all tests to prevent actual message publishing:</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nx">vi</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s2">&quot;~/rabbitmq/publisher&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nx">publishEvent</span><span class="o">:</span><span class="w"> </span><span class="kt">vi.fn</span><span class="p">().</span><span class="nx">mockResolvedValue</span><span class="p">(</span><span class="kc">undefined</span><span class="p">),</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">}));</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nx">vi</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s2">&quot;~/rabbitmq/publisher&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nx">publishEvent</span><span class="o">:</span><span class="w"> </span><span class="kt">vi.fn</span><span class="p">().</span><span class="nx">mockResolvedValue</span><span class="p">(</span><span class="kc">undefined</span><span class="p">),</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">}));</span>
 </span></code></pre></div>
 <h3 id="email-service-notifications">Email Service (Notifications)<a class="headerlink" href="#email-service-notifications" title="Permanent link">&para;</a></h3>
 <p>The nodemailer transport is mocked:</p>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nx">vi</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s2">&quot;~/utils/mail&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nx">mailer</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nx">sendMail</span><span class="o">:</span><span class="w"> </span><span class="kt">vi.fn</span><span class="p">().</span><span class="nx">mockResolvedValue</span><span class="p">({</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">      </span><span class="nx">messageId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test-message-id&quot;</span><span class="p">,</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">      </span><span class="nx">accepted</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;test@example.com&quot;</span><span class="p">],</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="p">}),</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">}));</span>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nx">vi</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s2">&quot;~/utils/mail&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nx">mailer</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nx">sendMail</span><span class="o">:</span><span class="w"> </span><span class="kt">vi.fn</span><span class="p">().</span><span class="nx">mockResolvedValue</span><span class="p">({</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nx">messageId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test-message-id&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">      </span><span class="nx">accepted</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;test@example.com&quot;</span><span class="p">],</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="p">}),</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}));</span>
 </span></code></pre></div>
 <h2 id="coverage-reports">Coverage Reports<a class="headerlink" href="#coverage-reports" title="Permanent link">&para;</a></h2>
 <p>Coverage reports are generated in the <code>coverage/</code> directory of each service:</p>
@@ -2148,6 +2375,54 @@
 <li><code>coverage/coverage-final.json</code>: JSON coverage data</li>
 <li>Console output shows coverage summary</li>
 </ul>
+<h3 id="coverage-metrics">Coverage Metrics<a class="headerlink" href="#coverage-metrics" title="Permanent link">&para;</a></h3>
+<p>Current test coverage across all services:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Tests</th>
+<th>Coverage</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Auth</strong></td>
+<td>35</td>
+<td>59.31%</td>
+<td>User authentication, JWT, password hashing</td>
+</tr>
+<tr>
+<td><strong>Wallet</strong></td>
+<td>20</td>
+<td>50.25%</td>
+<td>Balance operations, transactions, event handlers</td>
+</tr>
+<tr>
+<td><strong>Transactions</strong></td>
+<td>44</td>
+<td>63.41%</td>
+<td>Transaction lifecycle, state management, validation</td>
+</tr>
+<tr>
+<td><strong>Notifications</strong></td>
+<td>13</td>
+<td>15.91%</td>
+<td>Email service, consumer handlers</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>112</strong></td>
+<td>-</td>
+<td>All passing ✓</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Coverage Breakdown by Test Type:</strong>
+- Unit Tests: 59 tests (models, services, utilities)
+- Integration Tests: 45 tests (API endpoints, full request/response)
+- Consumer Tests: 8 tests (RabbitMQ event handlers)</p>
 <h3 id="coverage-exclusions">Coverage Exclusions<a class="headerlink" href="#coverage-exclusions" title="Permanent link">&para;</a></h3>
 <p>The following are excluded from coverage:</p>
 <ul>
@@ -2156,23 +2431,61 @@
 <li><code>*.config.ts</code></li>
 <li><code>*.d.ts</code></li>
 <li>Type definition files</li>
+<li>Infrastructure code (server startup, RabbitMQ bootstrap)</li>
 </ul>
 <h2 id="continuous-integration">Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permanent link">&para;</a></h2>
 <p>Tests run automatically on every push via GitHub Actions. See <code>.github/workflows/test.yml</code> for CI configuration.</p>
+<h2 id="test-coverage-details">Test Coverage Details<a class="headerlink" href="#test-coverage-details" title="Permanent link">&para;</a></h2>
+<h3 id="auth-service-35-tests">Auth Service (35 tests)<a class="headerlink" href="#auth-service-35-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Unit Tests</strong>: User model validation, password hashing, JWT generation</li>
+<li><strong>Integration Tests</strong>: Signup, login, logout, token refresh, JWKS endpoint</li>
+<li><strong>Security Tests</strong>: Rate limiting, invalid credentials, duplicate email</li>
+<li><strong>Features</strong>: Auto-generated RSA keys for JWT signing in test environment</li>
+</ul>
+<h3 id="wallet-service-20-tests">Wallet Service (20 tests)<a class="headerlink" href="#wallet-service-20-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Unit Tests</strong> (15): Wallet creation, balance updates, transaction processing</li>
+<li><strong>Integration Tests</strong> (5): Get wallet, balance queries, user authorization</li>
+<li><strong>Features</strong>: MongoDB Memory Server for isolated testing</li>
+</ul>
+<h3 id="transactions-service-44-tests">Transactions Service (44 tests)<a class="headerlink" href="#transactions-service-44-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Unit Tests</strong> (27): Transaction model, service layer, validation logic</li>
+<li>Transaction creation (TopUp, Transfer)</li>
+<li>Self-transfer validation</li>
+<li>Transaction state management</li>
+<li>Event publishing</li>
+<li><strong>Integration Tests</strong> (17): Full API endpoint testing</li>
+<li>TopUp/Transfer creation</li>
+<li>Transaction listing with pagination</li>
+<li>Transaction retrieval and authorization</li>
+<li>Input validation and error handling</li>
+</ul>
+<h3 id="notifications-service-13-tests">Notifications Service (13 tests)<a class="headerlink" href="#notifications-service-13-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Unit Tests</strong> (7): Email service, consumer handlers</li>
+<li><strong>Integration Tests</strong> (6): Email sending for various events</li>
+<li><strong>Features</strong>: Nodemailer mocking, event-driven testing</li>
+</ul>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Test Isolation</strong>: Each test should be independent and not rely on other tests</li>
-<li><strong>Clean State</strong>: Database is cleared after each test via <code>afterEach</code> hooks</li>
+<li><strong>Clean State</strong>: Database is cleared after each test via <code>afterEach</code> hooks in setup.ts</li>
 <li><strong>Descriptive Names</strong>: Use clear, descriptive test names that explain what's being tested</li>
 <li><strong>Arrange-Act-Assert</strong>: Follow the AAA pattern in tests</li>
 <li><strong>Mock External Services</strong>: Always mock RabbitMQ, email services, and external APIs</li>
-<li><strong>Coverage Goals</strong>: Aim for 80%+ coverage on services and models</li>
+<li><strong>Test Both Success and Failure</strong>: Include tests for error cases, validation failures, and edge cases</li>
+<li><strong>Use Type Safety</strong>: Leverage TypeScript for type-safe test data</li>
+<li><strong>Coverage Goals</strong>: Aim for 60%+ overall coverage, 100% for critical business logic</li>
+<li><strong>Integration &gt; Unit</strong>: Prefer integration tests for APIs to ensure full request/response cycle</li>
+<li><strong>Mock Authentication</strong>: Use helper functions to mock JWT middleware in integration tests</li>
 </ol>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="mongodb-memory-server-issues">MongoDB Memory Server Issues<a class="headerlink" href="#mongodb-memory-server-issues" title="Permanent link">&para;</a></h3>
 <p>If MongoDB Memory Server fails to download:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Set download mirror</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MONGOMS_DOWNLOAD_MIRROR</span><span class="o">=</span>https://fastdl.mongodb.org
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Set download mirror</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MONGOMS_DOWNLOAD_MIRROR</span><span class="o">=</span>https://fastdl.mongodb.org
 </span></code></pre></div>
 <h3 id="port-conflicts">Port Conflicts<a class="headerlink" href="#port-conflicts" title="Permanent link">&para;</a></h3>
 <p>If you see EADDRINUSE errors, ensure no services are running on test ports (4001-4004).</p>
@@ -2211,7 +2524,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 30, 2025 10:32:39 UTC">December 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 30, 2025 12:34:07 UTC">December 30, 2025</span>
   </span>
 
     
