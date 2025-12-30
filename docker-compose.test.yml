@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  mongodb-test:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: test
+    tmpfs:
+      - /data/db
+
+  auth-test:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./auth:/app
+      - /app/node_modules
+    command: pnpm test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: mongodb://mongodb-test:27017/auth-test
+      USE_REAL_MONGO: "true"
+    depends_on:
+      - mongodb-test
+
+  wallet-test:
+    build:
+      context: ./wallet
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./wallet:/app
+      - /app/node_modules
+    command: pnpm test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: mongodb://mongodb-test:27017/wallet-test
+      USE_REAL_MONGO: "true"
+    depends_on:
+      - mongodb-test
+
+  transactions-test:
+    build:
+      context: ./transactions
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./transactions:/app
+      - /app/node_modules
+    command: pnpm test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: mongodb://mongodb-test:27017/transactions-test
+      USE_REAL_MONGO: "true"
+    depends_on:
+      - mongodb-test
+
+  notifications-test:
+    build:
+      context: ./notifications
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./notifications:/app
+      - /app/node_modules
+    command: pnpm test
+    environment:
+      NODE_ENV: test
+      USE_REAL_MONGO: "true"
+    depends_on:
+      - mongodb-test

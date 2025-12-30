@@ -100,6 +100,7 @@ nav:
       - Transactions: api/transactions.md
   - Development:
       - Development Guide: development.md
+      - Testing Guide: testing.md
       - Deployment: deployment.md
       - Troubleshooting: troubleshooting.md
   - About:

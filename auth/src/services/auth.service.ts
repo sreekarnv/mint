@@ -11,6 +11,7 @@ import {
   type SignupResBodyType,
 } from "~/schemas/auth.schema";
 import { verifyAccessToken } from "~/utils/jwt";
+import { UnauthorizedError } from "~/utils/errors";
 
 async function hashPassword(plain: string): Promise<string> {
   return argon2.hash(plain, { hashLength: 14 });
@@ -34,7 +35,7 @@ export async function login(loginInput: LoginReqBodyType): Promise<LoginResBodyT
   const user = await UserModel.findOne({ email }).select("+password");
 
   if (!user || !(await verifyPassword(password, user.password))) {
-    throw new Error("Invalid Credentials");
+    throw new UnauthorizedError("Invalid Credentials");
   }
 
   return z.parse(loginResBodySchema, user);
@@ -45,12 +46,17 @@ export async function getLoggedInUser(accessToken: string): Promise<UserResType 
     return null;
   }
 
-  const payload = await verifyAccessToken(accessToken);
-  const user = payload.payload.user;
+  try {
+    const payload = await verifyAccessToken(accessToken);
+    const user = payload.payload.user;
 
-  if (!user || !((await UserModel.countDocuments({ email: user.email })) == 1)) {
+    if (!user || !((await UserModel.countDocuments({ email: user.email })) == 1)) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    // Invalid token
     return null;
   }
-
-  return user;
 }

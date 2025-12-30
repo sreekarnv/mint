@@ -44,22 +44,27 @@ app.use(
   }),
 );
 
-const limiter = rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX,
-  message: "Too many requests from this IP, please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Disable rate limiting in test environment
+const limiter = env.NODE_ENV === "test"
+  ? ((_req, _res, next) => next())
+  : rateLimit({
+      windowMs: env.RATE_LIMIT_WINDOW_MS,
+      max: env.RATE_LIMIT_MAX,
+      message: "Too many requests from this IP, please try again later.",
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: "Too many authentication attempts, please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true,
-});
+const authLimiter = env.NODE_ENV === "test"
+  ? ((_req, _res, next) => next())
+  : rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+      message: "Too many authentication attempts, please try again later.",
+      standardHeaders: true,
+      legacyHeaders: false,
+      skipSuccessfulRequests: true,
+    });
 
 app.use(limiter);
 

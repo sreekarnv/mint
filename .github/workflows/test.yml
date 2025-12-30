@@ -1,0 +1,71 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [auth, wallet, transactions, notifications]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.24.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: '${{ matrix.service }}/pnpm-lock.yaml'
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linter
+        working-directory: ${{ matrix.service }}
+        run: pnpm lint
+
+      - name: Run tests
+        working-directory: ${{ matrix.service }}
+        run: pnpm test
+
+      - name: Generate coverage
+        working-directory: ${{ matrix.service }}
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ${{ matrix.service }}/coverage/coverage-final.json
+          flags: ${{ matrix.service }}
+          name: ${{ matrix.service }}-coverage
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test.result }}" == "failure" ]; then
+            echo "Tests failed!"
+            exit 1
+          else
+            echo "All tests passed!"
+          fi

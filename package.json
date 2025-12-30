@@ -1,0 +1,21 @@
+{
+  "name": "mint",
+  "version": "0.0.1",
+  "description": "Event-driven microservices wallet system",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --recursive --workspace-concurrency=1 test",
+    "test:auth": "pnpm --filter @mint/auth test",
+    "test:wallet": "pnpm --filter @mint/wallet test",
+    "test:transactions": "pnpm --filter @mint/transactions test",
+    "test:notifications": "pnpm --filter @mint/notifications test",
+    "test:watch": "pnpm --recursive --parallel test:watch",
+    "test:coverage": "pnpm --recursive test:coverage",
+    "lint": "pnpm --recursive lint",
+    "format": "pnpm --recursive format"
+  },
+  "keywords": ["microservices", "wallet", "event-driven", "rabbitmq", "typescript"],
+  "author": "Sreekar Venkata Nutulapati",
+  "license": "MIT",
+  "packageManager": "pnpm@10.24.0"
+}

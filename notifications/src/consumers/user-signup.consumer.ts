@@ -1,10 +1,11 @@
 import { consume } from "~/rabbitmq/consumer";
 import { Queues } from "~/rabbitmq/topology";
 import { UserResType } from "~/schemas/http/user.schema";
+import { sendSignupEmail } from "~/services/email.service";
 
 export async function userSignupConsumer() {
   consume<UserResType>(Queues.EMAIL_SIGNUP, async (data) => {
     console.log({ data });
-    // await sendSignupEmail(data);
+    await sendSignupEmail(data);
   });
 }

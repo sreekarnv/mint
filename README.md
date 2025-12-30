@@ -8,6 +8,7 @@
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Event--Driven-orange?logo=rabbitmq)](https://www.rabbitmq.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-7.x-green?logo=mongodb)](https://www.mongodb.com/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/Tests-Vitest-yellow?logo=vitest)](https://vitest.dev/)
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen?logo=readthedocs)](https://sreekarnv.github.io/mint/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -229,6 +230,43 @@ open http://localhost:15672
 ```
 
 📖 [Development Guide](https://sreekarnv.github.io/mint/development/) • [Troubleshooting](https://sreekarnv.github.io/mint/troubleshooting/)
+
+---
+
+## Testing
+
+Mint includes comprehensive test coverage using Vitest, Supertest, and MongoDB Memory Server.
+
+```bash
+# Run all tests across all services
+pnpm test
+
+# Run tests for a specific service
+pnpm test:auth
+pnpm test:wallet
+pnpm test:transactions
+pnpm test:notifications
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Generate coverage reports
+pnpm test:coverage
+```
+
+**Test Types**:
+- **Unit Tests**: Service logic, models, utilities
+- **Integration Tests**: API endpoints with Supertest
+- **Database Tests**: Isolated testing with MongoDB Memory Server
+- **Mock Tests**: RabbitMQ and external dependencies
+
+**Coverage**: Each service includes comprehensive tests with:
+- Auth: User authentication, JWT, password hashing
+- Wallet: Balance operations, credit/debit, rollback scenarios
+- Transactions: Transaction lifecycle, state management
+- Notifications: Email service mocking
+
+📖 [Testing Guide](https://sreekarnv.github.io/mint/testing/)
 
 ---
 

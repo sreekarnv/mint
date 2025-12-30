@@ -4,16 +4,16 @@ import path from "path";
 
 const rootDir = path.join(__dirname, "..");
 
-if (!process.env.IN_DOCKER) {
+if (process.env.NODE_ENV === "test") {
+  config({ path: path.join(rootDir, ".env.test") });
+} else if (process.env.IN_DOCKER === "true") {
+  config({ path: path.join(rootDir, ".env.docker") });
+} else {
   config({ path: path.join(rootDir, ".env.local") });
 }
 
-if (process.env.IN_DOCKER === "true") {
-  config({ path: path.join(rootDir, ".env.docker") });
-}
-
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "production"]),
+  NODE_ENV: z.enum(["development", "production", "test"]),
   PORT: z.coerce.number(),
   DATABASE_URL: z.string(),
   JWT_ISS: z.string(),
