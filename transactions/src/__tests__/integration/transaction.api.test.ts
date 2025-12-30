@@ -11,7 +11,7 @@ vi.mock("~/rabbitmq/publisher", () => ({
 
 // Mock JWT verification middleware
 vi.mock("~/middleware/auth.middleware", () => ({
-  authMiddleware: (req: any, _res: any, next: any) => {
+  authMiddleware: (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
     // Simulate authenticated user
     req.user = {
       id: req.headers["x-test-user-id"] || "test-user-id",

@@ -15,7 +15,13 @@ interface ErrorResponse {
   };
 }
 
-export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
+interface MongoError extends Error {
+  code?: number;
+  keyPattern?: Record<string, number>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void {
   logger.error("Error occurred:", {
     message: err.message,
     stack: err.stack,
@@ -72,8 +78,9 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
     return;
   }
 
-  if (err.code === 11000) {
-    const field = Object.keys((err as any).keyPattern)[0];
+  if ((err as MongoError).code === 11000) {
+    const mongoErr = err as MongoError;
+    const field = Object.keys(mongoErr.keyPattern || {})[0];
     const response: ErrorResponse = {
       error: {
         message: `${field} already exists`,

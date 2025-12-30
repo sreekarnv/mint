@@ -4,7 +4,7 @@ import z from "zod";
 export const objectId = z.string().transform((id, ctx) => {
   try {
     return new Types.ObjectId(id);
-  } catch (error) {
+  } catch {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Invalid ObjectId format",

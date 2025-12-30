@@ -1,3 +1,4 @@
+import { MongoDuplicateKeyError } from "./../../../notifications/src/utils/errors";
 import type { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod";
@@ -15,6 +16,7 @@ interface ErrorResponse {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: Error, req: Request, res: Response, _: NextFunction): void {
   logger.error("Error occurred:", {
     message: err.message,
@@ -39,7 +41,6 @@ export function errorHandler(err: Error, req: Request, res: Response, _: NextFun
     return;
   }
 
-  // Handle Zod validation errors
   if (err instanceof ZodError) {
     const response: ErrorResponse = {
       error: {
@@ -72,8 +73,10 @@ export function errorHandler(err: Error, req: Request, res: Response, _: NextFun
     return;
   }
 
-  if (err.code === 11000) {
-    const field = Object.keys((err as any).keyPattern)[0];
+  if ((err as MongoDuplicateKeyError).code === 11000) {
+    const mongoErr = err as MongoDuplicateKeyError;
+
+    const field = mongoErr.keyPattern ? Object.keys(mongoErr.keyPattern)[0] : "Field";
     const response: ErrorResponse = {
       error: {
         message: `${field} already exists`,

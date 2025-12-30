@@ -47,3 +47,8 @@ export class ValidationError extends AppError {
     super(message, StatusCodes.UNPROCESSABLE_ENTITY);
   }
 }
+
+export interface MongoDuplicateKeyError extends Error {
+  code: number;
+  keyPattern?: Record<string, number>;
+}

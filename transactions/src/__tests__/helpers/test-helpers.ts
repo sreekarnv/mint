@@ -1,7 +1,7 @@
 import { TransactionModel } from "~/models/transaction.model";
 import { Types } from "mongoose";
 
-export async function createTestTransaction(overrides?: any) {
+export async function createTestTransaction(overrides?: Record<string, unknown>) {
   const defaults = {
     type: "TopUp",
     status: "Pending",

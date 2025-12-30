@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "~/app";
 import { createTestWallet, generateUserId } from "../helpers/test-helpers";
-import { publish } from "~/rabbitmq/publisher";
 
 // Mock RabbitMQ publisher
 vi.mock("~/rabbitmq/publisher", () => ({
@@ -11,7 +10,7 @@ vi.mock("~/rabbitmq/publisher", () => ({
 
 // Mock JWT verification middleware
 vi.mock("~/middleware/auth.middleware", () => ({
-  authMiddleware: (req: any, _res: any, next: any) => {
+  authMiddleware: (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
     // Simulate authenticated user
     req.user = {
       id: req.headers["x-test-user-id"] || "test-user-id",

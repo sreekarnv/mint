@@ -55,8 +55,7 @@ export async function getLoggedInUser(accessToken: string): Promise<UserResType 
     }
 
     return user;
-  } catch (error) {
-    // Invalid token
+  } catch {
     return null;
   }
 }
