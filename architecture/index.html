@@ -4132,19 +4132,19 @@
 </ul>
 <h4 id="sample-logql-queries">Sample LogQL Queries<a class="headerlink" href="#sample-logql-queries" title="Permanent link">&para;</a></h4>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># All logs from auth service
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>{job=&quot;auth&quot;}
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>{service=&quot;@mint/auth&quot;}
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a># Error logs across all services
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>{level=&quot;error&quot;}
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a># Logs matching text pattern
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>{job=&quot;transactions&quot;} |= &quot;payment&quot;
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>{service=&quot;@mint/transactions&quot;} |= &quot;payment&quot;
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a># JSON parsing and filtering
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>{job=&quot;auth&quot;} | json | userId=&quot;507f1f77bcf86cd799439011&quot;
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>{service=&quot;@mint/auth&quot;} | json | userId=&quot;507f1f77bcf86cd799439011&quot;
 </span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a># Metric from logs (count)
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>sum(rate({level=&quot;error&quot;}[5m])) by (job)
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>sum(rate({level=&quot;error&quot;}[5m])) by (service)
 </span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
 </span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a># Top 10 error messages
 </span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>topk(10, sum by(message) (rate({level=&quot;error&quot;}[1h])))
@@ -4195,7 +4195,7 @@
 </span></code></pre></div>
 <h4 id="log-labels-applied">Log Labels Applied<a class="headerlink" href="#log-labels-applied" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>job</strong>: Service name (auth, wallet, transactions, notifications)</li>
+<li><strong>service</strong>: Service name (@mint/auth, @mint/wallet, @mint/transactions, @mint/notifications)</li>
 <li><strong>container_name</strong>: Docker container name</li>
 <li><strong>environment</strong>: dev/staging/production</li>
 <li><strong>level</strong>: Log level (error, warn, info, debug)</li>
