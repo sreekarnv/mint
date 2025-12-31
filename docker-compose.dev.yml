@@ -164,16 +164,41 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data_dev:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
     depends_on:
       - auth
       - wallet
       - transactions
       - notifications
+    networks:
+      - mint-network-dev
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: mint-loki-dev
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data_dev:/loki
+    networks:
+      - mint-network-dev
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: mint-alloy-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./loki/alloy.hcl:/etc/alloy/config.hcl:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.hcl
+    depends_on:
+      - loki
     networks:
       - mint-network-dev
 
@@ -251,3 +276,4 @@ volumes:
   prometheus_data_dev:
   grafana_data_dev:
   redis_data_dev:
+  loki_data_dev:

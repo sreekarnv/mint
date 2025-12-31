@@ -1,4 +1,5 @@
 import amqp, { Channel, Connection } from "amqplib";
+import { env } from "~/env";
 import { Exchanges, Queues, Bindings } from "~/rabbitmq/topology";
 import { logger } from "~/utils/logger";
 
@@ -6,7 +7,7 @@ let connection: Connection;
 let channel: Channel;
 
 export async function initRabbitMQ() {
-  const c = await amqp.connect(process.env.RABBITMQ_URL!);
+  const c = await amqp.connect(env.RABBITMQ_URL);
   connection = c.connection;
   connection.on("error", (err) => logger.error("RabbitMQ connection error", err));
   connection.on("close", () => {

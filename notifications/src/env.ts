@@ -16,8 +16,13 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]),
   PORT: z.coerce.number(),
   CORS_ORIGIN: z.string().optional().default("*"),
-  RATE_LIMIT_WINDOW_MS: z.coerce.number().optional().default(15 * 60 * 1000),
+  RATE_LIMIT_WINDOW_MS: z.coerce
+    .number()
+    .optional()
+    .default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().optional().default(100),
+  RABBITMQ_URL: z.string(),
+  LOKI_URL: z.string(),
 });
 
 export const env = z.parse(envSchema, process.env);

@@ -19,11 +19,16 @@ const envSchema = z.object({
   JWT_ISS: z.string(),
   JWT_AUD: z.string(),
   CORS_ORIGIN: z.string().optional().default("*"),
-  RATE_LIMIT_WINDOW_MS: z.coerce.number().optional().default(15 * 60 * 1000),
+  RATE_LIMIT_WINDOW_MS: z.coerce
+    .number()
+    .optional()
+    .default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().optional().default(100),
   REDIS_HOST: z.string().default("localhost"),
   REDIS_PORT: z.coerce.number().default(6379),
   REDIS_PASSWORD: z.string().optional(),
+  LOKI_URL: z.string(),
+  RABBITMQ_URL: z.string(),
 });
 
 export const env = z.parse(envSchema, process.env);

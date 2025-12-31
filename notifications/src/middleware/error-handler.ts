@@ -118,12 +118,12 @@ export function errorHandler(err: Error, req: Request, res: Response, next: Next
 
   const response: ErrorResponse = {
     error: {
-      message: process.env.NODE_ENV === "development" ? err.message : "Internal server error",
+      message: env.NODE_ENV === "development" ? err.message : "Internal server error",
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     },
   };
 
-  if (process.env.NODE_ENV === "development") {
+  if (env.NODE_ENV === "development") {
     response.error.stack = err.stack;
   }
 

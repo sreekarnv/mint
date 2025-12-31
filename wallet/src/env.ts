@@ -21,8 +21,12 @@ const envSchema = z.object({
   JWT_AUD: z.string(),
   JWKS_ENDPOINT: z.url(),
   CORS_ORIGIN: z.string().optional().default("*"),
-  RATE_LIMIT_WINDOW_MS: z.coerce.number().optional().default(15 * 60 * 1000),
+  RATE_LIMIT_WINDOW_MS: z.coerce
+    .number()
+    .optional()
+    .default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().optional().default(100),
+  LOKI_URL: z.string(),
 });
 
 export const env = z.parse(envSchema, process.env);
