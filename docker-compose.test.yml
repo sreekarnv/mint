@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mongodb-test:
@@ -9,6 +9,14 @@ services:
       MONGO_INITDB_DATABASE: test
     tmpfs:
       - /data/db
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: mint-redis1
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
 
   auth-test:
     build:
@@ -22,9 +30,11 @@ services:
     environment:
       NODE_ENV: test
       DATABASE_URL: mongodb://mongodb-test:27017/auth-test
+      REDIS_HOST: redis-test
       USE_REAL_MONGO: "true"
     depends_on:
       - mongodb-test
+      - redis-test
 
   wallet-test:
     build:
@@ -39,8 +49,10 @@ services:
       NODE_ENV: test
       DATABASE_URL: mongodb://mongodb-test:27017/wallet-test
       USE_REAL_MONGO: "true"
+      REDIS_HOST: redis-test
     depends_on:
       - mongodb-test
+      - redis-test
 
   transactions-test:
     build:
@@ -55,8 +67,10 @@ services:
       NODE_ENV: test
       DATABASE_URL: mongodb://mongodb-test:27017/transactions-test
       USE_REAL_MONGO: "true"
+      REDIS_HOST: redis-test
     depends_on:
       - mongodb-test
+      - redis-test
 
   notifications-test:
     build:
@@ -69,6 +83,8 @@ services:
     command: pnpm test
     environment:
       NODE_ENV: test
+      REDIS_HOST: redis-test
       USE_REAL_MONGO: "true"
     depends_on:
       - mongodb-test
+      - redis-test

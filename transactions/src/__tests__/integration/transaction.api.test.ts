@@ -4,15 +4,12 @@ import { app } from "~/app";
 import { createTestTransaction, generateUserId } from "../helpers/test-helpers";
 import { publish } from "~/rabbitmq/publisher";
 
-// Mock RabbitMQ publisher
 vi.mock("~/rabbitmq/publisher", () => ({
   publish: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock JWT verification middleware
 vi.mock("~/middleware/auth.middleware", () => ({
   authMiddleware: (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
-    // Simulate authenticated user
     req.user = {
       id: req.headers["x-test-user-id"] || "test-user-id",
       email: "test@example.com",
@@ -48,7 +45,7 @@ describe("Transaction API", () => {
         .send({ amount: 1000 })
         .expect(201);
 
-      expect(response.body).toHaveProperty("_id");
+      expect(response.body).toHaveProperty("id");
       expect(response.body.type).toBe("TopUp");
       expect(response.body.amount).toBe(1000);
       expect(response.body.status).toBe("Pending");
@@ -106,7 +103,7 @@ describe("Transaction API", () => {
         })
         .expect(201);
 
-      expect(response.body).toHaveProperty("_id");
+      expect(response.body).toHaveProperty("id");
       expect(response.body.type).toBe("Transfer");
       expect(response.body.amount).toBe(500);
       expect(response.body.status).toBe("Pending");
@@ -174,10 +171,7 @@ describe("Transaction API", () => {
         status: "Pending",
       });
 
-      const response = await request(app)
-        .get("/api/v1/transactions")
-        .set("x-test-user-id", userId.toString())
-        .expect(200);
+      const response = await request(app).get("/api/v1/transactions").set("x-test-user-id", userId.toString()).expect(200);
 
       expect(response.body).toHaveProperty("transactions");
       expect(response.body).toHaveProperty("pagination");
@@ -189,10 +183,7 @@ describe("Transaction API", () => {
     it("should return empty array for user with no transactions", async () => {
       const userId = generateUserId().toString();
 
-      const response = await request(app)
-        .get("/api/v1/transactions")
-        .set("x-test-user-id", userId)
-        .expect(200);
+      const response = await request(app).get("/api/v1/transactions").set("x-test-user-id", userId).expect(200);
 
       expect(response.body.transactions).toEqual([]);
       expect(response.body.pagination.total).toBe(0);
@@ -256,7 +247,7 @@ describe("Transaction API", () => {
         .set("x-test-user-id", userId.toString())
         .expect(200);
 
-      expect(response.body._id.toString()).toBe(transaction._id.toString());
+      expect(response.body.id).toBe(transaction._id.toString());
       expect(response.body.amount).toBe(1500);
       expect(response.body.type).toBe("TopUp");
     });
@@ -265,10 +256,7 @@ describe("Transaction API", () => {
       const userId = generateUserId().toString();
       const fakeId = generateUserId().toString();
 
-      const response = await request(app)
-        .get(`/api/v1/transactions/${fakeId}`)
-        .set("x-test-user-id", userId)
-        .expect(404);
+      const response = await request(app).get(`/api/v1/transactions/${fakeId}`).set("x-test-user-id", userId).expect(404);
 
       expect(response.body.error).toHaveProperty("message");
     });
@@ -276,10 +264,7 @@ describe("Transaction API", () => {
     it("should return 400 for invalid transaction id format", async () => {
       const userId = generateUserId().toString();
 
-      const response = await request(app)
-        .get("/api/v1/transactions/invalid-id")
-        .set("x-test-user-id", userId)
-        .expect(400);
+      const response = await request(app).get("/api/v1/transactions/invalid-id").set("x-test-user-id", userId).expect(400);
 
       expect(response.body.error).toHaveProperty("message");
     });
