@@ -17,48 +17,91 @@ Mint follows a **microservices architecture** with **event-driven communication*
 
 ### High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     NGINX API Gateway (Port 80)                  │
-│                  Rate Limiting │ Load Balancing                  │
-└─────────────────────────────────────────────────────────────────┘
-                                 │
-         ┌───────────────────────┼───────────────────────┐
-         │                       │                       │
-    ┌────▼────┐          ┌──────▼───────┐      ┌───────▼────────┐
-    │  Auth   │          │  Wallet      │      │ Transactions   │
-    │ Service │◄────────►│  Service     │◄────►│   Service      │
-    │:4001    │  Redis   │  :4003       │ Redis│   :4004        │
-    └────┬────┘  Cache   └──────┬───────┘Cache └───────┬────────┘
-         │       :6379          │                      │
-         │    ┌─────────────────┼──────────────────────┤
-         │    │                 │                      │
-    ┌────▼────▼─────────────────▼──────────────────────▼────────┐
-    │              RabbitMQ Message Broker (:5672)               │
-    │         Exchanges: auth.events, transaction.events         │
-    └───────────────────────────┬────────────────────────────────┘
-                                │
-                        ┌───────▼────────┐
-                        │ Notifications  │
-                        │    Service     │
-                        │    :4002       │
-                        └────────────────┘
+```mermaid
+flowchart TB
+    %% =========================
+    %% API GATEWAY
+    %% =========================
+    subgraph Gateway["🌐 API Gateway"]
+        NGINX["NGINX<br/>:80<br/><small>Rate Limiting · Load Balancing</small>"]
+    end
 
-         ┌──────────────────────────────────────────┐
-         │    MongoDB (Port 27017)                  │
-         │  - auth_db (Users)                       │
-         │  - wallet_db (Wallets)                   │
-         │  - transactions_db (Transactions)        │
-         └──────────────────────────────────────────┘
+    %% =========================
+    %% CORE SERVICES
+    %% =========================
+    subgraph Services["🧩 Core Services"]
+        AUTH["🔐 Auth<br/>:4001"]
+        WALLET["💰 Wallet<br/>:4003"]
+        TXN["💳 Transactions<br/>:4004"]
+        NOTIF["🔔 Notifications<br/>:4002"]
+    end
 
-    ┌────────────────────┐         ┌──────────────────────┐
-    │   Prometheus       │────────►│     Grafana          │
-    │   Metrics (:9090)  │         │  Dashboards (:3000)  │
-    └────────────────────┘         └──────────────────────┘
-             ▲
-             │ Scrapes metrics from all services
-             └────────────────────────────────────┐
-                  /metrics endpoints               │
+    %% =========================
+    %% DATA & MESSAGING
+    %% =========================
+    subgraph Infra["🗄️ Data & Messaging"]
+        REDIS[(⚡ Redis<br/>:6379)]
+        RABBIT["📨 RabbitMQ<br/>:5672<br/><small>auth.events · transaction.events</small>"]
+        MONGO[(🗃️ MongoDB<br/>:27017<br/><small>auth · wallet · transactions</small>)]
+    end
+
+    %% =========================
+    %% OBSERVABILITY
+    %% =========================
+    subgraph Observability["📊 Observability"]
+        PROM["📈 Prometheus<br/>:9090"]
+        GRAF["📊 Grafana<br/>:3000"]
+        LOKI["📝 Loki<br/>:3100"]
+        ALLOY["🔄 Alloy<br/><small>Log Collector</small>"]
+    end
+
+    %% =========================
+    %% TRAFFIC FLOW
+    %% =========================
+    NGINX --> AUTH
+    NGINX --> WALLET
+    NGINX --> TXN
+
+    %% =========================
+    %% CACHE
+    %% =========================
+    AUTH <--> |cache| REDIS
+    WALLET <--> |cache| REDIS
+    TXN <--> |cache| REDIS
+
+    %% =========================
+    %% ASYNC EVENTS
+    %% =========================
+    AUTH --> |auth.events| RABBIT
+    WALLET --> |wallet.events| RABBIT
+    TXN --> |transaction.events| RABBIT
+    RABBIT --> |consume| NOTIF
+
+    %% =========================
+    %% DATABASE
+    %% =========================
+    AUTH --> |users| MONGO
+    WALLET --> |wallets| MONGO
+    TXN --> |transactions| MONGO
+
+    %% =========================
+    %% METRICS
+    %% =========================
+    AUTH --> |/metrics| PROM
+    WALLET --> |/metrics| PROM
+    TXN --> |/metrics| PROM
+    NOTIF --> |/metrics| PROM
+    PROM --> GRAF
+
+    %% =========================
+    %% LOGS
+    %% =========================
+    AUTH --> |logs| ALLOY
+    WALLET --> |logs| ALLOY
+    TXN --> |logs| ALLOY
+    NOTIF --> |logs| ALLOY
+    ALLOY --> LOKI
+    LOKI --> GRAF
 ```
 
 ### Communication Patterns
@@ -403,6 +446,111 @@ datasources:
 # grafana/provisioning/dashboards/mint.json
 # Pre-configured dashboards loaded on startup
 ```
+
+---
+
+### 📝 Loki
+
+**Port**: 3100
+
+#### Responsibilities
+- Centralized log aggregation and storage
+- Log indexing and querying via LogQL
+- Long-term log retention
+- Integration with Grafana for visualization
+- Multi-tenant log isolation (future)
+
+#### Tech Stack
+- **Loki** - Log aggregation system
+- **LogQL** - Query language for logs
+- **Object Storage** - Log chunk storage (filesystem in dev)
+
+#### Key Features
+- **Efficient Storage**: Indexes only metadata, not full log content
+- **LogQL Queries**: Powerful query language similar to PromQL
+- **Label-based Indexing**: Fast filtering by service, level, etc.
+- **Retention Policies**: Configurable log retention periods
+- **Compression**: Efficient log chunk compression
+- **No Schema**: No predefined log schema required
+
+#### Log Storage
+- **Index**: Label-based metadata (service, level, job)
+- **Chunks**: Compressed log content
+- **Retention**: 7 days default (configurable)
+- **Storage Backend**: Filesystem (local), S3, GCS (production)
+
+#### Sample LogQL Queries
+```logql
+# All logs from auth service
+{service="@mint/auth"}
+
+# Error logs across all services
+{level="error"}
+
+# Logs matching text pattern
+{service="@mint/transactions"} |= "payment"
+
+# JSON parsing and filtering
+{service="@mint/auth"} | json | userId="507f1f77bcf86cd799439011"
+
+# Metric from logs (count)
+sum(rate({level="error"}[5m])) by (service)
+
+# Top 10 error messages
+topk(10, sum by(message) (rate({level="error"}[1h])))
+```
+
+---
+
+### 🔄 Grafana Alloy
+
+**Agent Type**: Log Collection & Forwarding
+
+#### Responsibilities
+- Collect logs from all microservices
+- Parse and enrich log data
+- Forward logs to Loki
+- Add labels and metadata
+- Filter and transform log streams
+
+#### Tech Stack
+- **Grafana Alloy** - Unified observability agent
+- **Loki Client** - Log shipping to Loki
+- **Docker Logs Driver** - Container log collection
+
+#### Log Collection Strategy
+- **Source**: Docker container stdout/stderr
+- **Collection**: Alloy reads from Docker socket
+- **Parsing**: JSON log parsing with Winston format
+- **Enrichment**: Adds job labels (service names)
+- **Delivery**: Batched push to Loki
+
+#### Configuration
+```yaml
+# alloy/config.alloy
+loki.source.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  targets = [
+    {
+      __path__ = "/var/lib/docker/containers/*/*.log",
+      job = "docker",
+    },
+  ]
+  forward_to = [loki.write.endpoint.receiver]
+}
+
+loki.write "endpoint" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+```
+
+#### Log Labels Applied
+- **service**: Service name (@mint/auth, @mint/wallet, @mint/transactions, @mint/notifications)
+- **container_name**: Docker container name
+- **environment**: dev/staging/production
+- **level**: Log level (error, warn, info, debug)
 
 ---
 

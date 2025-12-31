@@ -116,6 +116,8 @@ Mint is a modern wallet platform built with microservices architecture and event
     subgraph Observability["📊 Observability"]
         PROM["📈 Prometheus<br/>:9090"]
         GRAF["📊 Grafana<br/>:3000"]
+        LOKI["📝 Loki<br/>:3100"]
+        ALLOY["🔄 Alloy<br/><small>Log Collector</small>"]
     end
 
     %% =========================
@@ -155,6 +157,16 @@ Mint is a modern wallet platform built with microservices architecture and event
     TXN --> |/metrics| PROM
     NOTIF --> |/metrics| PROM
     PROM --> GRAF
+
+    %% =========================
+    %% LOGS
+    %% =========================
+    AUTH --> |logs| ALLOY
+    WALLET --> |logs| ALLOY
+    TXN --> |logs| ALLOY
+    NOTIF --> |logs| ALLOY
+    ALLOY --> LOKI
+    LOKI --> GRAF
 
 ```
 
@@ -213,6 +225,7 @@ docker compose ps
 - RabbitMQ Management: http://localhost:15672 (guest/guest)
 - Prometheus Metrics: http://localhost:9090
 - Grafana Dashboards: http://localhost:3000 (admin/admin)
+- Loki Logs: http://localhost:3100 (via Grafana)
 - MongoDB: mongodb://localhost:27017
 - Redis: redis://localhost:6379
 
@@ -380,6 +393,68 @@ open http://localhost:3000
 - Service Uptime: **99.9%+** availability
 
 📖 [Monitoring Guide](https://sreekarnv.github.io/mint/monitoring/)
+
+---
+
+## 📝 Centralized Logging
+
+Mint implements structured logging with **Loki** for log aggregation and **Grafana Alloy** for log collection, providing centralized log management across all microservices.
+
+<div align="center">
+  <img src="docs/assets/loki-logs.png" alt="Loki Logs in Grafana" width="800"/>
+  <p><em>Real-time log aggregation in Grafana with Loki, showing structured JSON logs with filtering and search capabilities</em></p>
+</div>
+
+**Logging Stack**:
+- **Winston**: Structured JSON logging in all services
+- **Grafana Alloy**: Log collection and forwarding agent
+- **Loki**: Log aggregation and storage
+- **Grafana**: Log visualization and querying
+
+**Log Features**:
+- **Structured Logging**: JSON format with consistent fields across services
+- **Log Levels**: error, warn, info, debug with appropriate filtering
+- **Contextual Information**: Service name, version, timestamp, request ID
+- **Centralized Aggregation**: All service logs in one place
+- **Advanced Filtering**: By service, level, time range, and custom fields
+- **Log Retention**: Configurable retention policies
+
+**Querying Logs**:
+```bash
+# View logs in Grafana
+open http://localhost:3000
+
+# Navigate to Explore → Select Loki data source
+
+# Sample LogQL queries:
+# All logs from auth service
+{service="@mint/auth"}
+
+# Error logs from all services
+{level="error"}
+
+# Logs for specific user action
+{service="@mint/auth"} |= "login" | json
+
+# Logs in last 5 minutes
+{service="@mint/transactions"} [5m]
+```
+
+**Log Structure**:
+```json
+{
+  "level": "info",
+  "message": "User login successful",
+  "service": "@mint/auth",
+  "version": "0.0.1",
+  "timestamp": "2025-12-31T12:00:00.000Z",
+  "userId": "507f1f77bcf86cd799439011",
+  "method": "POST",
+  "url": "/api/v1/auth/login"
+}
+```
+
+📖 [Logging Guide](https://sreekarnv.github.io/mint/monitoring/#logging)
 
 ---
 

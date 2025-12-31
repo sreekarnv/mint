@@ -508,6 +508,305 @@ providers:
 
 ---
 
+---
+
+## Logging
+
+Mint implements centralized logging using **Loki** for log aggregation, **Grafana Alloy** for log collection, and **Winston** for structured logging in all services.
+
+![Loki Logs](assets/loki-logs.png)
+*Centralized log aggregation in Grafana with Loki, showing structured JSON logs with filtering and search*
+
+### Logging Stack
+
+**Winston (Application Layer)**:
+- Structured JSON logging format
+- Multiple log levels: error, warn, info, debug
+- Contextual metadata (service, version, userId, etc.)
+- Console and file transports
+
+**Grafana Alloy (Collection Layer)**:
+- Collects logs from Docker containers
+- Parses JSON log format
+- Adds labels (service name, container, environment)
+- Forwards to Loki
+
+**Loki (Storage & Query Layer)**:
+- Stores logs with label-based indexing
+- LogQL query language
+- Efficient compression
+- 7-day retention (configurable)
+
+**Grafana (Visualization Layer)**:
+- Log exploration interface
+- LogQL query builder
+- Live log tailing
+- Log context and correlation with metrics
+
+### Log Structure
+
+All services produce structured JSON logs:
+
+```json
+{
+  "level": "info",
+  "message": "User login successful",
+  "service": "@mint/auth",
+  "version": "0.0.1",
+  "timestamp": "2025-12-31T12:00:00.000Z",
+  "userId": "507f1f77bcf86cd799439011",
+  "method": "POST",
+  "url": "/api/v1/auth/login",
+  "statusCode": 200,
+  "duration": 45
+}
+```
+
+**Standard Fields**:
+- `level`: Log level (error, warn, info, debug)
+- `message`: Human-readable message
+- `service`: Service identifier
+- `version`: Service version
+- `timestamp`: ISO 8601 timestamp
+
+**Contextual Fields** (varies by service):
+- `userId`: User identifier
+- `transactionId`: Transaction identifier
+- `method`: HTTP method
+- `url`: Request URL
+- `statusCode`: HTTP status code
+- `duration`: Request duration in ms
+- `error`: Error details (stack trace, message)
+
+### Accessing Logs
+
+1. **Via Grafana**:
+   ```bash
+   open http://localhost:3000
+   # Navigate to Explore → Select Loki data source
+   ```
+
+2. **Direct Loki API**:
+   ```bash
+   # Query logs
+   curl -G http://localhost:3100/loki/api/v1/query \
+     --data-urlencode 'query={service="@mint/auth"}' \
+     --data-urlencode 'limit=100'
+   ```
+
+3. **Docker Logs** (fallback):
+   ```bash
+   docker logs mint-auth-dev --tail 100 --follow
+   ```
+
+### LogQL Query Examples
+
+#### Basic Queries
+
+```logql
+# All logs from auth service
+{service="@mint/auth"}
+
+# All error logs
+{level="error"}
+
+# Logs from multiple services
+{service=~"@mint/auth|@mint/wallet|@mint/transactions"}
+
+# Logs in time range
+{service="@mint/auth"}[5m]
+```
+
+#### Text Filtering
+
+```logql
+# Logs containing "login"
+{service="@mint/auth"} |= "login"
+
+# Logs NOT containing "health"
+{service="@mint/auth"} != "health"
+
+# Regex match
+{service="@mint/auth"} |~ "login|signup"
+
+# Case-insensitive
+{service="@mint/auth"} |~ `(?i)error`
+```
+
+#### JSON Parsing
+
+```logql
+# Parse JSON and filter by field
+{service="@mint/auth"} | json | userId="507f1f77bcf86cd799439011"
+
+# Filter by status code
+{service="@mint/auth"} | json | statusCode >= 400
+
+# Multiple conditions
+{service="@mint/auth"} | json | level="error" | statusCode >= 500
+```
+
+#### Metrics from Logs
+
+```logql
+# Count error logs per service
+sum(count_over_time({level="error"}[5m])) by (service)
+
+# Rate of requests per service
+rate({service=~"@mint/auth|@mint/transactions"}[1m])
+
+# P95 latency from logs
+quantile_over_time(0.95, {service="@mint/auth"} | json | unwrap duration [5m]) by (service)
+
+# Top 10 error messages
+topk(10, sum by(message) (count_over_time({level="error"}[1h])))
+```
+
+### Log Levels
+
+| Level | Usage | Examples |
+|-------|-------|----------|
+| **error** | Errors requiring attention | Failed transactions, authentication errors, DB connection failures |
+| **warn** | Warnings that may need investigation | Deprecated API usage, high response times, retry attempts |
+| **info** | Important events | User signups, transaction creation, successful payments |
+| **debug** | Detailed debugging info | Function entry/exit, variable values, flow control |
+
+### Best Practices
+
+#### 1. Use Structured Logging
+
+✅ **Good**:
+```typescript
+logger.info('User login successful', {
+  userId: user.id,
+  method: req.method,
+  duration: Date.now() - start
+});
+```
+
+❌ **Bad**:
+```typescript
+console.log(`User ${user.id} logged in`);
+```
+
+#### 2. Include Contextual Information
+
+Always include:
+- Request ID for tracing
+- User ID for user actions
+- Transaction ID for financial operations
+- Duration for performance tracking
+
+#### 3. Appropriate Log Levels
+
+```typescript
+// Error - Something failed
+logger.error('Failed to create transaction', { error, transactionId });
+
+// Warn - Potential issues
+logger.warn('High response time detected', { duration, threshold });
+
+// Info - Important events
+logger.info('Transaction completed', { transactionId, amount });
+
+// Debug - Detailed debugging
+logger.debug('Validating transaction', { transactionId, rules });
+```
+
+#### 4. Avoid Logging Sensitive Data
+
+Never log:
+- Passwords or password hashes
+- Credit card numbers
+- API keys or secrets
+- Full JWT tokens
+- Personal identifiable information (PII)
+
+Use redaction:
+```typescript
+logger.info('User created', {
+  email: user.email.replace(/(?<=.{2}).(?=.*@)/g, '*'),
+  // email: 'jo***@example.com'
+});
+```
+
+### Log Retention
+
+| Environment | Retention Period | Compression |
+|-------------|-----------------|-------------|
+| **Development** | 7 days | Enabled |
+| **Staging** | 14 days | Enabled |
+| **Production** | 30 days | Enabled |
+
+Adjust in `loki/config.yml`:
+
+```yaml
+limits_config:
+  retention_period: 720h  # 30 days
+```
+
+### Troubleshooting Logs
+
+#### No Logs Appearing
+
+1. **Check Alloy is running**:
+   ```bash
+   docker compose ps alloy
+   docker logs mint-alloy
+   ```
+
+2. **Verify Loki connection**:
+   ```bash
+   curl http://localhost:3100/ready
+   ```
+
+3. **Check service logs are JSON**:
+   ```bash
+   docker logs mint-auth-dev --tail 10
+   # Should see JSON formatted logs
+   ```
+
+4. **Verify Grafana data source**:
+   - Navigate to Configuration → Data Sources
+   - Test Loki connection
+
+#### Logs Not Parseable
+
+If logs appear as plain text instead of parsed JSON:
+
+1. **Check Winston format**:
+   ```typescript
+   format: winston.format.combine(
+     winston.format.timestamp(),
+     winston.format.json()  // Must be JSON
+   )
+   ```
+
+2. **Verify Alloy parsing**:
+   Check `alloy/config.alloy` has JSON parser enabled
+
+#### High Log Volume
+
+If experiencing performance issues due to high log volume:
+
+1. **Increase debug log filtering**:
+   ```typescript
+   const logger = winston.createLogger({
+     level: process.env.LOG_LEVEL || 'info'  // Filter debug logs
+   });
+   ```
+
+2. **Add sampling** for high-frequency logs:
+   ```typescript
+   if (Math.random() < 0.1) {  // 10% sampling
+     logger.debug('Detailed debug info');
+   }
+   ```
+
+3. **Reduce retention period** in Loki config
+
+---
+
 ## Related Documentation
 
 - [Architecture Overview](architecture.md)
@@ -520,7 +819,9 @@ providers:
 ## Next Steps
 
 1. **Explore Dashboards**: Access Grafana and explore pre-built panels
-2. **Set Up Alerts**: Configure alerts for critical metrics
-3. **Create Custom Dashboards**: Build dashboards for your specific needs
-4. **Integrate with CI/CD**: Add metric checks to deployment pipelines
-5. **Load Test**: Run k6 tests to validate performance under load
+2. **Query Logs**: Practice LogQL queries in Grafana Explore
+3. **Set Up Alerts**: Configure alerts for critical metrics and error logs
+4. **Create Custom Dashboards**: Build dashboards for your specific needs
+5. **Integrate with CI/CD**: Add metric checks to deployment pipelines
+6. **Load Test**: Run k6 tests to validate performance under load
+7. **Log Correlation**: Link logs to traces (future: distributed tracing)
