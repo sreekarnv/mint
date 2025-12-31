@@ -11,6 +11,7 @@ import type {
 import { signAccessToken } from "~/utils/jwt";
 import { publish } from "~/rabbitmq/publisher";
 import { Exchanges, RoutingKeys } from "~/rabbitmq/topology";
+import { authAttempts, signupAttempts } from "~/middleware/metrics";
 
 export async function signup(req: SignupRequestType, res: SignupResponseType, next: NextFunction) {
   try {
@@ -18,8 +19,10 @@ export async function signup(req: SignupRequestType, res: SignupResponseType, ne
     const accessToken = await signAccessToken(user);
     res.cookie("access.token", accessToken, { httpOnly: true });
     publish<UserResType>(Exchanges.AUTH_EVENTS, RoutingKeys.USER_SIGNUP, user);
+    signupAttempts.inc({ result: "success" });
     res.status(StatusCodes.CREATED).json(user);
   } catch (error) {
+    signupAttempts.inc({ result: "failure" });
     next(error);
   }
 }
@@ -29,8 +32,10 @@ export async function login(req: LoginRequestType, res: LoginResponseType, next:
     const user = await authService.login(req.body);
     const accessToken = await signAccessToken(user);
     res.cookie("access.token", accessToken, { httpOnly: true });
+    authAttempts.inc({ type: "login", result: "success" });
     res.status(StatusCodes.OK).json(user);
   } catch (error) {
+    authAttempts.inc({ type: "login", result: "failure" });
     next(error);
   }
 }

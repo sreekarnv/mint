@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import { omit } from "lodash";
 import { z } from "zod";
+import { mongooseMetricsPlugin } from "~/middleware/mongoose-metrics";
 
 export const userRole = z.enum(["user", "admin"]);
 
@@ -70,5 +71,7 @@ export const userSchema = new Schema<UserSchemaType>(
     },
   },
 );
+
+userSchema.plugin(mongooseMetricsPlugin);
 
 export const UserModel = model("users", userSchema);

@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { transactionRouter } from "~/routers/transaction.router";
 import { errorHandler, notFoundHandler } from "~/middleware/error-handler";
+import { metricsMiddleware, metricsHandler } from "~/middleware/metrics";
 import helmet from "helmet";
 import cors from "cors";
 import { rateLimit } from "express-rate-limit";
@@ -60,9 +61,13 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+app.use(metricsMiddleware);
+
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", service: "transactions" });
 });
+
+app.get("/metrics", metricsHandler);
 
 app.use("/api/v1/transactions", transactionRouter);
 

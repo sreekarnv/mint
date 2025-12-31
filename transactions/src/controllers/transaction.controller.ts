@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { ObjectId } from "~/schemas/common/objectid.schema";
-import { TopupRequestType, type TransferRequestType } from "~/schemas/transaction.schema";
+import { TopupRequestType, type TransferRequestType } from "~/schemas/http/transaction.req.schema";
 import { createTopUp, createTransfer, getUserTransactions, getTransactionById } from "~/services/transaction.service";
+import { transactionCounter, transactionAmount } from "~/middleware/metrics";
 
 export async function transfer(req: TransferRequestType, res: Response, next: NextFunction) {
   try {
@@ -13,6 +14,9 @@ export async function transfer(req: TransferRequestType, res: Response, next: Ne
       amount,
       toUserId,
     });
+
+    transactionCounter.inc({ type: "Transfer", status: txn.status });
+    transactionAmount.observe({ type: "Transfer" }, amount);
 
     res.status(StatusCodes.CREATED).json(txn);
   } catch (error) {
@@ -29,6 +33,9 @@ export async function topup(req: TopupRequestType, res: Response, next: NextFunc
       amount,
       userId,
     });
+
+    transactionCounter.inc({ type: "TopUp", status: txn.status });
+    transactionAmount.observe({ type: "TopUp" }, amount);
 
     res.status(StatusCodes.CREATED).json(txn);
   } catch (error) {
@@ -53,7 +60,7 @@ export async function listTransactions(req: Request, res: Response, next: NextFu
 export async function getTransaction(req: Request, res: Response, next: NextFunction) {
   try {
     const userId = req.user!.id;
-    const transactionId = req.params.id;
+    const transactionId = req.params.id!;
 
     const transaction = await getTransactionById(transactionId, userId);
 

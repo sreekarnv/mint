@@ -1,0 +1,94 @@
+import { Request, Response, NextFunction } from "express";
+import client from "prom-client";
+
+export const register = new client.Registry();
+
+client.collectDefaultMetrics({ register });
+
+export const httpRequestDuration = new client.Histogram({
+  name: "http_request_duration_seconds",
+  help: "Duration of HTTP requests in seconds",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5],
+  registers: [register],
+});
+
+export const httpRequestTotal = new client.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status_code"],
+  registers: [register],
+});
+
+export const activeConnections = new client.Gauge({
+  name: "active_connections",
+  help: "Number of active connections",
+  registers: [register],
+});
+
+export const dbQueryDuration = new client.Histogram({
+  name: "db_query_duration_seconds",
+  help: "Duration of database queries in seconds",
+  labelNames: ["operation", "collection"],
+  buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1],
+  registers: [register],
+});
+
+export const transactionCounter = new client.Counter({
+  name: "transactions_total",
+  help: "Total number of transactions created",
+  labelNames: ["type", "status"],
+  registers: [register],
+});
+
+export const transactionAmount = new client.Histogram({
+  name: "transaction_amount",
+  help: "Transaction amounts",
+  labelNames: ["type"],
+  buckets: [1, 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
+  registers: [register],
+});
+
+export const transactionDuration = new client.Histogram({
+  name: "transaction_processing_duration_seconds",
+  help: "Duration of transaction processing",
+  labelNames: ["type", "status"],
+  buckets: [0.1, 0.5, 1, 2, 5, 10],
+  registers: [register],
+});
+
+export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+
+  activeConnections.inc();
+
+  res.on("finish", () => {
+    const duration = (Date.now() - start) / 1000;
+    const route = req.route?.path || req.path;
+
+    httpRequestDuration.observe(
+      {
+        method: req.method,
+        route,
+        status_code: res.statusCode,
+      },
+      duration
+    );
+
+    httpRequestTotal.inc({
+      method: req.method,
+      route,
+      status_code: res.statusCode,
+    });
+
+    activeConnections.dec();
+  });
+
+  next();
+};
+
+export const metricsHandler = async (req: Request, res: Response) => {
+  res.setHeader("Content-Type", register.contentType);
+  const metrics = await register.metrics();
+  res.send(metrics);
+};

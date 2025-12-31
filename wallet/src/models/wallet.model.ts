@@ -1,6 +1,7 @@
 import { omit } from "lodash";
 import { Schema, model, SchemaTypes, Types } from "mongoose";
 import { z } from "zod";
+import { mongooseMetricsPlugin } from "~/middleware/mongoose-metrics";
 
 export const walletSchemaZod = z.object({
   userId: z.string().transform((id) => new Types.ObjectId(id)),
@@ -32,6 +33,7 @@ export const walletSchema = new Schema<WalletSchemaType>(
   },
 );
 
+walletSchema.plugin(mongooseMetricsPlugin);
 walletSchema.index({ userId: 1 }, { unique: true });
 
 export const WalletModel = model("wallet", walletSchema);

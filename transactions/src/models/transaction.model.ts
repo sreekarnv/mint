@@ -1,5 +1,6 @@
 import { Schema, Types, model, InferSchemaType } from "mongoose";
 import { transactionStatus, transactionType } from "~/schemas/domain/transaction.domain.schema";
+import { mongooseMetricsPlugin } from "~/middleware/mongoose-metrics";
 
 export const transactionSchema = new Schema(
   {
@@ -26,6 +27,8 @@ export const transactionSchema = new Schema(
     versionKey: false,
   },
 );
+
+transactionSchema.plugin(mongooseMetricsPlugin);
 
 export type TransactionDocument = InferSchemaType<typeof transactionSchema>;
 export const TransactionModel = model<TransactionDocument>("transactions", transactionSchema);
