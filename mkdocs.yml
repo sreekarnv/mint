@@ -102,6 +102,7 @@ nav:
       - Development Guide: development.md
       - Testing Guide: testing.md
       - Deployment: deployment.md
+      - Monitoring & Observability: monitoring.md
       - Troubleshooting: troubleshooting.md
   - About:
       - License: about/license.md
