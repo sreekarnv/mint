@@ -1,4 +1,4 @@
-import { TransactionModel } from "~/models/transaction.model";
+import { TransactionModel, TransactionDocument } from "~/models/transaction.model";
 import { publish } from "~/rabbitmq/publisher";
 import { Exchanges, RoutingKeys } from "~/rabbitmq/topology";
 import { TransactionCreatedEvent } from "~/schemas/events/transaction-created.schema";
@@ -10,6 +10,23 @@ import {
 } from "~/schemas/domain/transaction.domain.schema";
 import { logger } from "~/utils/logger";
 import { BadRequestError, NotFoundError } from "~/utils/errors";
+import { cacheGet, cacheSet, cacheDeletePattern } from "~/utils/cache";
+
+interface TransactionWithId extends Omit<TransactionDocument, "_id"> {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface PaginatedTransactions {
+  transactions: TransactionWithId[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
 
 export async function createTopUp({ userId, amount }: CreateTopUpType) {
   const txn = await TransactionModel.create({
@@ -18,6 +35,8 @@ export async function createTopUp({ userId, amount }: CreateTopUpType) {
     amount,
     status: transactionStatus.enum.Pending,
   });
+
+  await cacheDeletePattern(`transactions:list:${userId.toString()}:*`);
 
   publish(Exchanges.TRANSACTION_EVENTS, RoutingKeys.TRANSACTION_CREATED, {
     transactionId: txn._id.toString(),
@@ -30,7 +49,6 @@ export async function createTopUp({ userId, amount }: CreateTopUpType) {
 }
 
 export async function createTransfer({ fromUserId, toUserId, amount }: CreateTransferType) {
-  // Prevent self-transfers
   if (fromUserId.toString() === toUserId.toString()) {
     throw new BadRequestError("Cannot transfer money to yourself");
   }
@@ -42,6 +60,9 @@ export async function createTransfer({ fromUserId, toUserId, amount }: CreateTra
     amount,
     status: transactionStatus.enum.Pending,
   });
+
+  await cacheDeletePattern(`transactions:list:${fromUserId.toString()}:*`);
+  await cacheDeletePattern(`transactions:list:${toUserId.toString()}:*`);
 
   publish(Exchanges.TRANSACTION_EVENTS, RoutingKeys.TRANSACTION_CREATED, {
     transactionId: txn._id.toString(),
@@ -87,8 +108,6 @@ export async function processTransaction(event: TransactionCreatedEvent) {
 
       if (!fromUserId || !toUserId) throw new BadRequestError("Transfer missing required fields");
 
-      //   await session.commitTransaction();
-
       publish(Exchanges.TRANSACTION_EVENTS, RoutingKeys.TRANSACTION_COMPLETED, {
         transactionId: txn._id.toString(),
         type: "Transfer",
@@ -132,20 +151,31 @@ export async function getUserTransactions(userId: string, options: { limit?: num
   const limit = options.limit || 50;
   const offset = options.offset || 0;
 
-  const [transactions, total] = await Promise.all([
+  const cacheKey = `transactions:list:${userId}:${limit}:${offset}`;
+  const cached = await cacheGet<{ transactions: TransactionWithId[]; pagination: PaginatedTransactions }>(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  const [transactionDocs, total] = await Promise.all([
     TransactionModel.find({
       $or: [{ userId }, { fromUserId: userId }, { toUserId: userId }],
     })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .skip(offset)
-      .lean(),
+      .skip(offset),
     TransactionModel.countDocuments({
       $or: [{ userId }, { fromUserId: userId }, { toUserId: userId }],
     }),
   ]);
 
-  return {
+  const transactions = transactionDocs.map((doc) => ({
+    ...doc.toJSON(),
+    id: doc._id.toString(),
+  }));
+
+  const result = {
     transactions,
     pagination: {
       total,
@@ -154,16 +184,34 @@ export async function getUserTransactions(userId: string, options: { limit?: num
       hasMore: offset + limit < total,
     },
   };
+
+  await cacheSet(cacheKey, result, 180);
+
+  return result;
 }
 
 export async function getTransactionById(transactionId: string, userId: string) {
-  const transaction = await TransactionModel.findById(transactionId).lean();
+  const cacheKey = `transactions:detail:${transactionId}`;
+  const cached = await cacheGet<TransactionWithId>(cacheKey);
+
+  let transaction = cached;
+
+  if (!cached) {
+    const transactionDoc = await TransactionModel.findById(transactionId);
+
+    if (transactionDoc) {
+      transaction = {
+        ...transactionDoc.toJSON(),
+        id: transactionDoc._id.toString(),
+      };
+      await cacheSet(cacheKey, transaction, 180);
+    }
+  }
 
   if (!transaction) {
     throw new NotFoundError("Transaction not found");
   }
 
-  // Check if user is authorized to view this transaction
   const isAuthorized =
     transaction.userId?.toString() === userId ||
     transaction.fromUserId?.toString() === userId ||

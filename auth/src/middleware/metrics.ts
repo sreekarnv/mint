@@ -48,6 +48,27 @@ export const signupAttempts = new client.Counter({
   registers: [register],
 });
 
+export const cacheHits = new client.Counter({
+  name: "cache_hits_total",
+  help: "Total number of cache hits",
+  labelNames: ["cache_key_prefix"],
+  registers: [register],
+});
+
+export const cacheMisses = new client.Counter({
+  name: "cache_misses_total",
+  help: "Total number of cache misses",
+  labelNames: ["cache_key_prefix"],
+  registers: [register],
+});
+
+export const cacheErrors = new client.Counter({
+  name: "cache_errors_total",
+  help: "Total number of cache errors",
+  labelNames: ["operation"],
+  registers: [register],
+});
+
 export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
 

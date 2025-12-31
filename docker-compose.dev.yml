@@ -62,6 +62,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - mint-network-dev
     stdin_open: true
@@ -114,6 +116,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - mint-network-dev
     stdin_open: true
@@ -140,6 +144,8 @@ services:
       mongodb:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       auth:
         condition: service_started
@@ -189,6 +195,23 @@ services:
     networks:
       - mint-network-dev
 
+  redis:
+    image: redis:7-alpine
+    container_name: mint-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - mint-network-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   nginx:
     image: nginx:alpine
     container_name: mint-nginx-dev
@@ -227,3 +250,4 @@ volumes:
   rabbitmq_data_dev:
   prometheus_data_dev:
   grafana_data_dev:
+  redis_data_dev:

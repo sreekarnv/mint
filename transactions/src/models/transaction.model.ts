@@ -25,6 +25,13 @@ export const transactionSchema = new Schema(
   {
     timestamps: true,
     versionKey: false,
+    toJSON: {
+      virtuals: true,
+      transform(_, ret) {
+        delete ret._id;
+        return ret;
+      },
+    },
   },
 );
 
