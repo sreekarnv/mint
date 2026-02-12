@@ -189,13 +189,12 @@ describe("Transaction API", () => {
       const response = await request(app).get("/api/v1/transactions").set("x-test-user-id", userId).expect(200);
 
       expect(response.body.transactions).toEqual([]);
-      expect(response.body.pagination.total).toBe(0);
+      expect(response.body.total).toBe(0);
     });
 
     it("should support pagination with limit", async () => {
       const userId = generateUserId();
 
-      // Create 5 transactions
       for (let i = 0; i < 5; i++) {
         await createTestTransaction({
           type: "TopUp",
@@ -210,7 +209,7 @@ describe("Transaction API", () => {
         .expect(200);
 
       expect(response.body.transactions.length).toBe(3);
-      expect(response.body.pagination.total).toBe(5);
+      expect(response.body.total).toBe(5);
     });
 
     it("should support pagination with offset", async () => {
@@ -231,7 +230,7 @@ describe("Transaction API", () => {
         .expect(200);
 
       expect(response.body.transactions.length).toBe(3);
-      expect(response.body.pagination.total).toBe(5);
+      expect(response.body.total).toBe(5);
     });
   });
 
