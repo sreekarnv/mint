@@ -31,8 +31,8 @@ describe("Transaction Model", () => {
 
       expect(transaction).toBeDefined();
       expect(transaction.type).toBe("Transfer");
-      expect(transaction.fromUserId.toString()).toBe(fromUserId.toString());
-      expect(transaction.toUserId.toString()).toBe(toUserId.toString());
+      expect(transaction.fromUserId?.toString()).toBe(fromUserId.toString());
+      expect(transaction.toUserId?.toString()).toBe(toUserId.toString());
       expect(transaction.amount).toBe(500);
     });
 

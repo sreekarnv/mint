@@ -3,18 +3,20 @@ import request from "supertest";
 import { app } from "~/app";
 import { createTestTransaction, generateUserId } from "../helpers/test-helpers";
 import { publish } from "~/rabbitmq/publisher";
+import type { Request, Response, NextFunction } from "express";
 
 vi.mock("~/rabbitmq/publisher", () => ({
   publish: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("~/middleware/auth.middleware", () => ({
-  authMiddleware: (req: Express.Request, _res: Express.Response, next: Express.NextFunction) => {
+  authMiddleware: (req: Request, _res: Response, next: NextFunction) => {
     req.user = {
       id: req.headers["x-test-user-id"] || "test-user-id",
       email: "test@example.com",
       role: "user",
     };
+
     next();
   },
 }));
@@ -174,8 +176,9 @@ describe("Transaction API", () => {
       const response = await request(app).get("/api/v1/transactions").set("x-test-user-id", userId.toString()).expect(200);
 
       expect(response.body).toHaveProperty("transactions");
-      expect(response.body).toHaveProperty("pagination");
-      expect(response.body.pagination).toHaveProperty("total");
+      expect(response.body).toHaveProperty("total");
+      expect(response.body).toHaveProperty("limit");
+      expect(response.body).toHaveProperty("offset");
       expect(Array.isArray(response.body.transactions)).toBe(true);
       expect(response.body.transactions.length).toBeGreaterThan(0);
     });
