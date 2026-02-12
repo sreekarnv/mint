@@ -20,12 +20,9 @@ interface TransactionWithId extends Omit<TransactionDocument, "_id"> {
 
 interface PaginatedTransactions {
   transactions: TransactionWithId[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export async function createTopUp({ userId, amount }: CreateTopUpType) {
@@ -147,27 +144,36 @@ export async function applyFinalStatus(event: { transactionId: string; status: "
   }
 }
 
-export async function getUserTransactions(userId: string, options: { limit?: number; offset?: number } = {}) {
+// UPDATED: Added type parameter
+export async function getUserTransactions(
+  userId: string,
+  options: { limit?: number; offset?: number; type?: "TopUp" | "Transfer" } = {},
+) {
   const limit = options.limit || 50;
   const offset = options.offset || 0;
+  const type = options.type;
 
-  const cacheKey = `transactions:list:${userId}:${limit}:${offset}`;
-  const cached = await cacheGet<{ transactions: TransactionWithId[]; pagination: PaginatedTransactions }>(cacheKey);
+  // Include type in cache key
+  const cacheKey = `transactions:list:${userId}:${limit}:${offset}:${type || "all"}`;
+  const cached = await cacheGet<PaginatedTransactions>(cacheKey);
 
   if (cached) {
     return cached;
   }
 
+  // Build query
+  const query: any = {
+    $or: [{ userId }, { fromUserId: userId }, { toUserId: userId }],
+  };
+
+  // Add type filter if provided
+  if (type) {
+    query.type = type;
+  }
+
   const [transactionDocs, total] = await Promise.all([
-    TransactionModel.find({
-      $or: [{ userId }, { fromUserId: userId }, { toUserId: userId }],
-    })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(offset),
-    TransactionModel.countDocuments({
-      $or: [{ userId }, { fromUserId: userId }, { toUserId: userId }],
-    }),
+    TransactionModel.find(query).sort({ createdAt: -1 }).limit(limit).skip(offset),
+    TransactionModel.countDocuments(query),
   ]);
 
   const transactions = transactionDocs.map((doc) => ({
@@ -175,14 +181,11 @@ export async function getUserTransactions(userId: string, options: { limit?: num
     id: doc._id.toString(),
   }));
 
-  const result = {
+  const result: PaginatedTransactions = {
     transactions,
-    pagination: {
-      total,
-      limit,
-      offset,
-      hasMore: offset + limit < total,
-    },
+    total,
+    limit,
+    offset,
   };
 
   await cacheSet(cacheKey, result, 180);

@@ -14,8 +14,17 @@
     "lint": "pnpm --recursive lint",
     "format": "pnpm --recursive format"
   },
-  "keywords": ["microservices", "wallet", "event-driven", "rabbitmq", "typescript"],
+  "keywords": [
+    "microservices",
+    "wallet",
+    "event-driven",
+    "rabbitmq",
+    "typescript"
+  ],
   "author": "Sreekar Venkata Nutulapati",
   "license": "MIT",
-  "packageManager": "pnpm@10.24.0"
+  "packageManager": "pnpm@10.24.0",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
 }
