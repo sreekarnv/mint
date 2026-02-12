@@ -9,10 +9,9 @@ export async function listTransactions(req: Request, res: Response, next: NextFu
     const userId = req.user!.id;
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
     const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
-    const type = req.query.type as string | undefined;
+    const txnType = req.query.type as "TopUp" | "Transfer" | undefined;
 
-    // Validate type if provided
-    if (type && !Object.values(transactionType.enum).includes(type as any)) {
+    if (txnType && !Object.values(transactionType.enum).includes(txnType)) {
       throw new BadRequestError(
         `Invalid transaction type. Must be one of: ${Object.values(transactionType.enum).join(", ")}`,
       );
@@ -21,7 +20,7 @@ export async function listTransactions(req: Request, res: Response, next: NextFu
     const result = await transactionsService.getUserTransactions(userId, {
       limit,
       offset,
-      type: type as "TopUp" | "Transfer" | undefined,
+      type: txnType as "TopUp" | "Transfer" | undefined,
     });
 
     res.status(StatusCodes.OK).json(result);
