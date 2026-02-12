@@ -42,10 +42,7 @@ describe("Wallet API", () => {
       const userId = generateUserId().toString();
       await createTestWallet(userId, 1500);
 
-      const response = await request(app)
-        .get("/api/v1/wallet/user")
-        .set("x-test-user-id", userId)
-        .expect(200);
+      const response = await request(app).get("/api/v1/wallet/user").set("x-test-user-id", userId).expect(200);
 
       expect(response.body).toHaveProperty("userId");
       expect(response.body.balance).toBe(1500);
@@ -54,10 +51,7 @@ describe("Wallet API", () => {
     it("should return 404 when wallet does not exist", async () => {
       const userId = generateUserId().toString();
 
-      const response = await request(app)
-        .get("/api/v1/wallet/user")
-        .set("x-test-user-id", userId)
-        .expect(404);
+      const response = await request(app).get("/api/v1/wallet/user").set("x-test-user-id", userId).expect(404);
 
       expect(response.body.error).toHaveProperty("message");
       expect(response.body.error.message).toContain("Wallet not found");
@@ -67,10 +61,7 @@ describe("Wallet API", () => {
       const userId = generateUserId().toString();
       await createTestWallet(userId, 0);
 
-      const response = await request(app)
-        .get("/api/v1/wallet/user")
-        .set("x-test-user-id", userId)
-        .expect(200);
+      const response = await request(app).get("/api/v1/wallet/user").set("x-test-user-id", userId).expect(200);
 
       expect(response.body.balance).toBe(0);
     });
@@ -79,10 +70,7 @@ describe("Wallet API", () => {
       const userId = generateUserId().toString();
       await createTestWallet(userId, 5000);
 
-      const response = await request(app)
-        .get("/api/v1/wallet/user")
-        .set("x-test-user-id", userId)
-        .expect(200);
+      const response = await request(app).get("/api/v1/wallet/user").set("x-test-user-id", userId).expect(200);
 
       expect(response.body.balance).toBe(5000);
       expect(response.body.userId).toBe(userId);

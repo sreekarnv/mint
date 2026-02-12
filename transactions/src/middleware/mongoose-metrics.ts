@@ -33,7 +33,7 @@ export function mongooseMetricsPlugin(schema: Schema) {
           operation,
           collection,
         },
-        duration
+        duration,
       );
     });
   });
@@ -54,7 +54,7 @@ export function mongooseMetricsPlugin(schema: Schema) {
         operation: "save",
         collection,
       },
-      duration
+      duration,
     );
   });
 }

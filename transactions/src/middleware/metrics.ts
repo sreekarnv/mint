@@ -93,7 +93,7 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
         route,
         status_code: res.statusCode,
       },
-      duration
+      duration,
     );
 
     httpRequestTotal.inc({

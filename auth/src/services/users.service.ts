@@ -11,7 +11,10 @@ export async function getUserById(userId: string) {
   return user;
 }
 
-export async function updateUserProfile(userId: string, updates: { firstName?: string; middleName?: string; lastName?: string }) {
+export async function updateUserProfile(
+  userId: string,
+  updates: { firstName?: string; middleName?: string; lastName?: string },
+) {
   const user = await UserModel.findByIdAndUpdate(
     userId,
     {
