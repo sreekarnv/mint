@@ -167,10 +167,10 @@ docker compose -f docker-compose.dev.yml up --build
 
 Development mode features:
 
-- ✅ Volume mounts for source code
-- ✅ Automatic restart on file changes
-- ✅ Debug logging enabled
-- ✅ Service stdout/stderr visible
+- Volume mounts for source code
+- Automatic restart on file changes
+- Debug logging enabled
+- Service stdout/stderr visible
 
 ---
 

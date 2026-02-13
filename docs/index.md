@@ -9,6 +9,7 @@
 <p align="center">
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript" alt="TypeScript"></a>
+  <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&logoColor=black" alt="React"></a>
   <a href="https://www.rabbitmq.com/"><img src="https://img.shields.io/badge/RabbitMQ-Event--Driven-orange?logo=rabbitmq" alt="RabbitMQ"></a>
   <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-7.x-green?logo=mongodb" alt="MongoDB"></a>
   <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Compose-blue?logo=docker" alt="Docker"></a>
@@ -20,6 +21,8 @@
 ## Overview
 
 Mint is a **microservices-based wallet system** built with Node.js, TypeScript, and event-driven architecture using RabbitMQ. It demonstrates production-ready patterns for building scalable, distributed systems.
+
+![Dashboard](assets/dashboard.png)
 
 ### Key Features
 

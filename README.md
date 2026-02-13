@@ -19,13 +19,14 @@
 
 </div>
 
+
 ---
 
 ## Overview
 
 Mint is a modern wallet platform built with microservices architecture and event-driven communication. It demonstrates production-ready patterns including JWT authentication, distributed transactions, message queuing, and API gateway design.
 
-![Dashboard](assets/dashboard.png)
+![Dashboard](docs/assets/dashboard.png)
 ---
 
 ## 🛠️ Tech Stack
