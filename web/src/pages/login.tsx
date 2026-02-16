@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../schema/auth.schema";
 import { useLoginUserMutation } from "../store/api/auth";
 import { useAuthProvider } from "../providers/auth.provider";
+import { getErrorMessage } from "../utils";
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +38,6 @@ const LoginPage: React.FC = () => {
     },
   });
 
-  // Set layout data when component mounts
   useEffect(() => {
     setLayoutData({
       title: "Welcome back to Mint",
@@ -60,26 +60,10 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const getErrorMessage = () => {
-    if (isError && error) {
-      if ("status" in error) {
-        if (error.status === 401) {
-          return "Invalid email or password";
-        }
-        if (typeof error.data === "object" && error.data && "message" in error.data) {
-          return (error.data as { message: string }).message;
-        }
-        return "Login failed. Please try again.";
-      } else if ("message" in error) {
-        return error.message || "An error occurred";
-      }
-    }
-    return null;
-  };
+  const loginErrorMessage = isError && error ? getErrorMessage(error) : null;
 
   return (
     <>
-      {/* Form Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ color: "#064e3b" }}>
           Sign in to your account
@@ -89,9 +73,9 @@ const LoginPage: React.FC = () => {
         </Typography>
       </Box>
 
-      {getErrorMessage() && (
+      {loginErrorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {getErrorMessage()}
+          {loginErrorMessage}
         </Alert>
       )}
 

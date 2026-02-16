@@ -12,19 +12,31 @@ export const getErrorMessage = (error: unknown): string | null => {
     return null;
   }
 
-  if (Array.isArray(error.data)) {
-    const messages = error.data
+  const data = error.data;
+
+  if (typeof data === "object" && data !== null && "error" in data) {
+    const nested = (data as { error: { message?: string; details?: { path: string; message: string }[] } }).error;
+    if (nested?.details && Array.isArray(nested.details)) {
+      return nested.details.map((d) => d.message).join(", ");
+    }
+    if (nested?.message) {
+      return nested.message;
+    }
+  }
+
+  if (Array.isArray(data)) {
+    const messages = data
       .map((errResponse: ValidationErrorResponse) => errResponse.errors?.map((e) => e.message).join(", "))
       .filter(Boolean);
     return messages.join("; ") || "Invalid input";
   }
 
-  if (typeof error.data === "object" && error.data !== null && "message" in error.data) {
-    return (error.data as ApiErrorResponse).message;
+  if (typeof data === "object" && data !== null && "message" in data) {
+    return (data as ApiErrorResponse).message;
   }
 
-  if (typeof error.data === "string") {
-    return error.data;
+  if (typeof data === "string") {
+    return data;
   }
 
   if (error.status === 400) {

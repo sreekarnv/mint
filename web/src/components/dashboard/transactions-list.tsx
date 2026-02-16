@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Card, CardContent, Typography, Box, Tabs, Tab, CircularProgress, Button, Alert } from "@mui/material";
 import { Refresh } from "@mui/icons-material";
 import { useGetTransactionsQuery, TransactionType } from "../../store/api/transactions";
+import { useGetAuthUserQuery } from "../../store/api/auth";
 import { TransactionItem } from "./transaction-item";
 
 type TabValue = "all" | "TopUp" | "Transfer";
 
 export const TransactionsList: React.FC = () => {
+  const { data: user } = useGetAuthUserQuery();
   const [typeFilter, setTypeFilter] = useState<TabValue>("all");
   const [offset, setOffset] = useState(0);
   const limit = 10;
@@ -63,7 +65,7 @@ export const TransactionsList: React.FC = () => {
             <>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {data?.transactions.map((transaction) => (
-                  <TransactionItem key={transaction.id} transaction={transaction} />
+                  <TransactionItem key={transaction.id} transaction={transaction} currentUserId={user?.id ?? ""} />
                 ))}
               </Box>
 

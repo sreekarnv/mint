@@ -39,6 +39,7 @@ export type TopupTransaction = BaseTransaction & {
 
 export type TransferTransaction = BaseTransaction & {
   type: TransactionType.Transfer;
+  fromUserId: string;
   toUserId: string;
 };
 

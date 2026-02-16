@@ -58,6 +58,7 @@ flowchart TB
     %% =========================
     %% TRAFFIC FLOW
     %% =========================
+    NGINX --> WEB["🖥️ Web Frontend<br/>:3001"]
     NGINX --> AUTH
     NGINX --> WALLET
     NGINX --> TXN
@@ -259,6 +260,34 @@ flowchart TB
 
 ---
 
+### 🖥️ Web Frontend
+
+**Port**: 3001 (dev: Vite dev server, prod: NGINX static server)
+
+#### Responsibilities
+- User authentication (login, signup)
+- Wallet balance display
+- Transaction management (top-up, transfer)
+- Transaction history with pagination and filtering
+
+#### Tech Stack
+- **React 19** - UI library
+- **React Router 7** - Client-side routing
+- **Vite 7** - Build tool with HMR
+- **Material UI 7** - Component library
+- **RTK Query** - API state management
+- **React Hook Form + Zod** - Form validation
+- **TypeScript** - Type safety
+
+#### Key Features
+- Cookie-based authentication (HTTP-only `access.token`)
+- Direction-aware transaction display (sent vs received)
+- Backend error parsing with detailed validation messages
+- Protected routes with auth guards
+- Responsive Material UI layout
+
+---
+
 ### 🔗 API Gateway (NGINX)
 
 **Port**: 80
@@ -284,6 +313,7 @@ flowchart TB
 - `/api/v1/wallet/*` → Wallet Service (4003)
 - `/api/v1/transactions/*` → Transactions Service (4004)
 - `/.well-known/*` → Auth Service (4001)
+- `/` → Web Frontend (3001)
 - `/metrics/*` → Prometheus metrics endpoints
 - `/api-docs` → Swagger API documentation
 - `/health` → Gateway health check

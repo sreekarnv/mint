@@ -78,7 +78,7 @@ cd ..
 #!/bin/bash
 # install-all.sh
 
-for service in auth wallet transactions notifications; do
+for service in auth wallet transactions notifications web; do
   echo "Installing $service..."
   cd $service
   pnpm install
@@ -156,6 +156,10 @@ pnpm dev
 
 # Terminal 4 - Notifications Service
 cd notifications
+pnpm dev
+
+# Terminal 5 - Web Frontend
+cd web
 pnpm dev
 ```
 
@@ -692,6 +696,30 @@ echo "Updated wallet: $UPDATED"
 ---
 
 ## Project Structure
+
+### Web Frontend Structure
+
+```
+web/
+├── src/
+│   ├── components/        # Reusable UI components
+│   │   └── dashboard/     # Dashboard-specific components
+│   ├── pages/             # Route page components
+│   ├── store/             # Redux store setup
+│   │   └── api/           # RTK Query API slices
+│   ├── schema/            # Zod validation schemas
+│   ├── providers/         # React context providers
+│   ├── utils.ts           # Shared utilities
+│   ├── App.tsx            # Router + providers
+│   └── main.tsx           # Entry point
+├── public/                # Static assets
+├── index.html
+├── nginx.conf             # Production NGINX config (port 3001)
+├── Dockerfile             # Multi-stage (dev + production)
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
 
 ### Service Structure
 

@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupInput } from "../schema/auth.schema";
 import { useSignupUserMutation } from "../store/api/auth";
 import { useAuthProvider } from "../providers/auth.provider";
+import { getErrorMessage } from "../utils";
 
 export const SignupPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +44,6 @@ export const SignupPage: React.FC = () => {
     },
   });
 
-  // Set layout data when component mounts
   useEffect(() => {
     setLayoutData({
       title: "Manage your money with confidence",
@@ -68,22 +68,7 @@ export const SignupPage: React.FC = () => {
     }
   };
 
-  const getErrorMessage = () => {
-    if (isError && error) {
-      if ("status" in error) {
-        if (error.status === 409) {
-          return "An account with this email already exists";
-        }
-        if (typeof error.data === "object" && error.data && "message" in error.data) {
-          return (error.data as { message: string }).message;
-        }
-        return "Signup failed. Please try again.";
-      } else if ("message" in error) {
-        return error.message || "An error occurred";
-      }
-    }
-    return null;
-  };
+  const signupErrorMessage = isError && error ? getErrorMessage(error) : null;
 
   return (
     <>
@@ -97,15 +82,14 @@ export const SignupPage: React.FC = () => {
         </Typography>
       </Box>
 
-      {getErrorMessage() && (
+      {signupErrorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {getErrorMessage()}
+          {signupErrorMessage}
         </Alert>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2.5}>
-          {/* Name Fields Row */}
           <Box sx={{ display: "flex", gap: 2 }}>
             <Controller
               name="firstName"

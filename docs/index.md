@@ -78,7 +78,8 @@ Mint is a **microservices-based wallet system** built with Node.js, TypeScript, 
 
 ```mermaid
 graph TB
-    Client[Client Application]
+    Client[Browser]
+    Web[Web Frontend :3001]
     Gateway[NGINX Gateway :80]
     Auth[Auth Service :4001]
     Wallet[Wallet Service :4003]
@@ -88,6 +89,7 @@ graph TB
     MongoDB[(MongoDB :27017)]
 
     Client --> Gateway
+    Gateway --> Web
     Gateway --> Auth
     Gateway --> Wallet
     Gateway --> Transactions
@@ -113,6 +115,7 @@ graph TB
 | Category | Technologies |
 |----------|-------------|
 | **Runtime** | Node.js 22.x, TypeScript 5.x |
+| **Frontend** | React 19, React Router 7, Vite 7, Material UI 7, RTK Query |
 | **Framework** | Express.js 5.x |
 | **Database** | MongoDB 7.x with Mongoose |
 | **Message Broker** | RabbitMQ 3.x |
