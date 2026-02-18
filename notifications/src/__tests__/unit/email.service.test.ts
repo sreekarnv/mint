@@ -36,6 +36,7 @@ describe("Email Service", () => {
       expect(mailer.sendMail).toHaveBeenCalledTimes(1);
       expect(mailer.sendMail).toHaveBeenCalledWith({
         to: "john.doe@example.com",
+        from: '"Mint" <noreply@mint.com>',
         subject: "Welcome to Mint!",
         html: expect.stringContaining("John Doe"),
       });
