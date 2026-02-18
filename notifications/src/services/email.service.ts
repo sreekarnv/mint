@@ -7,6 +7,7 @@ export async function sendSignupEmail(data: UserResType) {
 
   return mailer.sendMail({
     to: data.email,
+    from: '"Mint" <noreply@mint.com>',
     subject: "Welcome to Mint!",
     html: `<h1>Hello ${data.firstName} ${data.lastName}, welcome 🎉</h1>`,
   });
