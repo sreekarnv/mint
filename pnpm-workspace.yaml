@@ -1,6 +1,0 @@
-packages:
-  - 'auth'
-  - 'wallet'
-  - 'transactions'
-  - 'notifications'
-  - 'web'
