@@ -7,7 +7,7 @@ from fastauth.providers.credentials import CredentialsProvider
 
 from auth.core.settings import settings
 
-adapter = SQLAlchemyAdapter(engine_url="sqlite+aiosqlite:///./auth.db")
+adapter = SQLAlchemyAdapter(engine_url=settings.database_url)
 
 _PRIVATE_KEY = (Path(settings.keys_dir) / "private_key.pem").read_text()
 _PUBLIC_KEY = (Path(settings.keys_dir) / "public_key.pem").read_text()

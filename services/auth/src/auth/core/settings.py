@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     app_reload: bool
     keys_dir: str
     fastauth_secret: str
+    database_url: str
 
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 
