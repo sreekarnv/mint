@@ -1,0 +1,314 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: mint-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data_dev:/data/db
+    networks:
+      - mint-network-dev
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mint-rabbitmq-dev
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbitmq_data_dev:/var/lib/rabbitmq
+    networks:
+      - mint-network-dev
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Mail Hog
+  mailhog:
+    image: mailhog/mailhog
+    container_name: "mailhog"
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - mint-network-dev
+
+  # Auth Service
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+      target: development
+    container_name: mint-auth-dev
+    restart: unless-stopped
+    env_file:
+      - ./auth/.env.docker
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./auth/src:/app/src
+      - ./auth/tsconfig.json:/app/tsconfig.json:ro
+      - /app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mint-network-dev
+    stdin_open: true
+    tty: true
+
+  # Notifications Service
+  notifications:
+    build:
+      context: ./notifications
+      dockerfile: Dockerfile
+      target: development
+    container_name: mint-notifications-dev
+    restart: unless-stopped
+    env_file:
+      - ./notifications/.env.docker
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./notifications/src:/app/src
+      - ./notifications/tsconfig.json:/app/tsconfig.json:ro
+      - /app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mint-network-dev
+    stdin_open: true
+    tty: true
+
+  # Wallet Service
+  wallet:
+    build:
+      context: ./wallet
+      dockerfile: Dockerfile
+      target: development
+    container_name: mint-wallet-dev
+    restart: unless-stopped
+    env_file:
+      - ./wallet/.env.docker
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./wallet/src:/app/src
+      - ./wallet/tsconfig.json:/app/tsconfig.json:ro
+      - /app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mint-network-dev
+    stdin_open: true
+    tty: true
+
+  # Transactions Service
+  transactions:
+    build:
+      context: ./transactions
+      dockerfile: Dockerfile
+      target: development
+    container_name: mint-transactions-dev
+    restart: unless-stopped
+    env_file:
+      - ./transactions/.env.docker
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./transactions/src:/app/src
+      - ./transactions/tsconfig.json:/app/tsconfig.json:ro
+      - /app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - mint-network-dev
+    stdin_open: true
+    tty: true
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mint-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_dev:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    depends_on:
+      - auth
+      - wallet
+      - transactions
+      - notifications
+    networks:
+      - mint-network-dev
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: mint-loki-dev
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data_dev:/loki
+    networks:
+      - mint-network-dev
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: mint-alloy-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./loki/alloy.hcl:/etc/alloy/config.hcl:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.hcl
+    depends_on:
+      - loki
+    networks:
+      - mint-network-dev
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mint-grafana-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data_dev:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - mint-network-dev
+
+  redis:
+    image: redis:7-alpine
+    container_name: mint-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - mint-network-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  #  Frontend (Web)
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      target: development
+    container_name: mint-web-dev
+    restart: unless-stopped
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./web/src:/app/src
+      - ./web/public:/app/public
+      - ./web/index.html:/app/index.html:ro
+      - ./web/vite.config.ts:/app/vite.config.ts:ro
+      - ./web/tsconfig.json:/app/tsconfig.json:ro
+      - ./web/package.json:/app/package.json
+      - /app/node_modules
+    networks:
+      - mint-network-dev
+    stdin_open: true
+    tty: true
+
+  nginx:
+    image: nginx:alpine
+    container_name: mint-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth
+      - notifications
+      - wallet
+      - transactions
+      - web
+    networks:
+      - mint-network-dev
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mint-network-dev:
+    driver: bridge
+
+volumes:
+  mongodb_data_dev:
+  rabbitmq_data_dev:
+  prometheus_data_dev:
+  grafana_data_dev:
+  redis_data_dev:
+  loki_data_dev:

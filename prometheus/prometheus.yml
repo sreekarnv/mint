@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth:4001']
+        labels:
+          service: 'auth'
+          environment: 'development'
+
+  - job_name: 'wallet-service'
+    static_configs:
+      - targets: ['wallet:4003']
+        labels:
+          service: 'wallet'
+          environment: 'development'
+
+  - job_name: 'transactions-service'
+    static_configs:
+      - targets: ['transactions:4004']
+        labels:
+          service: 'transactions'
+          environment: 'development'
+
+  - job_name: 'notifications-service'
+    static_configs:
+      - targets: ['notifications:4002']
+        labels:
+          service: 'notifications'
+          environment: 'development'
