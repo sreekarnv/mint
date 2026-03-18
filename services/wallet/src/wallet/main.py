@@ -1,8 +1,13 @@
 from fastapi import FastAPI
 
 from wallet.core.settings import settings
+from wallet.routes.wallet_admin import wallet_admin_route
+from wallet.routes.wallet_user import wallet_user_route
 
 app = FastAPI(title="Wallet Service")
+
+app.include_router(wallet_admin_route, prefix="/api/v1/wallet")
+app.include_router(wallet_user_route, prefix="/api/v1/wallet")
 
 
 def start():
