@@ -25,7 +25,7 @@ COPY services/wallet/alembic.ini services/wallet/alembic.ini
 
 RUN uv sync --package mint-wallet --frozen
 
-WORKDIR /app/services/auth
+WORKDIR /app/services/wallet
 
 EXPOSE 4002
 

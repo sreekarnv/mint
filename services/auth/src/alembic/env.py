@@ -3,6 +3,7 @@ import os
 from logging.config import fileConfig
 from pathlib import Path
 
+from alembic import context
 from dotenv import load_dotenv
 from fastauth.adapters.sqlalchemy.models import (
     OAuthAccountModel,
@@ -15,9 +16,12 @@ from fastauth.adapters.sqlalchemy.models import (
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from alembic import context
+envfile_name = os.environ.get("ENV_FILENAME")
 
-env_file = Path(__file__).parent.parent.parent / ".env"
+if not envfile_name:
+    envfile_name = ".env"
+
+env_file = Path(__file__).parent.parent.parent / envfile_name
 load_dotenv(env_file)
 
 config = context.config

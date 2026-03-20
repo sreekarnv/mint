@@ -3,15 +3,19 @@ import os
 from logging.config import fileConfig
 from pathlib import Path
 
+from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
-
-from alembic import context
 from wallet.models import Wallet
 from wallet.models.base import Base
 
-env_file = Path(__file__).parent.parent.parent / ".env"
+envfile_name = os.environ.get("ENV_FILENAME")
+
+if not envfile_name:
+    envfile_name = ".env"
+
+env_file = Path(__file__).parent.parent.parent / envfile_name
 load_dotenv(env_file)
 
 config = context.config

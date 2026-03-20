@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from sys import prefix
 
 from fastapi import FastAPI
 from mint_shared import get_hello
