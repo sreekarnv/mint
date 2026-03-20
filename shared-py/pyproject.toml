@@ -2,7 +2,10 @@
 name = "mint-shared"
 version = "2.0.0"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "alembic>=1.18.4",
+    "sqlalchemy[asyncio]>=2.0.48",
+]
 
 [build-system]
 requires = ["hatchling"]
