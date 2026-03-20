@@ -14,6 +14,7 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "sqlalchemy[asyncio]>=2.0.48",
     "sreekarnv-fastauth>=0.5.1",
+    "mint-shared",
 ]
 
 [project.scripts]
@@ -29,3 +30,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/auth"]
 sources  = ["src"]
+
+[tool.uv.sources]
+mint-shared = { workspace = true }

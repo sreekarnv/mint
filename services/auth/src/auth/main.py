@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from mint_shared import get_hello
 
 from auth.core.fastauth_config import adapter, auth
 from auth.core.settings import settings
@@ -19,6 +20,8 @@ auth.mount(app)
 
 def start():
     import uvicorn
+
+    get_hello()
 
     uvicorn.run(
         "auth.main:app",

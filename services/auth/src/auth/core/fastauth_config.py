@@ -9,8 +9,10 @@ from auth.core.settings import settings
 
 adapter = SQLAlchemyAdapter(engine_url=settings.database_url)
 
-_PRIVATE_KEY = (Path(settings.keys_dir) / "private_key.pem").read_text()
-_PUBLIC_KEY = (Path(settings.keys_dir) / "public_key.pem").read_text()
+
+KEYS_DIR = Path(__file__).parent.parent.parent.parent.joinpath(settings.keys_dir)
+_PRIVATE_KEY = (KEYS_DIR / "private_key.pem").read_text()
+_PUBLIC_KEY = (KEYS_DIR / "public_key.pem").read_text()
 
 
 config = FastAuthConfig(
