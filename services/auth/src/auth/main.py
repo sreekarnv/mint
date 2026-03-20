@@ -3,13 +3,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from mint_shared import get_hello
 
-from auth.core.fastauth_config import adapter, auth
+from auth.core.fastauth_config import auth
 from auth.core.settings import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await adapter.create_tables()
     await auth.initialize_jwks()
     yield
 
