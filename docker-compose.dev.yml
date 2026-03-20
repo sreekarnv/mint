@@ -1,0 +1,38 @@
+name: "mint_dev"
+
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    container_name: mint-auth
+    networks: [mint]
+    ports:
+      - "4001:4001"
+    environment:
+      ENV_FILENAME: ".env.development"
+    volumes:
+      - ./services/auth/src:/app/services/auth/src
+      - ./shared-py:/app/shared-py
+      - ./services/auth/.env.development:/app/services/auth/.env.development
+    restart: on-failure
+
+  wallet:
+    build:
+      context: .
+      dockerfile: services/wallet/Dockerfile
+    container_name: mint-wallet
+    networks: [mint]
+    ports:
+      - "4002:4002"
+    environment:
+      ENV_FILENAME: ".env.development"
+    volumes:
+      - ./services/wallet/src:/app/services/wallet/src
+      - ./shared-py:/app/shared-py
+      - ./services/wallet/.env.development:/app/services/wallet/.env.development
+    restart: on-failure
+
+networks:
+  mint:
+    driver: bridge

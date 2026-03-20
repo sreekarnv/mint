@@ -16,11 +16,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Auth Service", lifespan=lifespan)
 auth.mount(app)
 
+get_hello()
+
 
 def start():
     import uvicorn
-
-    get_hello()
 
     uvicorn.run(
         "auth.main:app",
