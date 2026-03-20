@@ -1,20 +1,26 @@
 from contextlib import asynccontextmanager
+from sys import prefix
 
 from fastapi import FastAPI
+from mint_shared import get_hello
 
-from auth.core.fastauth_config import adapter, auth
+from auth.core.fastauth_config import auth
 from auth.core.settings import settings
+from auth.kafka.router import kafka_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await adapter.create_tables()
     await auth.initialize_jwks()
     yield
 
 
 app = FastAPI(title="Auth Service", lifespan=lifespan)
 auth.mount(app)
+
+app.include_router(kafka_router)
+
+get_hello()
 
 
 def start():

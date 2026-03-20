@@ -1,9 +1,19 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-env_file = Path(__file__).parent.parent.parent.parent / ".env"
+env_filename = (
+    os.environ.get("ENV_FILENAME") if os.environ.get("ENV_FILENAME") is not None else ".env"
+)
+
+if not env_filename:
+    raise ValueError("ENV_FILENAME is missing")
+
+
+env_file = Path(__file__).parent.parent.parent.parent / env_filename
+
 load_dotenv(env_file)
 
 
@@ -14,6 +24,7 @@ class Settings(BaseSettings):
     keys_dir: str
     fastauth_secret: str
     database_url: str
+    kafka_brokers: str
 
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 
