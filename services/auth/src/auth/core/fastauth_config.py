@@ -6,6 +6,7 @@ from fastauth.config import FastAuthConfig, JWTConfig
 from fastauth.providers.credentials import CredentialsProvider
 
 from auth.core.settings import settings
+from auth.hooks import AuthEventHooks
 
 adapter = SQLAlchemyAdapter(engine_url=settings.database_url)
 
@@ -32,6 +33,7 @@ config = FastAuthConfig(
         issuer="auth",
     ),
     base_url=f"http://{settings.app_host}:{settings.app_port}",
+    hooks=AuthEventHooks(),
 )
 
 auth = FastAuth(config)

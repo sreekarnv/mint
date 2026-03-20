@@ -13,6 +13,7 @@ if not env_filename:
 
 
 env_file = Path(__file__).parent.parent.parent.parent / env_filename
+
 load_dotenv(env_file)
 
 
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
     keys_dir: str
     fastauth_secret: str
     database_url: str
+    kafka_brokers: str
 
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 

@@ -6,6 +6,7 @@ from mint_shared import get_hello
 
 from auth.core.fastauth_config import auth
 from auth.core.settings import settings
+from auth.kafka.router import kafka_router
 
 
 @asynccontextmanager
@@ -16,6 +17,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Auth Service", lifespan=lifespan)
 auth.mount(app)
+
+app.include_router(kafka_router)
 
 get_hello()
 

@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     app_host: str
     app_reload: bool
     database_url: str
+    kafka_brokers: str
 
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 

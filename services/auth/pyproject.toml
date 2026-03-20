@@ -15,6 +15,7 @@ dependencies = [
     "sreekarnv-fastauth>=0.5.1",
     "mint-shared",
     "asyncpg>=0.31.0",
+    "faststream[kafka]>=0.6.7",
 ]
 
 [project.scripts]

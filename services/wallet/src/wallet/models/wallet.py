@@ -24,7 +24,7 @@ class Wallet(Base):
     currency: Mapped[str] = mapped_column(VARCHAR(3), nullable=False, default="USD")
     # TODO: later to use Postgres Enum
     status: Mapped[WalletStatus] = mapped_column(
-        VARCHAR(3), default=WalletStatus.ACTIVE, nullable=False
+        VARCHAR, default=WalletStatus.ACTIVE, nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
