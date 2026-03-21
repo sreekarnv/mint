@@ -897,7 +897,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = "==2.12.0" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.48" },
-    { name = "sreekarnv-fastauth", specifier = ">=0.5.1" },
+    { name = "sreekarnv-fastauth", specifier = ">=0.5.2" },
 ]
 
 [[package]]
@@ -906,12 +906,18 @@ version = "2.0.0"
 source = { editable = "shared-py" }
 dependencies = [
     { name = "alembic" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "joserfc" },
     { name = "sqlalchemy", extra = ["asyncio"] },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18.4" },
+    { name = "fastapi", specifier = ">=0.135.1" },
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "joserfc", specifier = ">=1.6.3" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.48" },
 ]
 
@@ -1392,15 +1398,15 @@ asyncio = [
 
 [[package]]
 name = "sreekarnv-fastauth"
-version = "0.5.1"
+version = "0.5.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cuid2" },
     { name = "pydantic", extra = ["email"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9b/4a/409b4b235166a7409cfab2b1e40d66214f17ef9a26fa50cb1120af1bc985/sreekarnv_fastauth-0.5.1.tar.gz", hash = "sha256:31bcf27b6acde48505bbf0b3b11900ebdd716396430246a25010b365cca61b68", size = 38589, upload-time = "2026-02-26T23:42:08.299Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/74/c7/d74968272342ab7c71d9433fddcf5473c53e2b258bf9ba115e5bfe1755f0/sreekarnv_fastauth-0.5.2.tar.gz", hash = "sha256:4e2555b45ada9d6dcd08d22465ec45c01735e0575fcc24f6c52840c7a5206972", size = 38606, upload-time = "2026-03-21T03:17:01.994Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/f1/392cfe81aa56a4e70625ca4a99459d736cae9493457569973324f16eec6b/sreekarnv_fastauth-0.5.1-py3-none-any.whl", hash = "sha256:d2c5409fe3addbd0b115206ccdf62637b195b9df032969a4c0f34fca9fde5488", size = 60757, upload-time = "2026-02-26T23:42:09.821Z" },
+    { url = "https://files.pythonhosted.org/packages/84/57/dd45281ec3ab076caa6e225b5ad5f2dc7d7aad1ea334757420b69b33d622/sreekarnv_fastauth-0.5.2-py3-none-any.whl", hash = "sha256:cf64ed471f9c86fa3c25178768eb97141fb18263f5633d6d7d3344fcef09594e", size = 60787, upload-time = "2026-03-21T03:17:03.486Z" },
 ]
 
 [[package]]

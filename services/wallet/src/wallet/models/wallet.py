@@ -22,7 +22,6 @@ class Wallet(Base):
     user_id: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     balance: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
     currency: Mapped[str] = mapped_column(VARCHAR(3), nullable=False, default="USD")
-    # TODO: later to use Postgres Enum
     status: Mapped[WalletStatus] = mapped_column(
         VARCHAR, default=WalletStatus.ACTIVE, nullable=False
     )
