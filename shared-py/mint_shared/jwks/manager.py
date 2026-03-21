@@ -1,4 +1,6 @@
 import httpx
+from fastapi import status
+from fastapi.exceptions import HTTPException
 from joserfc import jwt
 from joserfc.jwk import KeySet
 
@@ -18,12 +20,12 @@ class JWKSManager:
                 _jwks = KeySet.import_key_set(response.json())
         return _jwks
 
-    async def verify_token(self, token_str: str) -> dict | None:
+    async def verify_token(self, token_str: str) -> dict:
         jwks = await self.get_jwks()
         try:
             token = jwt.decode(token_str, jwks)
-            print(dir(token))
             return token.claims
-        except Exception as e:
-            print(e)
-            return None
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+            )

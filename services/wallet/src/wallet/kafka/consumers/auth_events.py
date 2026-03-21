@@ -14,9 +14,8 @@ class KafkaEnvelope(BaseModel):
     payload: dict
 
 
-@kafka_router.subscriber("auth.events")
+@kafka_router.subscriber("auth.events", group_id="wallet-service")
 async def handle_auth_events(envelope: KafkaEnvelope, db: AsyncSession = Depends(get_db)):
-    print("HERE HELLO IN KAFKA")
     event = envelope.payload.get("event")
 
     if event == "auth.user_registered":
