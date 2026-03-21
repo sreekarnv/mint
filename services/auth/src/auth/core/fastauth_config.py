@@ -31,8 +31,17 @@ config = FastAuthConfig(
         jwks_enabled=True,
         access_token_ttl=900,
     ),
+    roles=[
+        {"name": "user", "permissions": ["wallet:read", "wallet:transfer"]},
+        {
+            "name": "admin",
+            "permissions": ["wallet:read", "wallet:transfer", "wallet:freeze", "users:manage"],
+        },
+    ],
+    default_role="user",
     base_url=f"http://{settings.app_host}:{settings.app_port}",
     hooks=AuthEventHooks(),
+    debug=True,
 )
 
 auth = FastAuth(config)

@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from auth.core.fastauth_config import auth
+from auth.core.fastauth_config import adapter, auth
 from auth.core.settings import settings
 from auth.kafka.router import kafka_router
 
@@ -10,9 +10,11 @@ from auth.kafka.router import kafka_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await auth.initialize_jwks()
+    await auth.initialize_roles()
     yield
 
 
+auth.role_adapter = adapter.role
 app = FastAPI(title="Auth Service", lifespan=lifespan)
 auth.mount(app)
 
