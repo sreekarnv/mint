@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
-from sys import prefix
 
 from fastapi import FastAPI
-from mint_shared import get_hello
 
 from auth.core.fastauth_config import auth
 from auth.core.settings import settings
@@ -19,8 +17,6 @@ app = FastAPI(title="Auth Service", lifespan=lifespan)
 auth.mount(app)
 
 app.include_router(kafka_router)
-
-get_hello()
 
 
 def start():

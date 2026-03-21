@@ -1,16 +1,5 @@
-"""
-migrate.py — runs `alembic upgrade head` programmatically.
-
-Called by the `migrate` script entry point defined in pyproject.toml.
-Used as the CMD for the auth-migrate service in docker-compose, and as
-a Kubernetes init container command in production.
-
-No shell scripts. The same file works in every environment.
-"""
-
 import logging
 import time
-from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
@@ -36,6 +25,6 @@ async def wait_for_db(url: str, retries: int = 10, delay: float = 2.0) -> None:
             logger.info("Waiting for database (attempt %d/%d): %s", attempt, retries, exc)
             if attempt == retries:
                 await engine.dispose()
-                raise RuntimeError("Database not ready after %d attempts." % retries) from exc
+                raise RuntimeError(f"Database not ready after {retries} attempts.") from exc
             time.sleep(delay)
     await engine.dispose()

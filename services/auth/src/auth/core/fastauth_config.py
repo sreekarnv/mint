@@ -30,7 +30,6 @@ config = FastAuthConfig(
         public_key=_PUBLIC_KEY,
         jwks_enabled=True,
         access_token_ttl=900,
-        issuer="auth",
     ),
     base_url=f"http://{settings.app_host}:{settings.app_port}",
     hooks=AuthEventHooks(),
