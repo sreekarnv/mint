@@ -15,17 +15,17 @@ COPY pyproject.toml uv.lock ./
 
 COPY shared-py/ shared-py/
 
-COPY services/wallet/pyproject.toml services/wallet/README.md services/wallet/
+COPY apps/wallet/pyproject.toml apps/wallet/README.md apps/wallet/
 
 RUN uv sync --package mint-wallet --no-install-project --frozen
 
-COPY services/wallet/src/ services/wallet/src/
-COPY services/wallet/.env.development services/wallet/.env.development
-COPY services/wallet/alembic.ini services/wallet/alembic.ini
+COPY apps/wallet/src/ apps/wallet/src/
+COPY apps/wallet/.env.development apps/wallet/.env.development
+COPY apps/wallet/alembic.ini apps/wallet/alembic.ini
 
 RUN uv sync --package mint-wallet --frozen
 
-WORKDIR /app/services/wallet
+WORKDIR /app/apps/wallet
 
 EXPOSE 4002
 

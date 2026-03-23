@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TxnType {
+  TOPUP
+  TRANSFER
+  RECURRING_TOPUP
+  RECURRING_TRANSFER
+  SPLIT_PAYMENT
+  REQUEST_PAYMENT
+}
+
+enum TxnStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+
+enum Category {
+  FOOD
+  TRANSPORT
+  ENTERTAINMENT
+  TRANSFER
+  UTILITIES
+  OTHER
+}
+
+model Transaction {
+  id                String    @id @default(cuid())
+  idempotencyKey    String    @unique @map("idempotency_key") @db.VarChar(255)
+  type              TxnType
+  status            TxnStatus @default(PENDING)
+  senderId          String    @map("sender_id")
+  recipientId       String?   @map("recipient_id")
+  senderWallet      String    @map("sender_wallet")
+  recipientWallet   String?   @map("recipient_wallet")
+  senderAmount      BigInt    @map("sender_amount")
+  senderCurrency    String    @default("USD") @map("sender_currency")
+  recipientAmount   BigInt?   @map("recipient_amount")
+  recipientCurrency String?   @map("recipient_currency")
+  fxRate            Decimal?  @map("fx_rate") @db.Decimal(20, 10)
+  fxRateLockedAt    DateTime? @map("fx_rate_locked_at") @db.Timestamptz
+  description       String?
+  category          Category?
+  merchant          String?   @db.VarChar(255)
+  fraudDecision     String?   @map("fraud_decision") @db.VarChar(10)
+  fraudScore        Int?      @map("fraud_score")
+  recurringId       String?   @map("recurring_id")
+  metadata          Json?
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  processingAt      DateTime? @map("processing_at") @db.Timestamptz
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz
+
+  recurringSchedule RecurringSchedule? @relation(fields: [recurringId], references: [id])
+
+  @@map("transactions")
+}
+
+model RecurringSchedule {
+  id           String    @id @default(cuid())
+  userId       String    @map("user_id")
+  type         String    @db.VarChar(30)
+  cron         String    @db.VarChar(100)
+  amount       BigInt
+  currency     String    @default("USD") @db.VarChar(3)
+  recipientId  String?   @map("recipient_id")
+  description  String?
+  status       String    @default("ACTIVE") @db.VarChar(20)
+  lastRun      DateTime? @map("last_run") @db.Timestamptz
+  nextRun      DateTime? @map("next_run") @db.Timestamptz
+  failureCount Int       @default(0) @map("failure_count")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  transactions Transaction[]
+
+  @@map("recurring_schedules")
+}
