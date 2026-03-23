@@ -21,6 +21,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.9.6
+    container_name: mint-kafka
     hostname: kafka
     networks: [mint]
     ports:
@@ -53,6 +54,7 @@ services:
 
   kafka-init:
     image: confluentinc/cp-kafka:7.9.6
+    container_name: mint-kafka-init
     networks: [mint]
     depends_on:
       kafka:
@@ -87,15 +89,15 @@ services:
   auth-migrate:
     build:
       context: .
-      dockerfile: services/auth/Dockerfile
+      dockerfile: apps/auth/Dockerfile
     container_name: mint-auth-migrate
     networks: [mint]
     environment:
       ENV_FILENAME: ".env.development"
     volumes:
-      - ./services/auth/src:/app/services/auth/src
+      - ./apps/auth/src:/app/apps/auth/src
       - ./shared-py:/app/shared-py
-      - ./services/auth/.env:/app/services/auth/.env
+      - ./apps/auth/.env.development:/app/apps/auth/.env.development
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,15 +107,15 @@ services:
   wallet-migrate:
     build:
       context: .
-      dockerfile: services/wallet/Dockerfile
+      dockerfile: apps/wallet/Dockerfile
     container_name: mint-wallet-migrate
     networks: [mint]
     environment:
       ENV_FILENAME: ".env.development"
     volumes:
-      - ./services/wallet/src:/app/services/wallet/src
+      - ./apps/wallet/src:/app/apps/wallet/src
       - ./shared-py:/app/shared-py
-      - ./services/wallet/.env:/app/services/wallet/.env
+      - ./apps/wallet/.env.development:/app/apps/wallet/.env.development
     depends_on:
       postgres:
         condition: service_healthy
@@ -123,7 +125,7 @@ services:
   auth:
     build:
       context: .
-      dockerfile: services/auth/Dockerfile
+      dockerfile: apps/auth/Dockerfile
     container_name: mint-auth
     networks: [mint]
     ports:
@@ -138,15 +140,15 @@ services:
       kafka-init:
         condition: service_completed_successfully
     volumes:
-      - ./services/auth/src:/app/services/auth/src
+      - ./apps/auth/src:/app/apps/auth/src
       - ./shared-py:/app/shared-py
-      - ./services/auth/.env.development:/app/services/auth/.env.development
+      - ./apps/auth/.env.development:/app/apps/auth/.env.development
     restart: on-failure
 
   wallet:
     build:
       context: .
-      dockerfile: services/wallet/Dockerfile
+      dockerfile: apps/wallet/Dockerfile
     container_name: mint-wallet
     networks: [mint]
     ports:
@@ -161,9 +163,9 @@ services:
       kafka-init:
         condition: service_completed_successfully
     volumes:
-      - ./services/wallet/src:/app/services/wallet/src
+      - ./apps/wallet/src:/app/apps/wallet/src
       - ./shared-py:/app/shared-py
-      - ./services/wallet/.env.development:/app/services/wallet/.env.development
+      - ./apps/wallet/.env.development:/app/apps/wallet/.env.development
     restart: on-failure
 
 volumes:

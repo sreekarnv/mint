@@ -17,22 +17,22 @@ COPY pyproject.toml uv.lock ./
 
 COPY shared-py/ shared-py/
 
-COPY services/auth/pyproject.toml services/auth/README.md services/auth/
+COPY apps/auth/pyproject.toml apps/auth/README.md apps/auth/
 
 RUN uv sync --package mint-auth --no-install-project --frozen
 
-COPY services/auth/src/ services/auth/src/
-COPY services/auth/.env.development services/auth/.env.development
-COPY services/auth/alembic.ini services/auth/alembic.ini
+COPY apps/auth/src/ apps/auth/src/
+COPY apps/auth/.env.development apps/auth/.env.development
+COPY apps/auth/alembic.ini apps/auth/alembic.ini
 
 RUN uv sync --package mint-auth --frozen
 
-RUN mkdir -p services/auth/keys && \
-    openssl genrsa -out services/auth/keys/private_key.pem 2048 && \
-    openssl rsa -in services/auth/keys/private_key.pem \
-                -pubout -out services/auth/keys/public_key.pem
+RUN mkdir -p apps/auth/keys && \
+    openssl genrsa -out apps/auth/keys/private_key.pem 2048 && \
+    openssl rsa -in apps/auth/keys/private_key.pem \
+                -pubout -out apps/auth/keys/public_key.pem
 
-WORKDIR /app/services/auth
+WORKDIR /app/apps/auth
 
 EXPOSE 4001
 

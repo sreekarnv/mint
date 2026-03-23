@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 [tool.uv.workspace]
-members = ["services/auth", "services/wallet", "shared-py"]
+members = ["apps/auth", "apps/wallet", "shared-py"]
 
 [tool.ruff]
 line-length = 100
