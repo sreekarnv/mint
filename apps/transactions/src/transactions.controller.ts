@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 
-@Controller()
+@Controller('api/v1/transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Get()
-  getHello(): string {
-    return this.transactionsService.getHello();
+  getHello() {
+    return this.transactionsService.getMessage();
   }
 }

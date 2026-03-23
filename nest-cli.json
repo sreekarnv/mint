@@ -15,8 +15,13 @@
             "entryFile": "main",
             "sourceRoot": "apps/transactions/src",
             "compilerOptions": {
-                "tsConfigPath": "apps/transactions/tsconfig.app.json"
+                "tsConfigPath": "apps/transactions/tsconfig.app.json",
+                "webpackConfigPath": "apps/transactions/webpack.config.js"
             }
         }
+    },
+    "watchOptions": {
+        "usePolling": true,
+        "interval": 1000
     }
 }
