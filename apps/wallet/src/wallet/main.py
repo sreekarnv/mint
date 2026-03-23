@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 import wallet.kafka.consumers.auth_events
+import wallet.kafka.consumers.transaction_events
 from wallet.core.settings import settings
 from wallet.routes.kafka import kafka_router
 from wallet.routes.wallet_admin import wallet_admin_route
