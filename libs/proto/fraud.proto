@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package fraud;
+
+service FraudService {
+  rpc ScoreTransaction (ScoreRequest) returns (ScoreResponse);
+}
+
+message ScoreRequest {
+  string transaction_id      = 1;
+  string user_id             = 2;
+  string recipient_id        = 3;
+  int64  amount_cents        = 4;
+  string currency            = 5;
+  string ip_address          = 6;
+  string transaction_type    = 7;
+  string user_country        = 8;
+  bool   recipient_is_contact = 9;
+  string sender_currency     = 10;
+  string recipient_currency  = 11;
+  int64  usd_equivalent_cents = 12;
+}
+
+message ScoreResponse {
+    // ALLOW | REVIEW | BLOCK
+  string decision            = 1;  
+  int32  score               = 2;
+  repeated string rules_fired = 3;
+  string reason              = 4;
+}

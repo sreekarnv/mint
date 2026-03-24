@@ -18,6 +18,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "fraud": {
+      "type": "application",
+      "root": "apps/fraud",
+      "entryFile": "main",
+      "sourceRoot": "apps/fraud/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/fraud/tsconfig.app.json"
+      }
+    },
     "transactions": {
       "type": "application",
       "root": "apps/transactions",
