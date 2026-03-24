@@ -21,6 +21,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {}
+    "paths": {
+      "@mint/common": [
+        "libs/common/src"
+      ],
+      "@mint/common/*": [
+        "libs/common/src/*"
+      ]
+    }
   }
 }
