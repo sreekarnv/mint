@@ -9,6 +9,7 @@ COPY tsconfig.json tsconfig.build.json nest-cli.json .prettierrc ./
 
 RUN pnpm install --frozen-lockfile
 
+COPY libs/common/ ./libs/common/
 COPY apps/transactions/ ./apps/transactions/
 
 EXPOSE 4003

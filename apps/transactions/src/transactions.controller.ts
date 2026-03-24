@@ -1,7 +1,9 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { type Request } from 'express';
+import { Controller, Get, Inject, Req, UseGuards } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { ClientKafka } from '@nestjs/microservices';
 import uuid from 'uuid';
+import { JWTAuthGuard } from '@mint/common/guards/jwt-auth.guard';
 
 @Controller('api/v1/transactions')
 export class TransactionsController {
@@ -11,7 +13,10 @@ export class TransactionsController {
   ) {}
 
   @Get('/')
-  getHello() {
+  @UseGuards(JWTAuthGuard)
+  getHello(@Req() req: Request) {
+    const user = (req as any).user;
+
     this.kafkaClient.emit('transactions.events', {
       topic: 'transactions.events',
       eventId: uuid.v4(),
@@ -19,6 +24,7 @@ export class TransactionsController {
       actorId: 'transaction-id',
       payload: {
         message: 'This is a test transaction',
+        user,
       },
     });
     return this.transactionsService.getMessage();

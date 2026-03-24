@@ -194,13 +194,14 @@ services:
       DATABASE_URL: postgresql://mint_txns_user:mint_txns_pass@postgres:5432/mint_txns
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
-      AUTH_JWKS_URL: http://auth:4001/api/v1/auth/.well-known/jwks.json
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
     volumes:
       - ./apps/transactions/src:/app/apps/transactions/src
       - ./apps/transactions/prisma:/app/apps/transactions/prisma
+      - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
     depends_on:
       postgres:
