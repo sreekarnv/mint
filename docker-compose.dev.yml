@@ -87,7 +87,7 @@ services:
     restart: on-failure
 
   redis:
-    image: redis:8.6.2-alpine
+    image: redis:8-alpine
     container_name: mint-redis
     networks: [mint]
     ports:
