@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model FraudCase {
+  id            String    @id @default(cuid())
+  transactionId String    @unique @map("transaction_id")
+  userId        String    @map("user_id")
+  decision      String    @db.VarChar(10)
+  score         Int
+  rulesFired    String[]  @map("rules_fired")
+  reviewedBy    String?   @map("reviewed_by")
+  reviewedAt    DateTime? @map("reviewed_at") @db.Timestamptz
+  reviewOutcome String?   @map("review_outcome") @db.VarChar(20)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("fraud_cases")
+}
+
+model UserTransferStats {
+  userId      String   @id @map("user_id")
+  count       BigInt   @default(0)
+  sumCents    BigInt   @default(0) @map("sum_cents")
+  sumSqCents  Decimal  @default(0) @map("sum_sq_cents") @db.Decimal(30, 0)
+  lastUpdated DateTime @default(now()) @map("last_updated") @db.Timestamptz
+
+  @@map("user_transfer_stats")
+}

@@ -152,6 +152,20 @@ services:
     command: ["pnpm", "migrate:transactions"]
     restart: no
 
+  fraud-migrate:
+    build:
+      context: .
+      dockerfile: apps/fraud/Dockerfile
+    container_name: mint-fraud-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:fraud"]
+    restart: no
+
   auth:
     build:
       context: .
@@ -234,6 +248,32 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+    restart: on-failure
+
+  fraud:
+    build:
+      context: .
+      dockerfile: apps/fraud/Dockerfile
+    container_name: mint-fraud
+    networks: [mint]
+    ports:
+      - "50052:50052"
+    environment:
+      DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
+      REDIS_URL: redis://redis:6379
+      FRAUD_BLOCK_THRESHOLD: "100"
+      FRAUD_REVIEW_THRESHOLD: "50"
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      fraud-migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./apps/fraud/src:/app/apps/fraud/src
+      - ./libs/proto:/app/libs/proto
     restart: on-failure
 
 volumes:

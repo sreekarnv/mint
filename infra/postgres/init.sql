@@ -10,6 +10,10 @@ CREATE USER mint_txns_user WITH PASSWORD 'mint_txns_pass';
 CREATE DATABASE mint_txns OWNER mint_txns_user;
 GRANT ALL PRIVILEGES ON DATABASE mint_txns TO mint_txns_user;
 
+CREATE USER mint_fraud_user WITH PASSWORD 'mint_fraud_pass';
+CREATE DATABASE mint_fraud OWNER mint_fraud_user;
+GRANT ALL PRIVILEGES ON DATABASE mint_fraud TO mint_fraud_user;
+
 -- Add a new block here for each service as you build them:
 -- CREATE USER mint_{svc}_user WITH PASSWORD 'mint_{svc}_pass';
 -- CREATE DATABASE mint_{svc} OWNER mint_{svc}_user;
