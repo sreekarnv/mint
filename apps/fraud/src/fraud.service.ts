@@ -37,10 +37,16 @@ export class FraudService {
 
     const decision = this.decisionEngineService.decide(results);
 
-    await this.prismaService.fraudCase.create({
-      data: {
+    await this.prismaService.fraudCase.upsert({
+      where: { transactionId: req.transactionId },
+      create: {
         transactionId: req.transactionId,
         userId: req.userId,
+        decision: decision.decision,
+        score: decision.score,
+        rulesFired: decision.rulesFired,
+      },
+      update: {
         decision: decision.decision,
         score: decision.score,
         rulesFired: decision.rulesFired,
