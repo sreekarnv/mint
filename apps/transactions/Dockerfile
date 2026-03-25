@@ -14,6 +14,4 @@ COPY apps/transactions/ ./apps/transactions/
 
 EXPOSE 4003
 
-RUN pnpm run generate:transactions
-
 CMD ["pnpm", "run", "dev:transactions"]
