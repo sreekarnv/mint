@@ -38,8 +38,6 @@ export class FraudController {
       usdEquivalentCents: req.usdEquivalentCents || req.amountCents,
     };
 
-    console.log(request);
-
     return {
       decision: 'ALLOW',
       score: 0,
