@@ -37,6 +37,7 @@
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "cookie-parser": "^1.4.7",
+    "geoip-lite": "^2.0.1",
     "ioredis": "^5.10.1",
     "jose": "^6.2.2",
     "kafkajs": "^2.2.4",
