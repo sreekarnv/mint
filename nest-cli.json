@@ -24,7 +24,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/fraud/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/fraud/tsconfig.app.json"
+        "tsConfigPath": "apps/fraud/tsconfig.app.json",
+        "webpackConfigPath": "apps/fraud/webpack.config.js"
       }
     },
     "transactions": {
