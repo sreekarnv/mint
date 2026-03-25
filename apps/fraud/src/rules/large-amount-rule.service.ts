@@ -1,6 +1,8 @@
 import { BaseRuleService, RuleResult, ScoreRequest } from './base-rule.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class LargeAmountRuleService extends BaseRuleService {
   private name: string = 'large_amount_deviation';
 

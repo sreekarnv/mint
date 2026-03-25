@@ -17,7 +17,7 @@ interface GrpcScoreRequest {
   usdEquivalentCents: number;
 }
 
-@Controller()
+@Controller('api/v1/fraud')
 export class FraudController {
   constructor(private fraudService: FraudService) {}
 
@@ -38,11 +38,13 @@ export class FraudController {
       usdEquivalentCents: req.usdEquivalentCents || req.amountCents,
     };
 
+    const result = await this.fraudService.evalute(request);
+
     return {
-      decision: 'ALLOW',
-      score: 0,
-      rulesFired: [],
-      reason: '',
+      decision: result.decision,
+      score: result.score,
+      rulesFired: result.rulesFired,
+      reason: result.reason,
     };
   }
 }

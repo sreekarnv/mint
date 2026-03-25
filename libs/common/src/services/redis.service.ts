@@ -6,7 +6,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client: Redis;
 
   onModuleInit() {
-    if (process.env.REDIS_URL) {
+    if (!process.env.REDIS_URL) {
       throw new Error('Redis URL is missing');
     }
 

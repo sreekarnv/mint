@@ -1,6 +1,8 @@
-import { RedisService } from '@mint/common';
+import { RedisService } from '@mint/common/services/redis.service';
 import { BaseRuleService, RuleResult, ScoreRequest } from './base-rule.service';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class SanctionedRuleService extends BaseRuleService {
   private name: string = 'sanctioned_recipient';
 
