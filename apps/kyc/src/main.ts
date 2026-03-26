@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { KycModule } from './kyc.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(KycModule);
-  await app.listen(process.env.port ?? 3000);
+  app.use(cookieParser());
+
+  await app.listen(4005);
 }
+
 bootstrap();
