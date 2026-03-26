@@ -166,6 +166,20 @@ services:
     command: ["pnpm", "migrate:fraud"]
     restart: no
 
+  kyc-migrate:
+    build:
+      context: .
+      dockerfile: apps/kyc/Dockerfile
+    container_name: mint-kyc-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_kyc_user:mint_kyc_pass@postgres:5432/mint_kyc
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:kyc"]
+    restart: no
+
   auth:
     build:
       context: .
@@ -274,6 +288,43 @@ services:
     volumes:
       - ./apps/fraud/src:/app/apps/fraud/src
       - ./libs/proto:/app/libs/proto
+    restart: on-failure
+
+  kyc:
+    build:
+      context: .
+      dockerfile: apps/kyc/Dockerfile
+    container_name: mint-kyc
+    networks: [mint]
+    ports:
+      - "4004:4004"
+      - "50053:50053"
+    environment:
+      DATABASE_URL: postgresql://mint_kyc_user:mint_kyc_pass@postgres:5432/mint_kyc
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      KYC_WEBHOOK_SECRET: "" # set in prod
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+    volumes:
+      - ./apps/kyc/src:/app/apps/kyc/src
+      - ./apps/kyc/prisma:/app/apps/kyc/prisma
+      - ./libs/common/src:/app/libs/common/src
+      - ./libs/proto:/app/libs/proto
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      kyc-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     restart: on-failure
 
 volumes:
