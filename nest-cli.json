@@ -28,6 +28,15 @@
         "webpackConfigPath": "apps/fraud/webpack.config.js"
       }
     },
+    "kyc": {
+      "type": "application",
+      "root": "apps/kyc",
+      "entryFile": "main",
+      "sourceRoot": "apps/kyc/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/kyc/tsconfig.app.json"
+      }
+    },
     "transactions": {
       "type": "application",
       "root": "apps/transactions",
