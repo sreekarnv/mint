@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(KycModule);
   app.use(cookieParser());
 
-  await app.listen(4005);
+  await app.listen(4004);
 }
 
 bootstrap();
