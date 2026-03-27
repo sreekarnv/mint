@@ -7,6 +7,7 @@ import { DocumentsController } from './documents/documents.controller';
 import { DocumentsService } from './documents/documents.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { KycKafkaController } from './kyc/kyc-kafka.controller';
+import { KycGrpcController } from './kyc/kyc-grpc.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,12 @@ import { KycKafkaController } from './kyc/kyc-kafka.controller';
       },
     ]),
   ],
-  controllers: [DocumentsController, KycController, KycKafkaController],
+  controllers: [
+    DocumentsController,
+    KycController,
+    KycKafkaController,
+    KycGrpcController,
+  ],
   providers: [PrismaService, RedisService, DocumentsService, KycService],
 })
 export class KycModule {}

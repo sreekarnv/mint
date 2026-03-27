@@ -2,11 +2,19 @@ import { NestFactory } from '@nestjs/core';
 import { KycModule } from './kyc.module';
 import cookieParser from 'cookie-parser';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import path from 'path';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(KycModule);
   app.use(cookieParser());
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'kyc',
+      protoPath: join(process.cwd(), 'libs/proto/kyc.proto'),
+    },
+  });
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
