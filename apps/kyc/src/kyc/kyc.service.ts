@@ -111,7 +111,7 @@ export class KycService {
       where: { profileId: profile.id },
     });
 
-    if (!kycDocs) {
+    if (kycDocs.length === 0) {
       throw new BadRequestException('No documents uploaded');
     }
 
