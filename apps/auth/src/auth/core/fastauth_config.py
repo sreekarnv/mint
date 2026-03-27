@@ -4,6 +4,7 @@ from fastauth.adapters.sqlalchemy import SQLAlchemyAdapter
 from fastauth.app import FastAuth
 from fastauth.config import FastAuthConfig, JWTConfig
 from fastauth.providers.credentials import CredentialsProvider
+from fastauth.email_transports.console import ConsoleTransport
 
 from auth.core.settings import settings
 from auth.hooks import AuthEventHooks
@@ -24,6 +25,7 @@ config = FastAuthConfig(
     route_prefix="/api/v1/auth",
     token_delivery="cookie",
     cookie_samesite="lax",
+    email_transport=ConsoleTransport() # TODO: to remove after implementing notification service,
     jwt=JWTConfig(
         algorithm="RS256",
         private_key=_PRIVATE_KEY,

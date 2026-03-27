@@ -1,9 +1,12 @@
 from fastauth.core.protocols import EventHooks
 from fastauth.types import UserData
 
-from auth.kafka.producer import publish_user_registered
+from auth.kafka.producer import publish_user_registered, publish_email_verification
 
 
 class AuthEventHooks(EventHooks):
     async def on_signup(self, user_data: UserData):
         await publish_user_registered(user_data=user_data)
+
+    async def on_email_verify(self, user_data: UserData) -> None:
+        await publish_email_verification(user_data=user_data)
