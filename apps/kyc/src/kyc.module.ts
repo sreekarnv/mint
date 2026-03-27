@@ -5,10 +5,24 @@ import { RedisService } from '@mint/common/services/redis.service';
 import { PrismaService } from './prisma/prisma.service';
 import { DocumentsController } from './documents/documents.controller';
 import { DocumentsService } from './documents/documents.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { KycKafkaController } from './kyc/kyc-kafka.controller';
 
 @Module({
-  imports: [],
-  controllers: [DocumentsController, KycController],
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'KAFKA_PRODUCER',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            brokers: [process.env.KAFKA_BROKERS!],
+          },
+        },
+      },
+    ]),
+  ],
+  controllers: [DocumentsController, KycController, KycKafkaController],
   providers: [PrismaService, RedisService, DocumentsService, KycService],
 })
 export class KycModule {}
