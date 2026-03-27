@@ -1,0 +1,27 @@
+syntax = "proto3";
+package kyc;
+
+service KycService {
+  rpc GetUserTier (GetTierRequest) returns (GetTierResponse);
+  rpc GetLimits (GetLimitsRequest) returns (GetLimitsResponse);
+}
+
+message GetTierRequest { 
+    string user_id = 1;
+}
+
+message GetTierResponse {
+    string tier = 1;
+    bool is_frozen = 2;
+}
+
+message GetLimitsRequest { 
+    string user_id = 1; 
+}
+
+message GetLimitsResponse {
+    int64  per_txn_cents = 1;
+    int64  daily_cents = 2;
+    int64  monthly_cents = 3;
+    string limits_currency = 4;
+}

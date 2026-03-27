@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum KycTier {
+  UNVERIFIED
+  BASIC
+  VERIFIED
+}
+
+enum KycStatus {
+  NONE
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model KycProfile {
+  id              String        @id @default(cuid())
+  userId          String        @unique @map("user_id")
+  tier            KycTier       @default(UNVERIFIED)
+  status          KycStatus     @default(NONE)
+  providerRef     String?       @map("provider_ref") @db.VarChar(255)
+  rejectionReason String?       @map("rejection_reason")
+  submittedAt     DateTime?     @map("submitted_at") @db.Timestamptz
+  verifiedAt      DateTime?     @map("verified_at") @db.Timestamptz
+  createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamptz
+  kycDocuments    KycDocument[]
+
+  @@map("kyc_profiles")
+}
+
+enum DocType {
+  PASSPORT
+  DRIVERS_LICENSE
+  SELFIE
+  UTILITY_BILL
+  OTHER
+}
+
+model KycDocument {
+  id         String     @id @default(cuid())
+  profileId  String     @map("profile_id")
+  type       DocType
+  docName    String?    @map("doc_name")
+  s3Key      String     @map("s3_key")
+  status     String     @default("PENDING") @db.VarChar(255)
+  uploadedAt DateTime   @default(now()) @map("uploaded_at") @db.Timestamptz
+  profile    KycProfile @relation(fields: [profileId], references: [id])
+
+  @@map("kyc_documents")
+}
