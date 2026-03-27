@@ -32,6 +32,7 @@ export type KycProfileMinAggregateOutputType = {
   providerRef: string | null
   rejectionReason: string | null
   submittedAt: Date | null
+  verifiedAt: Date | null
   createdAt: Date | null
 }
 
@@ -43,6 +44,7 @@ export type KycProfileMaxAggregateOutputType = {
   providerRef: string | null
   rejectionReason: string | null
   submittedAt: Date | null
+  verifiedAt: Date | null
   createdAt: Date | null
 }
 
@@ -54,6 +56,7 @@ export type KycProfileCountAggregateOutputType = {
   providerRef: number
   rejectionReason: number
   submittedAt: number
+  verifiedAt: number
   createdAt: number
   _all: number
 }
@@ -67,6 +70,7 @@ export type KycProfileMinAggregateInputType = {
   providerRef?: true
   rejectionReason?: true
   submittedAt?: true
+  verifiedAt?: true
   createdAt?: true
 }
 
@@ -78,6 +82,7 @@ export type KycProfileMaxAggregateInputType = {
   providerRef?: true
   rejectionReason?: true
   submittedAt?: true
+  verifiedAt?: true
   createdAt?: true
 }
 
@@ -89,6 +94,7 @@ export type KycProfileCountAggregateInputType = {
   providerRef?: true
   rejectionReason?: true
   submittedAt?: true
+  verifiedAt?: true
   createdAt?: true
   _all?: true
 }
@@ -173,6 +179,7 @@ export type KycProfileGroupByOutputType = {
   providerRef: string | null
   rejectionReason: string | null
   submittedAt: Date | null
+  verifiedAt: Date | null
   createdAt: Date | null
   _count: KycProfileCountAggregateOutputType | null
   _min: KycProfileMinAggregateOutputType | null
@@ -205,6 +212,7 @@ export type KycProfileWhereInput = {
   providerRef?: Prisma.StringNullableFilter<"KycProfile"> | string | null
   rejectionReason?: Prisma.StringNullableFilter<"KycProfile"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"KycProfile"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableFilter<"KycProfile"> | Date | string | null
   createdAt?: Prisma.DateTimeNullableFilter<"KycProfile"> | Date | string | null
   kycDocuments?: Prisma.KycDocumentListRelationFilter
 }
@@ -217,6 +225,7 @@ export type KycProfileOrderByWithRelationInput = {
   providerRef?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   kycDocuments?: Prisma.KycDocumentOrderByRelationAggregateInput
 }
@@ -232,6 +241,7 @@ export type KycProfileWhereUniqueInput = Prisma.AtLeast<{
   providerRef?: Prisma.StringNullableFilter<"KycProfile"> | string | null
   rejectionReason?: Prisma.StringNullableFilter<"KycProfile"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"KycProfile"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableFilter<"KycProfile"> | Date | string | null
   createdAt?: Prisma.DateTimeNullableFilter<"KycProfile"> | Date | string | null
   kycDocuments?: Prisma.KycDocumentListRelationFilter
 }, "id" | "userId">
@@ -244,6 +254,7 @@ export type KycProfileOrderByWithAggregationInput = {
   providerRef?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.KycProfileCountOrderByAggregateInput
   _max?: Prisma.KycProfileMaxOrderByAggregateInput
@@ -261,6 +272,7 @@ export type KycProfileScalarWhereWithAggregatesInput = {
   providerRef?: Prisma.StringNullableWithAggregatesFilter<"KycProfile"> | string | null
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"KycProfile"> | string | null
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"KycProfile"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"KycProfile"> | Date | string | null
   createdAt?: Prisma.DateTimeNullableWithAggregatesFilter<"KycProfile"> | Date | string | null
 }
 
@@ -272,6 +284,7 @@ export type KycProfileCreateInput = {
   providerRef?: string | null
   rejectionReason?: string | null
   submittedAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string | null
   kycDocuments?: Prisma.KycDocumentCreateNestedManyWithoutProfileInput
 }
@@ -284,6 +297,7 @@ export type KycProfileUncheckedCreateInput = {
   providerRef?: string | null
   rejectionReason?: string | null
   submittedAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string | null
   kycDocuments?: Prisma.KycDocumentUncheckedCreateNestedManyWithoutProfileInput
 }
@@ -296,6 +310,7 @@ export type KycProfileUpdateInput = {
   providerRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   kycDocuments?: Prisma.KycDocumentUpdateManyWithoutProfileNestedInput
 }
@@ -308,6 +323,7 @@ export type KycProfileUncheckedUpdateInput = {
   providerRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   kycDocuments?: Prisma.KycDocumentUncheckedUpdateManyWithoutProfileNestedInput
 }
@@ -320,6 +336,7 @@ export type KycProfileCreateManyInput = {
   providerRef?: string | null
   rejectionReason?: string | null
   submittedAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string | null
 }
 
@@ -331,6 +348,7 @@ export type KycProfileUpdateManyMutationInput = {
   providerRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -342,6 +360,7 @@ export type KycProfileUncheckedUpdateManyInput = {
   providerRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -353,6 +372,7 @@ export type KycProfileCountOrderByAggregateInput = {
   providerRef?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -364,6 +384,7 @@ export type KycProfileMaxOrderByAggregateInput = {
   providerRef?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -375,6 +396,7 @@ export type KycProfileMinOrderByAggregateInput = {
   providerRef?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -425,6 +447,7 @@ export type KycProfileCreateWithoutKycDocumentsInput = {
   providerRef?: string | null
   rejectionReason?: string | null
   submittedAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string | null
 }
 
@@ -436,6 +459,7 @@ export type KycProfileUncheckedCreateWithoutKycDocumentsInput = {
   providerRef?: string | null
   rejectionReason?: string | null
   submittedAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string | null
 }
 
@@ -463,6 +487,7 @@ export type KycProfileUpdateWithoutKycDocumentsInput = {
   providerRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -474,6 +499,7 @@ export type KycProfileUncheckedUpdateWithoutKycDocumentsInput = {
   providerRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -516,6 +542,7 @@ export type KycProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   providerRef?: boolean
   rejectionReason?: boolean
   submittedAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
   kycDocuments?: boolean | Prisma.KycProfile$kycDocumentsArgs<ExtArgs>
   _count?: boolean | Prisma.KycProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -529,6 +556,7 @@ export type KycProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   providerRef?: boolean
   rejectionReason?: boolean
   submittedAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["kycProfile"]>
 
@@ -540,6 +568,7 @@ export type KycProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   providerRef?: boolean
   rejectionReason?: boolean
   submittedAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["kycProfile"]>
 
@@ -551,10 +580,11 @@ export type KycProfileSelectScalar = {
   providerRef?: boolean
   rejectionReason?: boolean
   submittedAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
 }
 
-export type KycProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "tier" | "status" | "providerRef" | "rejectionReason" | "submittedAt" | "createdAt", ExtArgs["result"]["kycProfile"]>
+export type KycProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "tier" | "status" | "providerRef" | "rejectionReason" | "submittedAt" | "verifiedAt" | "createdAt", ExtArgs["result"]["kycProfile"]>
 export type KycProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kycDocuments?: boolean | Prisma.KycProfile$kycDocumentsArgs<ExtArgs>
   _count?: boolean | Prisma.KycProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -575,6 +605,7 @@ export type $KycProfilePayload<ExtArgs extends runtime.Types.Extensions.Internal
     providerRef: string | null
     rejectionReason: string | null
     submittedAt: Date | null
+    verifiedAt: Date | null
     createdAt: Date | null
   }, ExtArgs["result"]["kycProfile"]>
   composites: {}
@@ -1007,6 +1038,7 @@ export interface KycProfileFieldRefs {
   readonly providerRef: Prisma.FieldRef<"KycProfile", 'String'>
   readonly rejectionReason: Prisma.FieldRef<"KycProfile", 'String'>
   readonly submittedAt: Prisma.FieldRef<"KycProfile", 'DateTime'>
+  readonly verifiedAt: Prisma.FieldRef<"KycProfile", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"KycProfile", 'DateTime'>
 }
     

@@ -159,6 +159,23 @@ export class KycService {
     );
   }
 
+  async rejectProfile(userId: string, reason?: string): Promise<void> {
+    await this.prismaService.kycProfile.update({
+      where: { userId },
+      data: {
+        status: KycStatus.REJECTED,
+        rejectionReason: reason ?? null,
+      },
+    });
+    await this.redisService.del(`kyc:tier:${userId}`);
+
+    this.emit(
+      'kyc.events',
+      { event: 'kyc.verification_failed', userId, reason },
+      userId,
+    );
+  }
+
   private emit(
     topic: string,
     payload: Record<string, unknown>,

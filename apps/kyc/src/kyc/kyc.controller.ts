@@ -1,10 +1,24 @@
-import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Logger,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { KycService } from './kyc.service';
 import type { Request } from 'express';
 import { JWTAuthGuard } from '@mint/common';
+import { createHmac } from 'crypto';
+import { KycTier } from '../generated/prisma/enums';
 
 @Controller('api/v1/kyc')
 export class KycController {
+  private readonly logger: Logger = new Logger(KycController.name);
+
   constructor(private readonly kycService: KycService) {}
 
   @Get()
@@ -33,5 +47,46 @@ export class KycController {
     return {
       message: 'Documents submitted for review',
     };
+  }
+
+  @Post('webhook')
+  async handleProviderWebhook(
+    @Body() body: any,
+    @Headers('x-persona-signature') signature: string,
+  ) {
+    const secret = process.env.KYC_WEBHOOK_SECRET ?? 'secret';
+
+    if (secret) {
+      const expected = createHmac('sha256', secret)
+        .update(JSON.stringify(body))
+        .digest('hex');
+
+      if (signature !== `sha256=${expected}`) {
+        throw new UnauthorizedException('Invalid signature');
+      }
+    }
+
+    const status = body?.data?.attributes?.status;
+    const userId = body?.data?.attributes?.externalId;
+
+    if (!userId) {
+      this.logger.warn(
+        `Webhook received with no userId — ignoring: ${JSON.stringify(body)}`,
+      );
+      return;
+    }
+
+    if (status === 'approved') {
+      await this.kycService.upgradeTier(userId, KycTier.VERIFIED);
+    } else if (status === 'declined') {
+      await this.kycService.rejectProfile(
+        userId,
+        body?.data?.attributes?.reason,
+      );
+    } else {
+      this.logger.log(
+        `Unhandled webhook status "${status}" for user ${userId}. No action taken`,
+      );
+    }
   }
 }

@@ -600,6 +600,7 @@ export const KycProfileScalarFieldEnum = {
   providerRef: 'providerRef',
   rejectionReason: 'rejectionReason',
   submittedAt: 'submittedAt',
+  verifiedAt: 'verifiedAt',
   createdAt: 'createdAt'
 } as const
 
