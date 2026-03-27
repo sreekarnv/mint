@@ -11,6 +11,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
+      url: '0.0.0.0:50053',
       package: 'kyc',
       protoPath: join(process.cwd(), 'libs/proto/kyc.proto'),
     },

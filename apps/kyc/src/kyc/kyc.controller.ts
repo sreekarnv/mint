@@ -54,7 +54,7 @@ export class KycController {
     @Body() body: any,
     @Headers('x-persona-signature') signature: string,
   ) {
-    const secret = process.env.KYC_WEBHOOK_SECRET ?? 'secret';
+    const secret = process.env.KYC_WEBHOOK_SECRET;
 
     if (secret) {
       const expected = createHmac('sha256', secret)
