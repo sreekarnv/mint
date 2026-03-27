@@ -33,6 +33,7 @@
     "test:e2e": "jest --config ./apps/mint/test/jest-e2e.json"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1018.0",
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0",
     "@nestjs/common": "^11.0.1",
@@ -60,6 +61,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.1.0",
     "@types/node": "^22.10.7",
     "@types/pg": "^8.20.0",
     "@types/supertest": "^6.0.2",

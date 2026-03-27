@@ -3,10 +3,12 @@ import { KycController } from './kyc/kyc.controller';
 import { KycService } from './kyc/kyc.service';
 import { RedisService } from '@mint/common/services/redis.service';
 import { PrismaService } from './prisma/prisma.service';
+import { DocumentsController } from './documents/documents.controller';
+import { DocumentsService } from './documents/documents.service';
 
 @Module({
   imports: [],
-  controllers: [KycController],
-  providers: [PrismaService, RedisService, KycService],
+  controllers: [DocumentsController, KycController],
+  providers: [PrismaService, RedisService, DocumentsService, KycService],
 })
 export class KycModule {}
