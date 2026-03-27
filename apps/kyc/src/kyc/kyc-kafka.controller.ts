@@ -27,7 +27,7 @@ export class KycKafkaController {
     this.logger.log(`auth.user_verified upgrading ${userId} to BASIC`);
 
     try {
-      this.kycService.upgradeTier(userId, KycTier.BASIC);
+      await this.kycService.upgradeTier(userId, KycTier.BASIC);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       this.logger.warn(`upgrade tier skipped for ${userId}: ${msg}`);

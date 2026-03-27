@@ -33,6 +33,7 @@ model KycProfile {
   providerRef     String?       @map("provider_ref") @db.VarChar(255)
   rejectionReason String?       @map("rejection_reason")
   submittedAt     DateTime?     @map("submitted_at") @db.Timestamptz
+  verifiedAt      DateTime?     @map("verified_at") @db.Timestamptz
   createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamptz
   kycDocuments    KycDocument[]
 
