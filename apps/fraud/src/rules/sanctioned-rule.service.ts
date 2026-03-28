@@ -1,4 +1,4 @@
-import { RedisService } from '@mint/common/services/redis.service';
+import { RedisService } from '@mint/common';
 import { BaseRuleService, RuleResult, ScoreRequest } from './base-rule.service';
 import { Injectable } from '@nestjs/common';
 
