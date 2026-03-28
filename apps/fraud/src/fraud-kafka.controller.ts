@@ -13,7 +13,7 @@ export class FraudKafkaController {
     const event = envelope?.payload?.event as string | undefined;
     if (event !== 'transaction.completed') return;
 
-    const { senderId, senderAmount, senderCurrency } = envelope.payload;
+    const { senderId, senderAmount } = envelope.payload;
     if (!senderId || senderAmount == null) return;
 
     // Normalise to USD cents for consistent stats
