@@ -10,10 +10,11 @@ import { NewRecipientRuleService } from './rules/new-recipient-rule.service';
 import { GeoAnomalyRuleService } from './rules/geo-anomaly-rule.service';
 import { NightLargeRuleService } from './rules/night-large-rule.service';
 import { SanctionedRuleService } from './rules/sanctioned-rule.service';
+import { FraudKafkaController } from './fraud-kafka.controller';
 
 @Module({
   imports: [],
-  controllers: [FraudController],
+  controllers: [FraudController, FraudKafkaController],
   providers: [
     RedisService,
     PrismaService,
