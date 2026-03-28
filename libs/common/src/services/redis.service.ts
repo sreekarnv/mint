@@ -1,16 +1,35 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
-export class RedisService implements OnModuleInit, OnModuleDestroy {
+export class RedisService implements OnModuleDestroy {
+  private readonly logger: Logger = new Logger(RedisService.name);
   private client: Redis;
 
-  onModuleInit() {
+  constructor() {
     if (!process.env.REDIS_URL) {
-      throw new Error('Redis URL is missing');
+      throw new Error('REDIS_URL environment variable is required');
     }
 
-    this.client = new Redis(process.env.REDIS_URL!);
+    this.client = new Redis(process.env.REDIS_URL, {
+      lazyConnect: false,
+      retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+    });
+
+    this.client.on('connect', () => {
+      this.logger.log(`Redis connected to ${process.env.REDIS_URL}`);
+    });
+
+    this.client.on('error', (err) => {
+      this.logger.error(`Redis error: ${err.message}`);
+    });
+
+    this.client.on('ready', () => {
+      this.logger.log('Redis ready');
+    });
   }
 
   async onModuleDestroy() {

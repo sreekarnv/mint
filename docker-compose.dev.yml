@@ -63,6 +63,7 @@ services:
       bash -c "
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic auth.events --partitions 3 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic kyc.events --partitions 3 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic transaction.events --partitions 3 --replication-factor 1 &&
       echo 'All topics created'
       "
     restart: no
@@ -312,6 +313,7 @@ services:
     environment:
       DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
       REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
       FRAUD_BLOCK_THRESHOLD: "100"
       FRAUD_REVIEW_THRESHOLD: "50"
       NODE_ENV: development
@@ -321,6 +323,10 @@ services:
       redis:
         condition: service_healthy
       fraud-migrate:
+        condition: service_completed_successfully
+      kafka:
+        condition: service_healthy
+      kafka-init:
         condition: service_completed_successfully
     volumes:
       - ./apps/fraud/src:/app/apps/fraud/src

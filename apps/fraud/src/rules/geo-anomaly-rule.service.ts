@@ -54,7 +54,7 @@ export class GeoAnomalyRuleService extends BaseRuleService {
   getCountryFromIp(rawIp: string): string | null {
     const ip = GeoAnomalyRuleService.normalizeIp(rawIp);
 
-    if (!GeoAnomalyRuleService.isPrivateIp(ip)) return null;
+    if (GeoAnomalyRuleService.isPrivateIp(ip)) return null;
 
     const geo = geoip.lookup(ip);
     return geo?.country ?? null;
