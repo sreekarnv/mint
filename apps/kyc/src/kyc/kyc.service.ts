@@ -10,7 +10,7 @@ import {
   KycTier,
   type KycProfile,
 } from '../generated/prisma/client';
-import { RedisService } from '@mint/common/services/redis.service';
+import { RedisService } from '@mint/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { v4 } from 'uuid';
 
