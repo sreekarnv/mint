@@ -40,6 +40,14 @@ export class RedisService implements OnModuleDestroy {
     return this.client.incr(key);
   }
 
+  async incrby(key: string, value: number): Promise<number> {
+    return this.client.incrby(key, value);
+  }
+
+  async decrby(key: string, value: number): Promise<number> {
+    return this.client.decrby(key, value);
+  }
+
   async expire(key: string, seconds: number): Promise<void> {
     await this.client.expire(key, seconds);
   }
@@ -63,5 +71,9 @@ export class RedisService implements OnModuleDestroy {
 
   async del(key: string): Promise<void> {
     await this.client.del(key);
+  }
+
+  async sadd(key: string, member: string): Promise<number> {
+    return this.client.sadd(key, member);
   }
 }
