@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
-import { RedisService } from '@mint/common';
+import { RedisService, serializeBigInt } from '@mint/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from './prisma/prisma.service';
@@ -39,10 +39,11 @@ interface FraudServiceClient {
 }
 
 interface KycServiceClient {
-  GetLimits(data: { userId: string }): Promise<{
+  GetLimits(data: { userId: string }): Observable<{
     perTxnCents: number;
     dailyCents: number;
     monthlyCents: number;
+    limitsCurrency: string;
   }>;
 }
 
@@ -85,7 +86,7 @@ export class TransactionsService {
         recipientId: dto.recipientId,
         senderWallet: 'temp', // TODO: Will be replaced after wallet lookup
         recipientWallet: 'temp',
-        senderAmount: dto.amount,
+        senderAmount: BigInt(dto.amount),
         senderCurrency: dto.senderCurrency,
         recipientCurrency: dto.recipientCurrency || dto.senderCurrency,
         description: dto.description,
@@ -186,7 +187,7 @@ export class TransactionsService {
         await this.prisma.transaction.update({
           where: { id: txn.id },
           data: {
-            recipientAmount,
+            recipientAmount: BigInt(recipientAmount),
             fxRate,
             fxRateLockedAt,
           },
@@ -218,15 +219,25 @@ export class TransactionsService {
 
       if (!creditResult.success) {
         this.logger.error(
-          `CRITICAL: Credited sender but failed to credit recipient for ${txn.id}`,
+          `CRITICAL: Debited sender but failed to credit recipient for ${txn.id}. Attempting rollback...`,
         );
+
+        try {
+          await this.creditWallet(userId, dto.amount, `${txn.id}-rollback`);
+          this.logger.log(`Rollback successful for ${txn.id}`);
+        } catch (rollbackError) {
+          this.logger.error(
+            `ROLLBACK FAILED for ${txn.id}! Manual intervention required.`,
+            rollbackError,
+          );
+        }
 
         await this.prisma.transaction.update({
           where: { id: txn.id },
           data: { status: TxnStatus.FAILED },
         });
 
-        throw new Error('Critical error: contact support');
+        throw new Error('Transaction failed: unable to complete transfer');
       }
 
       this.logger.log(
@@ -251,13 +262,15 @@ export class TransactionsService {
           type: completed.type,
           senderId: completed.senderId,
           recipientId: completed.recipientId,
-          senderAmount: completed.senderAmount,
+          senderAmount: Number(completed.senderAmount),
           senderCurrency: completed.senderCurrency,
-          recipientAmount: completed.recipientAmount,
+          recipientAmount: completed.recipientAmount
+            ? Number(completed.recipientAmount)
+            : null,
           recipientCurrency: completed.recipientCurrency,
           fraudDecision: completed.fraudDecision,
           fraudScore: completed.fraudScore,
-          completedAt: completed.completedAt,
+          completedAt: completed.completedAt?.toISOString(),
         },
         userId,
       );
@@ -265,7 +278,15 @@ export class TransactionsService {
       // Record transaction in limit counters (no rollback possible here)
       await this.limitService.recordTransaction(userId, dto.amount);
 
-      return completed;
+      return {
+        id: completed.id,
+        status: completed.status,
+        amount: Number(completed.senderAmount),
+        currency: completed.senderCurrency,
+        recipientId: completed.recipientId,
+        createdAt: completed.createdAt,
+        completedAt: completed.completedAt,
+      };
     } catch (error) {
       this.logger.error(
         `Transfer failed for ${txn.id}: ${error.message}`,
