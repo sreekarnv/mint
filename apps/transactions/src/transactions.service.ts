@@ -1,8 +1,430 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  ForbiddenException,
+  Logger,
+} from '@nestjs/common';
+import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
+import { RedisService } from '@mint/common';
+import { firstValueFrom, Observable } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
+import { PrismaService } from './prisma/prisma.service';
+import { LimitService } from './limit/limit.service';
+import { StateMachineService } from './state-machine/state-machine.service';
+import { TxnStatus, TxnType } from './generated/prisma/enums';
+import type { TransferDto } from './dto/transfer.dto';
+import { TopupDto } from './dto/topup.dto';
+
+interface FraudServiceClient {
+  ScoreTransaction(data: {
+    transactionId: string;
+    userId: string;
+    recipientId: string;
+    amountCents: number;
+    currency: string;
+    senderCurrency: string;
+    recipientCurrency: string;
+    usdEquivalentCents: number;
+    ipAddress: string;
+    transactionType: string;
+    userCountry: string;
+    recipientIsContact: boolean;
+  }): Observable<{
+    decision: string;
+    score: number;
+    rulesFired: string[];
+    reason: string;
+  }>;
+}
+
+interface KycServiceClient {
+  GetLimits(data: { userId: string }): Promise<{
+    perTxnCents: number;
+    dailyCents: number;
+    monthlyCents: number;
+  }>;
+}
 
 @Injectable()
 export class TransactionsService {
-  getMessage(): string {
-    return 'Transactions Service';
+  private readonly logger = new Logger(TransactionsService.name);
+  private fraudClient: FraudServiceClient;
+  private kycClient: KycServiceClient;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+    private readonly limitService: LimitService,
+    private readonly stateMachine: StateMachineService,
+    @Inject('FRAUD_CLIENT') private readonly fraudGrpc: ClientGrpc,
+    @Inject('KYC_CLIENT') private readonly kycGrpc: ClientGrpc,
+    @Inject('KAFKA_PRODUCER') private readonly kafka: ClientKafka,
+  ) {
+    this.fraudClient =
+      this.fraudGrpc.getService<FraudServiceClient>('FraudService');
+    this.kycClient = this.kycGrpc.getService<KycServiceClient>('KycService');
+  }
+
+  async transfer(
+    dto: TransferDto,
+    userId: string,
+    idempotencyKey: string,
+    ipAddress: string,
+  ) {
+    this.logger.log(
+      `Transfer initiated: ${userId} => ${dto.recipientId}, ${dto.amount} cents`,
+    );
+
+    const txn = await this.prisma.transaction.create({
+      data: {
+        idempotencyKey,
+        type: TxnType.TRANSFER,
+        status: TxnStatus.PENDING,
+        senderId: userId,
+        recipientId: dto.recipientId,
+        senderWallet: 'temp', // TODO: Will be replaced after wallet lookup
+        recipientWallet: 'temp',
+        senderAmount: dto.amount,
+        senderCurrency: dto.senderCurrency,
+        recipientCurrency: dto.recipientCurrency || dto.senderCurrency,
+        description: dto.description,
+        category: dto.category,
+      },
+    });
+
+    this.logger.log(`Transaction created: ${txn.id}, status: PENDING`);
+
+    try {
+      await this.limitService.checkAll(userId, dto.amount);
+      this.logger.log(`Limits check passed for ${userId}`);
+
+      const usdEquivalent = await this.computeUsdEquivalent(
+        dto.amount,
+        dto.senderCurrency,
+      );
+
+      const isContact = await this.redis.sismember(
+        `contact:${userId}`,
+        dto.recipientId,
+      );
+
+      const fraudResult = await firstValueFrom(
+        this.fraudClient.ScoreTransaction({
+          transactionId: txn.id,
+          userId,
+          recipientId: dto.recipientId,
+          amountCents: dto.amount,
+          currency: dto.senderCurrency,
+          senderCurrency: dto.senderCurrency,
+          recipientCurrency: dto.recipientCurrency || dto.senderCurrency,
+          usdEquivalentCents: usdEquivalent,
+          ipAddress,
+          transactionType: 'TRANSFER',
+          userCountry: 'US', // TODO: Get from user profile
+          recipientIsContact: !!isContact,
+        }),
+      );
+
+      this.logger.log(
+        `Fraud check: ${fraudResult.decision}, score: ${fraudResult.score}, rules: ${fraudResult.rulesFired.join(', ')}`,
+      );
+
+      if (fraudResult.decision === 'BLOCK') {
+        await this.prisma.transaction.update({
+          where: { id: txn.id },
+          data: {
+            status: TxnStatus.FAILED,
+            fraudDecision: 'BLOCK',
+            fraudScore: fraudResult.score,
+          },
+        });
+
+        // Publish fraud_blocked event
+        this.emitEvent(
+          'transaction.events',
+          {
+            event: 'transaction.fraud_blocked',
+            transactionId: txn.id,
+            userId,
+            amount: dto.amount,
+            rulesFired: fraudResult.rulesFired,
+            score: fraudResult.score,
+          },
+          userId,
+        );
+
+        throw new ForbiddenException(
+          `Transaction blocked: ${fraudResult.reason}`,
+        );
+      }
+
+      await this.prisma.transaction.update({
+        where: { id: txn.id },
+        data: {
+          status: TxnStatus.PROCESSING,
+          processingAt: new Date(),
+          fraudDecision: fraudResult.decision,
+          fraudScore: fraudResult.score,
+        },
+      });
+
+      this.logger.log(`Transaction ${txn.id} => PROCESSING`);
+
+      let recipientAmount = dto.amount;
+      let fxRate: string | null = null;
+      let fxRateLockedAt: Date | null = null;
+
+      if (
+        dto.senderCurrency !== (dto.recipientCurrency || dto.senderCurrency)
+      ) {
+        // TODO: Call wallet-service FX rate API
+        fxRate = '1.0';
+        fxRateLockedAt = new Date();
+        recipientAmount = dto.amount;
+
+        await this.prisma.transaction.update({
+          where: { id: txn.id },
+          data: {
+            recipientAmount,
+            fxRate,
+            fxRateLockedAt,
+          },
+        });
+
+        this.logger.log(`FX rate locked: ${fxRate} at ${fxRateLockedAt}`);
+      }
+
+      const debitResult = await this.debitWallet(userId, dto.amount, txn.id);
+
+      if (!debitResult.success) {
+        await this.prisma.transaction.update({
+          where: { id: txn.id },
+          data: { status: TxnStatus.FAILED },
+        });
+
+        throw new BadRequestException(
+          debitResult.error || 'Insufficient funds',
+        );
+      }
+
+      this.logger.log(`Debited ${dto.amount} from ${userId}'s wallet`);
+
+      const creditResult = await this.creditWallet(
+        dto.recipientId,
+        recipientAmount,
+        txn.id,
+      );
+
+      if (!creditResult.success) {
+        this.logger.error(
+          `CRITICAL: Credited sender but failed to credit recipient for ${txn.id}`,
+        );
+
+        await this.prisma.transaction.update({
+          where: { id: txn.id },
+          data: { status: TxnStatus.FAILED },
+        });
+
+        throw new Error('Critical error: contact support');
+      }
+
+      this.logger.log(
+        `Credited ${recipientAmount} to ${dto.recipientId}'s wallet`,
+      );
+
+      const completed = await this.prisma.transaction.update({
+        where: { id: txn.id },
+        data: {
+          status: TxnStatus.COMPLETED,
+          completedAt: new Date(),
+        },
+      });
+
+      this.logger.log(`Transaction ${txn.id} => COMPLETED`);
+
+      this.emitEvent(
+        'transaction.events',
+        {
+          event: 'transaction.completed',
+          transactionId: completed.id,
+          type: completed.type,
+          senderId: completed.senderId,
+          recipientId: completed.recipientId,
+          senderAmount: completed.senderAmount,
+          senderCurrency: completed.senderCurrency,
+          recipientAmount: completed.recipientAmount,
+          recipientCurrency: completed.recipientCurrency,
+          fraudDecision: completed.fraudDecision,
+          fraudScore: completed.fraudScore,
+          completedAt: completed.completedAt,
+        },
+        userId,
+      );
+
+      // Record transaction in limit counters (no rollback possible here)
+      await this.limitService.recordTransaction(userId, dto.amount);
+
+      return completed;
+    } catch (error) {
+      this.logger.error(
+        `Transfer failed for ${txn.id}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async getTransaction(txnId: string, userId: string) {
+    const txn = await this.prisma.transaction.findUnique({
+      where: { id: txnId },
+    });
+
+    if (!txn) {
+      throw new BadRequestException('Transaction not found');
+    }
+
+    if (txn.senderId !== userId && txn.recipientId !== userId) {
+      throw new ForbiddenException('Not authorized to view this transaction');
+    }
+
+    return {
+      id: txn.id,
+      type: txn.type,
+      status: txn.status,
+      amount: Number(txn.senderAmount),
+      currency: txn.senderCurrency,
+      description: txn.description,
+      senderId: txn.senderId,
+      recipientId: txn.recipientId,
+      fraudDecision: txn.fraudDecision,
+      fraudScore: txn.fraudScore,
+      createdAt: txn.createdAt,
+      completedAt: txn.completedAt,
+    };
+  }
+  async listTransactions(userId: string, limit: number = 20, cursor?: string) {
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        OR: [{ senderId: userId }, { recipientId: userId }],
+        ...(cursor ? { id: { lt: cursor } } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return transactions.map((txn) => ({
+      id: txn.id,
+      type: txn.type,
+      status: txn.status,
+      amount: Number(txn.senderAmount),
+      currency: txn.senderCurrency,
+      description: txn.description,
+      senderId: txn.senderId,
+      recipientId: txn.recipientId,
+      createdAt: txn.createdAt,
+      completedAt: txn.completedAt,
+    }));
+  }
+
+  async topup(dto: TopupDto, userId: string, idempotencyKey: string) {
+    this.logger.log(
+      `Topup initiated: ${userId}, ${dto.amount} ${dto.currency}`,
+    );
+
+    const txn = await this.prisma.transaction.create({
+      data: {
+        idempotencyKey,
+        type: TxnType.TOPUP,
+        status: TxnStatus.PENDING,
+        senderId: userId,
+        senderWallet: 'temp',
+        senderAmount: BigInt(dto.amount),
+        senderCurrency: dto.currency,
+        description: dto.description,
+      },
+    });
+
+    await this.prisma.transaction.update({
+      where: { id: txn.id },
+      data: {
+        status: TxnStatus.COMPLETED,
+        completedAt: new Date(),
+      },
+    });
+
+    this.emitEvent(
+      'transaction.events',
+      {
+        event: 'transaction.completed',
+        transactionId: txn.id,
+        type: txn.type,
+        senderId: txn.senderId,
+        senderAmount: Number(txn.senderAmount),
+        senderCurrency: txn.senderCurrency,
+        completedAt: new Date(),
+      },
+      userId,
+    );
+
+    return {
+      id: txn.id,
+      status: TxnStatus.COMPLETED,
+      amount: Number(txn.senderAmount),
+      currency: txn.senderCurrency,
+    };
+  }
+
+  //TODO: Call wallet-service FX rate API
+  private async computeUsdEquivalent(
+    amountCents: number,
+    currency: string,
+  ): Promise<number> {
+    if (currency === 'USD') return amountCents;
+
+    // TODO: Fetch rate from wallet-service (For now return 1:!)
+    return amountCents;
+  }
+
+  //  TODO: Replace with gRPC call when wallet-service implements gRPC server.
+  private async debitWallet(
+    userId: string,
+    amountCents: number,
+    transactionId: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    // TODO: Implement REST call to wallet-service
+    this.logger.warn(
+      'debitWallet: Using mock implementation (wallet-service gRPC not ready)',
+    );
+    return { success: true };
+  }
+
+  // TODO: Replace with gRPC call when wallet-service implements gRPC server.
+  private async creditWallet(
+    userId: string,
+    amountCents: number,
+    transactionId: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    // TODO: Implement REST call to wallet-service
+    this.logger.warn(
+      'creditWallet: Using mock implementation (wallet-service gRPC not ready)',
+    );
+    return { success: true };
+  }
+
+  private emitEvent(
+    topic: string,
+    payload: Record<string, any>,
+    actorId: string,
+  ): void {
+    this.kafka.emit(topic, {
+      topic,
+      eventId: uuidv4(),
+      timestamp: new Date().toISOString(),
+      version: '1',
+      service: 'transactions-service',
+      actorId,
+      payload,
+    });
   }
 }
