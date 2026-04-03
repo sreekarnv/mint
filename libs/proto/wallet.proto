@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package wallet;
+
+service WalletService {
+  rpc DebitWallet(DebitWalletRequest) returns (MutationResponse);
+  rpc CreditWallet(CreditWalletRequest) returns (MutationResponse);
+  rpc GetBalance(GetBalanceRequest) returns (BalanceResponse);
+  rpc FreezeWallet(FreezeWalletRequest) returns (StatusResponse);  
+  rpc GetWallet(GetWalletRequest) returns (WalletResponse);
+}
+
+message DebitWalletRequest {
+  string wallet_id = 1; 
+  int64 amount_cents = 2; 
+  string transaction_id = 3; 
+}
+
+message CreditWalletRequest {
+  string wallet_id = 1;
+  int64 amount_cents = 2;
+  string transaction_id = 3;
+}
+
+message MutationResponse {
+  bool success = 1;
+  int64 balance_after = 2;  
+  string error = 3;          
+}
+
+message GetBalanceRequest {
+  string wallet_id = 1;
+}
+
+message BalanceResponse {
+  int64 balance = 1;
+  string currency = 2;
+}
+
+message FreezeWalletRequest {
+  string wallet_id = 1;
+}
+
+message StatusResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetWalletRequest {
+  string user_id = 1;
+}
+
+message WalletResponse {
+  string id = 1;
+  string user_id = 2;
+  int64 balance = 3;
+  string currency = 4;
+  string status = 5;
+  bool is_default = 6;
+}

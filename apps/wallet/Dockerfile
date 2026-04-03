@@ -16,6 +16,8 @@ COPY pyproject.toml uv.lock ./
 COPY shared-py/ shared-py/
 
 COPY apps/wallet/pyproject.toml apps/wallet/README.md apps/wallet/
+COPY libs/proto/wallet.proto libs/proto/wallet.proto
+COPY scripts/generate_proto.py scripts/generate_proto.py
 
 RUN uv sync --package mint-wallet --no-install-project --frozen
 
@@ -24,6 +26,7 @@ COPY apps/wallet/.env.development apps/wallet/.env.development
 COPY apps/wallet/alembic.ini apps/wallet/alembic.ini
 
 RUN uv sync --package mint-wallet --frozen
+RUN uv run python scripts/generate_proto.py
 
 WORKDIR /app/apps/wallet
 
