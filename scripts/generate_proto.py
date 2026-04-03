@@ -5,8 +5,9 @@ Generate Python gRPC code from wallet.proto
 This script:
 1. Checks if grpcio-tools is installed
 2. Generates Python protobuf and gRPC code
-3. Verifies the output
-4. Provides helpful error messages
+3. Fixes the import in wallet_pb2_grpc.py (relative import)
+4. Verifies the output
+5. Provides helpful error messages
 
 Usage:
     python scripts/generate_proto.py
@@ -37,6 +38,45 @@ def install_grpcio_tools():
         return True
     except subprocess.CalledProcessError:
         return False
+
+
+def fix_grpc_imports(output_dir: Path):
+    """Fix the import in wallet_pb2_grpc.py to use relative imports."""
+    
+    grpc_file = output_dir / "wallet_pb2_grpc.py"
+    
+    if not grpc_file.exists():
+        print(f"\n⚠️  Warning: {grpc_file.name} not found, skipping import fix")
+        return False
+    
+    print("\n🔧 Fixing imports in wallet_pb2_grpc.py...")
+    
+    # Read the file
+    content = grpc_file.read_text()
+    
+    # Check if fix is needed
+    if "from . import wallet_pb2" in content:
+        print("   ✓ Imports already fixed")
+        return True
+    
+    # Fix the import (change absolute to relative)
+    original_line = "import wallet_pb2 as wallet__pb2"
+    fixed_line = "from . import wallet_pb2 as wallet__pb2"
+    
+    if original_line not in content:
+        print(f"   ⚠️  Expected import line not found")
+        return False
+    
+    # Replace the import
+    fixed_content = content.replace(original_line, fixed_line)
+    
+    # Write back
+    grpc_file.write_text(fixed_content)
+    
+    print(f"   ✓ Changed: {original_line}")
+    print(f"   ✓ To:      {fixed_line}")
+    
+    return True
 
 
 def generate_proto(repo_root: Path):
@@ -98,6 +138,13 @@ def generate_proto(repo_root: Path):
     print(f"   ✓ {grpc_file.name} (service definitions)")
     print(f"   ✓ __init__.py (package markers)")
     
+    # Fix the imports in the generated gRPC file
+    if not fix_grpc_imports(output_dir):
+        print("\n⚠️  Warning: Import fix failed, but files were generated")
+        print("   You may need to manually fix the import in wallet_pb2_grpc.py")
+        print("   Change: import wallet_pb2 as wallet__pb2")
+        print("   To:     from . import wallet_pb2 as wallet__pb2")
+    
     print("\n📦 Files location:")
     print(f"   {output_dir.relative_to(repo_root)}/")
     
@@ -157,7 +204,7 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n Interrupted by user")
+        print("\n\n⚠️  Interrupted by user")
         sys.exit(130)
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")
