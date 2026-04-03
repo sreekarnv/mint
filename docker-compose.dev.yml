@@ -251,6 +251,7 @@ services:
     networks: [mint]
     ports:
       - "4002:4002"
+      - "50051:50051"
     environment:
       ENV_FILENAME: ".env.development"
     depends_on:
