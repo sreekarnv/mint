@@ -18,6 +18,10 @@ CREATE USER mint_kyc_user WITH PASSWORD 'mint_kyc_pass';
 CREATE DATABASE mint_kyc OWNER mint_kyc_user;
 GRANT ALL PRIVILEGES ON DATABASE mint_kyc TO mint_kyc_user;
 
+CREATE USER mint_analytics_user WITH PASSWORD 'mint_analytics_pass';
+CREATE DATABASE mint_analytics OWNER mint_analytics_user;
+GRANT ALL PRIVILEGES ON DATABASE mint_analytics TO mint_analytics_user;
+
 -- Add a new block here for each service as you build them:
 -- CREATE USER mint_{svc}_user WITH PASSWORD 'mint_{svc}_pass';
 -- CREATE DATABASE mint_{svc} OWNER mint_{svc}_user;

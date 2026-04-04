@@ -123,6 +123,7 @@ export class TransactionsService {
           senderCurrency: dto.senderCurrency,
           recipientCurrency: dto.recipientCurrency || dto.senderCurrency,
           description: dto.description,
+          merchant: dto.merchant,
           category: dto.category,
         },
       });
@@ -334,6 +335,9 @@ export class TransactionsService {
             ? Number(completed.recipientAmount)
             : null,
           recipientCurrency: completed.recipientCurrency,
+          description: completed.description,
+          merchant: completed.merchant,
+          category: completed.category,
           fraudDecision: completed.fraudDecision,
           fraudScore: completed.fraudScore,
           completedAt: completed.completedAt?.toISOString(),

@@ -383,6 +383,54 @@ services:
         condition: service_completed_successfully
     restart: on-failure
 
+  analytics-migrate:
+    build:
+      context: .
+      dockerfile: apps/analytics/Dockerfile
+    container_name: mint-analytics-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:analytics"]
+    restart: no
+
+  analytics:
+    build:
+      context: .
+      dockerfile: apps/analytics/Dockerfile
+    container_name: mint-analytics
+    networks: [mint]
+    ports:
+      - "4005:4005"
+    environment:
+      DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+    volumes:
+      - ./apps/analytics/src:/app/apps/analytics/src
+      - ./apps/analytics/prisma:/app/apps/analytics/prisma
+      - ./libs/common/src:/app/libs/common/src
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      analytics-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: on-failure
+
 volumes:
   postgres-data:
   redis-data:

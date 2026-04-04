@@ -47,6 +47,16 @@
         "tsConfigPath": "apps/transactions/tsconfig.app.json",
         "webpackConfigPath": "apps/transactions/webpack.config.js"
       }
+    },
+    "analytics": {
+      "type": "application",
+      "root": "apps/analytics",
+      "entryFile": "main",
+      "sourceRoot": "apps/analytics/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/analytics/tsconfig.app.json",
+        "webpackConfigPath": "apps/analytics/webpack.config.js"
+      }
     }
   },
   "watchOptions": {
