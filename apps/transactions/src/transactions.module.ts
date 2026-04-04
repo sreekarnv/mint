@@ -39,6 +39,15 @@ import { StateMachineService } from './state-machine/state-machine.service';
           protoPath: join(process.cwd(), 'libs/proto/kyc.proto'),
         },
       },
+      {
+        name: 'WALLET_CLIENT',
+        transport: Transport.GRPC,
+        options: {
+          url: process.env.WALLET_SERVICE_URL!,
+          package: 'wallet',
+          protoPath: join(process.cwd(), 'libs/proto/wallet.proto'),
+        },
+      },
     ]),
   ],
   controllers: [TransactionsController],

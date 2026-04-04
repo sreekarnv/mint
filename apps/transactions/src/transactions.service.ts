@@ -6,12 +6,13 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
-import { RedisService, serializeBigInt } from '@mint/common';
+import { RedisService } from '@mint/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from './prisma/prisma.service';
 import { LimitService } from './limit/limit.service';
 import { StateMachineService } from './state-machine/state-machine.service';
+import { Prisma } from './generated/prisma/client';
 import { TxnStatus, TxnType } from './generated/prisma/enums';
 import type { TransferDto } from './dto/transfer.dto';
 import { TopupDto } from './dto/topup.dto';
@@ -33,7 +34,7 @@ interface FraudServiceClient {
   }): Observable<{
     decision: string;
     score: number;
-    rulesFired: string[];
+    rulesFired: string[] | undefined;
     reason: string;
   }>;
 }
@@ -47,11 +48,33 @@ interface KycServiceClient {
   }>;
 }
 
+interface WalletServiceClient {
+  DebitWallet(data: {
+    walletId: string;
+    amountCents: number;
+    transactionId: string;
+  }): Observable<{ success: boolean; balanceAfter: number; error?: string }>;
+  CreditWallet(data: {
+    walletId: string;
+    amountCents: number;
+    transactionId: string;
+  }): Observable<{ success: boolean; balanceAfter: number; error?: string }>;
+  GetWallet(data: { userId: string }): Observable<{
+    id: string;
+    userId: string;
+    balance: number;
+    currency: string;
+    status: string;
+    isDefault: boolean;
+  }>;
+}
+
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name);
   private fraudClient: FraudServiceClient;
   private kycClient: KycServiceClient;
+  private walletClient: WalletServiceClient;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -60,11 +83,14 @@ export class TransactionsService {
     private readonly stateMachine: StateMachineService,
     @Inject('FRAUD_CLIENT') private readonly fraudGrpc: ClientGrpc,
     @Inject('KYC_CLIENT') private readonly kycGrpc: ClientGrpc,
+    @Inject('WALLET_CLIENT') private readonly walletGrpc: ClientGrpc,
     @Inject('KAFKA_PRODUCER') private readonly kafka: ClientKafka,
   ) {
     this.fraudClient =
       this.fraudGrpc.getService<FraudServiceClient>('FraudService');
     this.kycClient = this.kycGrpc.getService<KycServiceClient>('KycService');
+    this.walletClient =
+      this.walletGrpc.getService<WalletServiceClient>('WalletService');
   }
 
   async transfer(
@@ -77,22 +103,54 @@ export class TransactionsService {
       `Transfer initiated: ${userId} => ${dto.recipientId}, ${dto.amount} cents`,
     );
 
-    const txn = await this.prisma.transaction.create({
-      data: {
-        idempotencyKey,
-        type: TxnType.TRANSFER,
-        status: TxnStatus.PENDING,
-        senderId: userId,
-        recipientId: dto.recipientId,
-        senderWallet: 'temp', // TODO: Will be replaced after wallet lookup
-        recipientWallet: 'temp',
-        senderAmount: BigInt(dto.amount),
-        senderCurrency: dto.senderCurrency,
-        recipientCurrency: dto.recipientCurrency || dto.senderCurrency,
-        description: dto.description,
-        category: dto.category,
-      },
-    });
+    const [senderWallet, recipientWallet] = await Promise.all([
+      firstValueFrom(this.walletClient.GetWallet({ userId })),
+      firstValueFrom(this.walletClient.GetWallet({ userId: dto.recipientId })),
+    ]);
+
+    let txn: Awaited<ReturnType<typeof this.prisma.transaction.create>>;
+    try {
+      txn = await this.prisma.transaction.create({
+        data: {
+          idempotencyKey,
+          type: TxnType.TRANSFER,
+          status: TxnStatus.PENDING,
+          senderId: userId,
+          recipientId: dto.recipientId,
+          senderWallet: senderWallet.id,
+          recipientWallet: recipientWallet.id,
+          senderAmount: BigInt(dto.amount),
+          senderCurrency: dto.senderCurrency,
+          recipientCurrency: dto.recipientCurrency || dto.senderCurrency,
+          description: dto.description,
+          category: dto.category,
+        },
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        this.logger.warn(
+          `Duplicate idempotency key "${idempotencyKey}" for transfer - returning existing transaction`,
+        );
+        const existing = await this.prisma.transaction.findUnique({
+          where: { idempotencyKey },
+        });
+        if (existing) {
+          return {
+            id: existing.id,
+            status: existing.status,
+            amount: Number(existing.senderAmount),
+            currency: existing.senderCurrency,
+            recipientId: existing.recipientId,
+            createdAt: existing.createdAt,
+            completedAt: existing.completedAt,
+          };
+        }
+      }
+      throw err;
+    }
 
     this.logger.log(`Transaction created: ${txn.id}, status: PENDING`);
 
@@ -128,7 +186,7 @@ export class TransactionsService {
       );
 
       this.logger.log(
-        `Fraud check: ${fraudResult.decision}, score: ${fraudResult.score}, rules: ${fraudResult.rulesFired.join(', ')}`,
+        `Fraud check: ${fraudResult.decision}, score: ${fraudResult.score}, rules: ${(fraudResult.rulesFired ?? []).join(', ')}`,
       );
 
       if (fraudResult.decision === 'BLOCK') {
@@ -149,7 +207,7 @@ export class TransactionsService {
             transactionId: txn.id,
             userId,
             amount: dto.amount,
-            rulesFired: fraudResult.rulesFired,
+            rulesFired: fraudResult.rulesFired ?? [],
             score: fraudResult.score,
           },
           userId,
@@ -196,7 +254,11 @@ export class TransactionsService {
         this.logger.log(`FX rate locked: ${fxRate} at ${fxRateLockedAt}`);
       }
 
-      const debitResult = await this.debitWallet(userId, dto.amount, txn.id);
+      const debitResult = await this.debitWallet(
+        senderWallet.id,
+        dto.amount,
+        txn.id,
+      );
 
       if (!debitResult.success) {
         await this.prisma.transaction.update({
@@ -212,7 +274,7 @@ export class TransactionsService {
       this.logger.log(`Debited ${dto.amount} from ${userId}'s wallet`);
 
       const creditResult = await this.creditWallet(
-        dto.recipientId,
+        recipientWallet.id,
         recipientAmount,
         txn.id,
       );
@@ -223,7 +285,11 @@ export class TransactionsService {
         );
 
         try {
-          await this.creditWallet(userId, dto.amount, `${txn.id}-rollback`);
+          await this.creditWallet(
+            senderWallet.id,
+            dto.amount,
+            `${txn.id}-rollback`,
+          );
           this.logger.log(`Rollback successful for ${txn.id}`);
         } catch (rollbackError) {
           this.logger.error(
@@ -353,18 +419,58 @@ export class TransactionsService {
       `Topup initiated: ${userId}, ${dto.amount} ${dto.currency}`,
     );
 
-    const txn = await this.prisma.transaction.create({
-      data: {
-        idempotencyKey,
-        type: TxnType.TOPUP,
-        status: TxnStatus.PENDING,
-        senderId: userId,
-        senderWallet: 'temp',
-        senderAmount: BigInt(dto.amount),
-        senderCurrency: dto.currency,
-        description: dto.description,
-      },
-    });
+    const wallet = await firstValueFrom(
+      this.walletClient.GetWallet({ userId }),
+    );
+
+    let txn: Awaited<ReturnType<typeof this.prisma.transaction.create>>;
+    try {
+      txn = await this.prisma.transaction.create({
+        data: {
+          idempotencyKey,
+          type: TxnType.TOPUP,
+          status: TxnStatus.PENDING,
+          senderId: userId,
+          senderWallet: wallet.id,
+          senderAmount: BigInt(dto.amount),
+          senderCurrency: dto.currency,
+          description: dto.description,
+        },
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        this.logger.warn(
+          `Duplicate idempotency key "${idempotencyKey}" for topup - returning existing transaction`,
+        );
+        const existing = await this.prisma.transaction.findUnique({
+          where: { idempotencyKey },
+        });
+        if (existing) {
+          return {
+            id: existing.id,
+            status: existing.status,
+            amount: Number(existing.senderAmount),
+            currency: existing.senderCurrency,
+          };
+        }
+      }
+      throw err;
+    }
+
+    const creditResult = await this.creditWallet(wallet.id, dto.amount, txn.id);
+
+    if (!creditResult.success) {
+      await this.prisma.transaction.update({
+        where: { id: txn.id },
+        data: { status: TxnStatus.FAILED },
+      });
+      throw new BadRequestException(
+        creditResult.error || 'Topup failed: wallet credit error',
+      );
+    }
 
     await this.prisma.transaction.update({
       where: { id: txn.id },
@@ -407,30 +513,54 @@ export class TransactionsService {
     return amountCents;
   }
 
-  //  TODO: Replace with gRPC call when wallet-service implements gRPC server.
   private async debitWallet(
-    userId: string,
+    walletId: string,
     amountCents: number,
     transactionId: string,
   ): Promise<{ success: boolean; error?: string }> {
-    // TODO: Implement REST call to wallet-service
-    this.logger.warn(
-      'debitWallet: Using mock implementation (wallet-service gRPC not ready)',
-    );
-    return { success: true };
+    try {
+      const result = await firstValueFrom(
+        this.walletClient.DebitWallet({
+          walletId,
+          amountCents,
+          transactionId,
+        }),
+      );
+      if (result.success) {
+        this.logger.log(
+          `DebitWallet successful: ${walletId}, new balance: ${result.balanceAfter}`,
+        );
+      }
+      return { success: result.success, error: result.error };
+    } catch (error) {
+      this.logger.error(`DebitWallet gRPC failed: ${error.message}`);
+      return { success: false, error: error.message || 'Wallet debit failed' };
+    }
   }
 
-  // TODO: Replace with gRPC call when wallet-service implements gRPC server.
   private async creditWallet(
-    userId: string,
+    walletId: string,
     amountCents: number,
     transactionId: string,
   ): Promise<{ success: boolean; error?: string }> {
-    // TODO: Implement REST call to wallet-service
-    this.logger.warn(
-      'creditWallet: Using mock implementation (wallet-service gRPC not ready)',
-    );
-    return { success: true };
+    try {
+      const result = await firstValueFrom(
+        this.walletClient.CreditWallet({
+          walletId,
+          amountCents,
+          transactionId,
+        }),
+      );
+      if (result.success) {
+        this.logger.log(
+          `CreditWallet successful: ${walletId}, new balance: ${result.balanceAfter}`,
+        );
+      }
+      return { success: result.success, error: result.error };
+    } catch (error) {
+      this.logger.error(`CreditWallet gRPC failed: ${error.message}`);
+      return { success: false, error: error.message || 'Wallet credit failed' };
+    }
   }
 
   private emitEvent(
