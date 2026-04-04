@@ -282,6 +282,9 @@ services:
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      WALLET_SERVICE_URL: wallet:50051
+      FRAUD_SERVICE_URL: fraud:50052
+      KYC_SERVICE_URL: kyc:50053
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
@@ -301,6 +304,8 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+      wallet:
+        condition: service_started
     restart: on-failure
 
   fraud:
@@ -315,6 +320,7 @@ services:
       DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       FRAUD_BLOCK_THRESHOLD: "100"
       FRAUD_REVIEW_THRESHOLD: "50"
       NODE_ENV: development
