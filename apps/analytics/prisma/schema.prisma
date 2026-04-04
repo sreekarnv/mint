@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Category {
+  FOOD
+  TRANSPORT
+  ENTERTAINMENT
+  UTILITIES
+  OTHER
+}
+
+model SpendEvent {
+  id               String   @id @default(cuid())
+  transactionId    String   @unique @map("transaction_id")
+  userId           String   @map("user_id")
+  amountCents      BigInt   @map("amount_cents")
+  originalCurrency String   @map("original_currency") @db.VarChar(3)
+  baseCurrency     String   @map("base_currency") @db.VarChar(3)
+  baseAmountCents  BigInt   @map("base_amount_cents")
+  category         Category
+  merchant         String?  @db.VarChar(255)
+  occurredAt       DateTime @map("occurred_at") @db.Timestamptz
+  yearMonth        String   @map("year_month") @db.VarChar(7)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId, yearMonth])
+  @@index([userId, category])
+  @@map("spend_events")
+}
+
+model MonthlyAggregate {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  yearMonth  String   @map("year_month") @db.VarChar(7)
+  category   Category
+  totalCents BigInt   @default(0) @map("total_cents")
+  count      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userId, yearMonth, category])
+  @@index([userId, yearMonth])
+  @@map("monthly_aggregates")
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  category   Category
+  limitCents BigInt   @map("limit_cents")
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userId, category])
+  @@index([userId, active])
+  @@map("budgets")
+}
+
+model UserAnalyticsPrefs {
+  userId       String   @id @map("user_id")
+  baseCurrency String   @default("USD") @map("base_currency") @db.VarChar(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_analytics_prefs")
+}
