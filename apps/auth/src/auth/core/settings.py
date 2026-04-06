@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     fastauth_secret: str
     database_url: str
     kafka_brokers: str
+    smtp_host: str = "mailhog"
+    smtp_port: int = 1025
+    smtp_from: str = "Mint <noreply@mint.dev>"
+    base_url: str = "http://localhost/api/v1"
 
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 

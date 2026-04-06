@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Populated from auth.user_registered events so other handlers can
+// resolve a user's email without calling the auth service directly.
+model UserProfile {
+  userId    String   @id @map("user_id")
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_profiles")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  type      String    @db.VarChar(60)
+  title     String
+  body      String
+  data      Json?
+  read      Boolean   @default(false)
+  readAt    DateTime? @map("read_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId, read, createdAt(sort: Desc)])
+  @@map("notifications")
+}

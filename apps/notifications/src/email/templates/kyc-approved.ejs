@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Identity Verified - Mint</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f4f4f5;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+
+      .wrapper {
+        max-width: 560px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      }
+
+      .header {
+        background: #18181b;
+        padding: 28px 32px;
+      }
+
+      .header h1 {
+        margin: 0;
+        color: #fff;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+      }
+
+      .body {
+        padding: 32px;
+      }
+
+      .body h2 {
+        margin: 0 0 12px;
+        color: #18181b;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .body p {
+        margin: 0 0 16px;
+        color: #3f3f46;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .badge {
+        display: inline-block;
+        background: #f0fdf4;
+        color: #15803d;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 4px 12px;
+        border-radius: 99px;
+        border: 1px solid #bbf7d0;
+        margin-bottom: 16px;
+      }
+
+      .check-card {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 24px;
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .check-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .check-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #15803d;
+        margin-bottom: 4px;
+      }
+
+      .check-sub {
+        font-size: 13px;
+        color: #15803d;
+        opacity: 0.8;
+      }
+
+      .perks {
+        margin: 24px 0;
+        border: 1px solid #e4e4e7;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .perk {
+        padding: 13px 16px;
+        border-bottom: 1px solid #f4f4f5;
+        font-size: 14px;
+        color: #3f3f46;
+      }
+
+      .perk:last-child {
+        border-bottom: none;
+      }
+
+      .perk strong {
+        color: #18181b;
+      }
+
+      .footer {
+        padding: 20px 32px;
+        border-top: 1px solid #f4f4f5;
+      }
+
+      .footer p {
+        margin: 0;
+        font-size: 13px;
+        color: #a1a1aa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="header">
+        <h1>Mint</h1>
+      </div>
+      <div class="body">
+        <span class="badge">Verified</span>
+        <h2>Identity Fully Verified</h2>
+        <p>
+          Your identity has been verified. You now have complete access to all
+          Mint features.
+        </p>
+        <div class="check-card">
+          <div class="check-icon">&#10003;</div>
+          <div class="check-title">KYC Approved</div>
+          <div class="check-sub">Full verification complete</div>
+        </div>
+        <p>With full verification you can:</p>
+        <div class="perks">
+          <div class="perk">
+            <strong>Higher limits</strong> - Send and receive larger amounts
+          </div>
+          <div class="perk">
+            <strong>Full history</strong> - Detailed transaction analytics and
+            budgeting
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <p>
+          &copy; <%= new Date().getFullYear() %> Mint. Thank you for verifying
+          your identity.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

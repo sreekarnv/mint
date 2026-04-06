@@ -64,6 +64,9 @@ services:
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic auth.events --partitions 3 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic kyc.events --partitions 3 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic transaction.events --partitions 3 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic wallet.events --partitions 3 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic analytics.events --partitions 3 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic social.events --partitions 3 --replication-factor 1 &&
       echo 'All topics created'
       "
     restart: no
@@ -102,6 +105,15 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: on-failure
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mint-mailhog
+    networks: [mint]
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI → http://localhost:8025
     restart: on-failure
 
   minio:
@@ -237,6 +249,8 @@ services:
         condition: service_completed_successfully
       auth-migrate:
         condition: service_completed_successfully
+      mailhog:
+        condition: service_started
     volumes:
       - ./apps/auth/src:/app/apps/auth/src
       - ./shared-py:/app/shared-py
@@ -429,6 +443,59 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+    restart: on-failure
+
+  notifications-migrate:
+    build:
+      context: .
+      dockerfile: apps/notifications/Dockerfile
+    container_name: mint-notifications-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:notifications"]
+    restart: no
+
+  notifications:
+    build:
+      context: .
+      dockerfile: apps/notifications/Dockerfile
+    container_name: mint-notifications
+    networks: [mint]
+    ports:
+      - "4006:4006"
+    environment:
+      DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+      SMTP_FROM: "Mint <noreply@mint.dev>"
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+    volumes:
+      - ./apps/notifications/src:/app/apps/notifications/src
+      - ./apps/notifications/prisma:/app/apps/notifications/prisma
+      - ./libs/common/src:/app/libs/common/src
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      notifications-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
     restart: on-failure
 
 volumes:
