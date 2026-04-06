@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget Warning - Mint</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .wrapper {
+      max-width: 560px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+    }
+
+    .header {
+      background: #18181b;
+      padding: 28px 32px;
+    }
+
+    .header h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .body {
+      padding: 32px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #fef9c3;
+      color: #a16207;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 20px;
+    }
+
+    .body p {
+      margin: 0 0 16px;
+      color: #3f3f46;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .progress-wrap {
+      background: #f4f4f5;
+      border-radius: 99px;
+      height: 8px;
+      margin: 20px 0 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #eab308;
+      border-radius: 99px;
+      width: <%=Math.min(ratio, 100) %>%;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+
+    .footer {
+      padding: 20px 32px;
+      border-top: 1px solid #f4f4f5;
+    }
+
+    .footer p {
+      margin: 0;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>Mint</h1>
+    </div>
+    <div class="body">
+      <span class="badge">Budget Warning</span>
+      <p>You've used <strong><%= ratio %>%</strong> of your <strong><%= category %></strong> budget this month.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"></div>
+      </div>
+      <div class="progress-label">
+        <span>$<%= used %> spent</span>
+        <span>$<%= limit %> limit</span>
+      </div>
+      <% const remaining = parseFloat(limit) - parseFloat(used); %>
+      <% if (remaining > 0) { %>
+        <p>You have $<%= remaining.toFixed(2) %> remaining.</p>
+      <% } else { %>
+        <p>You have reached your limit for this category.</p>
+      <% } %>
+    </div>
+    <div class="footer">
+      <p>Copyright <%= new Date().getFullYear() %> Mint. Manage your budgets in the app.</p>
+    </div>
+  </div>
+</body>
+</html>
