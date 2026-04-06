@@ -24,7 +24,7 @@ export class KycEventsController {
   }
 
   private async handleTierUpgraded(payload: any) {
-    const isFull = payload.newTier === 'FULL';
+    const isFull = payload.newTier === 'VERIFIED';
 
     await this.notifications.create({
       userId: payload.userId,
@@ -32,7 +32,7 @@ export class KycEventsController {
       title: isFull ? 'Identity Fully Verified' : 'Verification Level Upgraded',
       body: isFull
         ? 'Your identity has been fully verified. You now have complete access to Mint.'
-        : `Your verification level has been upgraded to ${payload.newTier}.`,
+        : `Your verification level has been upgraded to ${payload.newTier}. Complete the next step to unlock full access.`,
       data: { previousTier: payload.previousTier, newTier: payload.newTier },
     });
 
