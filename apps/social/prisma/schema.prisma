@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
+enum SplitStatus {
+  OPEN
+  SETTLED
+}
+
+enum ParticipantStatus {
+  PENDING
+  PAID
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  ownerId   String   @map("owner_id")
+  contactId String   @map("contact_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([ownerId, contactId])
+  @@index([ownerId])
+  @@map("contacts")
+}
+
+model MoneyRequest {
+  id            String        @id @default(cuid())
+  requesterId   String        @map("requester_id")
+  recipientId   String        @map("recipient_id")
+  amount        BigInt
+  currency      String        @default("USD") @db.VarChar(3)
+  note          String?
+  status        RequestStatus @default(PENDING)
+  bullmqJobId   String?       @map("bullmq_job_id") @db.VarChar(255)
+  transactionId String?       @map("transaction_id")
+  expiresAt     DateTime      @map("expires_at") @db.Timestamptz
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  acceptedAt    DateTime?     @map("accepted_at") @db.Timestamptz
+  declinedAt    DateTime?     @map("declined_at") @db.Timestamptz
+  expiredAt     DateTime?     @map("expired_at") @db.Timestamptz
+
+  @@index([requesterId, status])
+  @@index([recipientId, status])
+  @@map("money_requests")
+}
+
+model BillSplit {
+  id           String             @id @default(cuid())
+  creatorId    String             @map("creator_id")
+  title        String
+  totalCents   BigInt             @map("total_cents")
+  currency     String             @default("USD") @db.VarChar(3)
+  status       SplitStatus        @default(OPEN)
+  settledAt    DateTime?          @map("settled_at") @db.Timestamptz
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  participants SplitParticipant[]
+
+  @@index([creatorId, status])
+  @@map("bill_splits")
+}
+
+model SplitParticipant {
+  id            String            @id @default(cuid())
+  splitId       String            @map("split_id")
+  userId        String            @map("user_id")
+  amountCents   BigInt            @map("amount_cents")
+  status        ParticipantStatus @default(PENDING)
+  transactionId String?           @map("transaction_id")
+  paidAt        DateTime?         @map("paid_at") @db.Timestamptz
+  split         BillSplit         @relation(fields: [splitId], references: [id], onDelete: Cascade)
+
+  @@unique([splitId, userId])
+  @@index([userId, status])
+  @@map("split_participants")
+}

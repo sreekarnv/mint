@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { KycService } from '../kyc/kyc.service';
 import { DocType } from '../generated/prisma/enums';
+import { KycService } from '../kyc/kyc.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DocumentsService {

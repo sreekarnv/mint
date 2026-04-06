@@ -229,6 +229,48 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:kyc"]
     restart: no
+  
+  analytics-migrate:
+    build:
+      context: .
+      dockerfile: apps/analytics/Dockerfile
+    container_name: mint-analytics-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:analytics"]
+    restart: no
+  
+  notifications-migrate:
+    build:
+      context: .
+      dockerfile: apps/notifications/Dockerfile
+    container_name: mint-notifications-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:notifications"]
+    restart: no
+  
+  social-migrate:
+    build:
+      context: .
+      dockerfile: apps/social/Dockerfile
+    container_name: mint-social-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_social_user:mint_social_pass@postgres:5432/mint_social
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:social"]
+    restart: no
 
   auth:
     build:
@@ -397,20 +439,6 @@ services:
         condition: service_completed_successfully
     restart: on-failure
 
-  analytics-migrate:
-    build:
-      context: .
-      dockerfile: apps/analytics/Dockerfile
-    container_name: mint-analytics-migrate
-    networks: [mint]
-    environment:
-      DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: ["pnpm", "migrate:analytics"]
-    restart: no
-
   analytics:
     build:
       context: .
@@ -444,20 +472,6 @@ services:
       redis:
         condition: service_healthy
     restart: on-failure
-
-  notifications-migrate:
-    build:
-      context: .
-      dockerfile: apps/notifications/Dockerfile
-    container_name: mint-notifications-migrate
-    networks: [mint]
-    environment:
-      DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: ["pnpm", "migrate:notifications"]
-    restart: no
 
   notifications:
     build:
@@ -496,6 +510,40 @@ services:
         condition: service_healthy
       mailhog:
         condition: service_started
+    restart: on-failure
+  
+  social:
+    build:
+      context: .
+      dockerfile: apps/social/Dockerfile
+    container_name: mint-social
+    networks: [mint]
+    ports:
+      - "4007:4007"
+    environment:
+      DATABASE_URL: postgresql://mint_social_user:mint_social_pass@postgres:5432/mint_social
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+    volumes:
+      - ./apps/social/src:/app/apps/social/src
+      - ./apps/social/prisma:/app/apps/social/prisma
+      - ./libs/common/src:/app/libs/common/src
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      social-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     restart: on-failure
 
 volumes:
