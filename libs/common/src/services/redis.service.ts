@@ -76,4 +76,8 @@ export class RedisService implements OnModuleDestroy {
   async sadd(key: string, member: string): Promise<number> {
     return this.client.sadd(key, member);
   }
+
+  async srem(key: string, value: string): Promise<number> {
+    return this.client.srem(key, value);
+  }
 }

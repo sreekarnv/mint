@@ -9,6 +9,16 @@
   "monorepo": true,
   "root": "apps",
   "projects": {
+    "analytics": {
+      "type": "application",
+      "root": "apps/analytics",
+      "entryFile": "main",
+      "sourceRoot": "apps/analytics/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/analytics/tsconfig.app.json",
+        "webpackConfigPath": "apps/analytics/webpack.config.js"
+      }
+    },
     "common": {
       "type": "library",
       "root": "libs/common",
@@ -38,26 +48,6 @@
         "webpackConfigPath": "apps/kyc/webpack.config.js"
       }
     },
-    "transactions": {
-      "type": "application",
-      "root": "apps/transactions",
-      "entryFile": "main",
-      "sourceRoot": "apps/transactions/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/transactions/tsconfig.app.json",
-        "webpackConfigPath": "apps/transactions/webpack.config.js"
-      }
-    },
-    "analytics": {
-      "type": "application",
-      "root": "apps/analytics",
-      "entryFile": "main",
-      "sourceRoot": "apps/analytics/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/analytics/tsconfig.app.json",
-        "webpackConfigPath": "apps/analytics/webpack.config.js"
-      }
-    },
     "notifications": {
       "type": "application",
       "root": "apps/notifications",
@@ -66,6 +56,26 @@
       "compilerOptions": {
         "tsConfigPath": "apps/notifications/tsconfig.app.json",
         "webpackConfigPath": "apps/notifications/webpack.config.js"
+      }
+    },
+    "social": {
+      "type": "application",
+      "root": "apps/social",
+      "entryFile": "main",
+      "sourceRoot": "apps/social/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/social/tsconfig.app.json",
+        "webpackConfigPath": "apps/social/webpack.config.js"
+      }
+    },
+    "transactions": {
+      "type": "application",
+      "root": "apps/transactions",
+      "entryFile": "main",
+      "sourceRoot": "apps/transactions/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/transactions/tsconfig.app.json",
+        "webpackConfigPath": "apps/transactions/webpack.config.js"
       }
     }
   },

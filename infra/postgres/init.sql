@@ -26,6 +26,10 @@ CREATE USER mint_notifications_user WITH PASSWORD 'mint_notifications_pass';
 CREATE DATABASE mint_notifications OWNER mint_notifications_user;
 GRANT ALL PRIVILEGES ON DATABASE mint_notifications TO mint_notifications_user;
 
+CREATE USER mint_social_user WITH PASSWORD 'mint_social_pass';
+CREATE DATABASE mint_social OWNER mint_social_user;
+GRANT ALL PRIVILEGES ON DATABASE mint_social TO mint_social_user;
+
 -- Add a new block here for each service as you build them:
 -- CREATE USER mint_{svc}_user WITH PASSWORD 'mint_{svc}_pass';
 -- CREATE DATABASE mint_{svc} OWNER mint_{svc}_user;

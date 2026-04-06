@@ -3,6 +3,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { CommonModule } from '@mint/common';
 import { TransactionsController } from './transactions.controller';
+import { SocialEventsController } from './kafka/social-events.controller';
 import { TransactionsService } from './transactions.service';
 import { PrismaService } from './prisma/prisma.service';
 import { LimitService } from './limit/limit.service';
@@ -50,7 +51,7 @@ import { StateMachineService } from './state-machine/state-machine.service';
       },
     ]),
   ],
-  controllers: [TransactionsController],
+  controllers: [TransactionsController, SocialEventsController],
   providers: [
     PrismaService,
     TransactionsService,
