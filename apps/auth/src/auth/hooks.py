@@ -17,6 +17,7 @@ class AuthEventHooks(EventHooks):
 
     async def on_email_verify(self, user_data: UserData) -> None:
         await publish_email_verification(user_data=user_data)
+        await fa.email_dispatcher.send_welcome_email(user_data)
 
     async def _send_verification_email(self, user_data: UserData) -> None:
         if not fa.config.token_adapter or not fa.email_dispatcher:

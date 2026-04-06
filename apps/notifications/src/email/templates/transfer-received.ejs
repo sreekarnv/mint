@@ -38,26 +38,11 @@
       padding: 32px;
     }
 
-    .amount-block {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      padding: 20px 24px;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .amount-block .amount {
-      font-size: 32px;
-      font-weight: 700;
-      color: #15803d;
-      letter-spacing: -1px;
-    }
-
-    .amount-block .currency {
-      font-size: 14px;
-      color: #71717a;
-      margin-top: 4px;
+    .body h2 {
+      margin: 0 0 12px;
+      color: #18181b;
+      font-size: 18px;
+      font-weight: 600;
     }
 
     .body p {
@@ -67,10 +52,84 @@
       line-height: 1.6;
     }
 
-    .meta {
+    .badge {
+      display: inline-block;
+      background: #f0fdf4;
+      color: #15803d;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid #bbf7d0;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #15803d;
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+
+    .stat-amount {
+      font-size: 36px;
+      font-weight: 700;
+      color: #15803d;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .stat-currency {
+      font-size: 15px;
+      font-weight: 500;
+      color: #15803d;
+      margin-top: 6px;
+      opacity: 0.7;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e4e4e7;
+      margin: 20px 0;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .meta-key {
       font-size: 13px;
       color: #71717a;
-      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .meta-val {
+      font-size: 13px;
+      color: #3f3f46;
+      font-weight: 500;
+    }
+
+    .meta-id {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: #71717a;
+      word-break: break-all;
     }
 
     .footer {
@@ -91,17 +150,29 @@
       <h1>Mint</h1>
     </div>
     <div class="body">
-      <p>You received a transfer.</p>
-      <div class="amount-block">
-        <div class="amount"><%= amount %> <span style="font-size:20px;font-weight:500"><%= currency %></span></div>
+      <span class="badge">Received</span>
+      <h2>Money Received</h2>
+      <p>A transfer has been credited to your Mint wallet.</p>
+      <div class="stat-card">
+        <div class="stat-label">Amount Received</div>
+        <div class="stat-amount"><%= amount %></div>
+        <div class="stat-currency"><%= currency %></div>
       </div>
       <% if (description) { %>
-        <p>Description: <strong><%= description %></strong></p>
+        <hr class="divider" />
+        <div class="meta-row">
+          <span class="meta-key">Description</span>
+          <span class="meta-val"><%= description %></span>
+        </div>
       <% } %>
-      <p class="meta">Transaction ID: <%= transactionId %></p>
+      <hr class="divider" />
+      <div class="meta-row">
+        <span class="meta-key">Transaction ID</span>
+      </div>
+      <p class="meta-id"><%= transactionId %></p>
     </div>
     <div class="footer">
-      <p>&copy; <%= new Date().getFullYear() %> Mint.</p>
+      <p>&copy; <%= new Date().getFullYear() %> Mint. Funds are now available in your wallet.</p>
     </div>
   </div>
 </body>

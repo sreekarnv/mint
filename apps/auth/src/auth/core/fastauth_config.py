@@ -11,6 +11,7 @@ from auth.core.settings import settings
 adapter = SQLAlchemyAdapter(engine_url=settings.database_url)
 
 KEYS_DIR = Path(__file__).parent.parent.parent.parent.joinpath(settings.keys_dir)
+EMAIL_TEMPLATES_DIR = Path(__file__).parent.parent / "email_templates"
 _PRIVATE_KEY = (KEYS_DIR / "private_key.pem").read_text()
 _PUBLIC_KEY = (KEYS_DIR / "public_key.pem").read_text()
 
@@ -46,6 +47,7 @@ config = FastAuthConfig(
     ],
     default_role="user",
     base_url=settings.base_url,
+    email_template_dir=EMAIL_TEMPLATES_DIR,
     debug=True,
 )
 

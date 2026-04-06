@@ -38,26 +38,11 @@
       padding: 32px;
     }
 
-    .amount-block {
-      background: #fafafa;
-      border: 1px solid #e4e4e7;
-      border-radius: 8px;
-      padding: 20px 24px;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .amount-block .amount {
-      font-size: 32px;
-      font-weight: 700;
+    .body h2 {
+      margin: 0 0 12px;
       color: #18181b;
-      letter-spacing: -1px;
-    }
-
-    .amount-block .currency {
-      font-size: 14px;
-      color: #71717a;
-      margin-top: 4px;
+      font-size: 18px;
+      font-weight: 600;
     }
 
     .body p {
@@ -67,10 +52,68 @@
       line-height: 1.6;
     }
 
-    .meta {
+    .stat-card {
+      background: #fafafa;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #71717a;
+      margin-bottom: 8px;
+    }
+
+    .stat-amount {
+      font-size: 36px;
+      font-weight: 700;
+      color: #18181b;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .stat-currency {
+      font-size: 15px;
+      font-weight: 500;
+      color: #71717a;
+      margin-top: 6px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e4e4e7;
+      margin: 20px 0;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .meta-key {
       font-size: 13px;
       color: #71717a;
-      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .meta-val {
+      font-size: 13px;
+      color: #3f3f46;
+      font-weight: 500;
+    }
+
+    .meta-id {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: #71717a;
+      word-break: break-all;
     }
 
     .footer {
@@ -91,14 +134,25 @@
       <h1>Mint</h1>
     </div>
     <div class="body">
-      <p>Your transfer was sent successfully.</p>
-      <div class="amount-block">
-        <div class="amount"><%= amount %> <span style="font-size:20px;font-weight:500"><%= currency %></span></div>
+      <h2>Transfer Sent</h2>
+      <p>Your transfer was processed successfully.</p>
+      <div class="stat-card">
+        <div class="stat-label">Amount Sent</div>
+        <div class="stat-amount"><%= amount %></div>
+        <div class="stat-currency"><%= currency %></div>
       </div>
       <% if (description) { %>
-        <p>Description: <strong><%= description %></strong></p>
+        <hr class="divider" />
+        <div class="meta-row">
+          <span class="meta-key">Description</span>
+          <span class="meta-val"><%= description %></span>
+        </div>
       <% } %>
-      <p class="meta">Transaction ID: <%= transactionId %></p>
+      <hr class="divider" />
+      <div class="meta-row">
+        <span class="meta-key">Transaction ID</span>
+      </div>
+      <p class="meta-id"><%= transactionId %></p>
     </div>
     <div class="footer">
       <p>&copy; <%= new Date().getFullYear() %> Mint. If you didn't make this transfer, contact support immediately.</p>
