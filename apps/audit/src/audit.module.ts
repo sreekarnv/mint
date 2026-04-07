@@ -4,6 +4,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuditEventsConsumer } from './audit-events.consumer';
 import { AuditController } from './audit.controller';
 import { AuditService } from './audit.service';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import { AuditService } from './audit.service';
     ]),
   ],
   controllers: [AuditController, AuditEventsConsumer],
-  providers: [AuditService],
+  providers: [PrismaService, AuditService],
 })
 export class AuditModule {}

@@ -20,19 +20,6 @@ async function bootstrap() {
       consumer: {
         groupId: 'audit-service',
       },
-      subscribe: {
-        topics: [
-          'auth.events',
-          'wallet.events',
-          'transaction.events',
-          'kyc.events',
-          'social.events',
-          'analytics.events',
-          'webhook.events',
-          'admin.events',
-        ],
-        fromBeginning: false,
-      },
     },
   });
 

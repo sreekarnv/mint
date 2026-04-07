@@ -35,3 +35,17 @@ CREATE INDEX "audit_log_created_at_idx" ON "audit_log"("created_at" DESC);
 
 -- CreateIndex
 CREATE INDEX "audit_log_actor_id_action_created_at_idx" ON "audit_log"("actor_id", "action", "created_at" DESC);
+
+-- IMMUTABILITY TRIGGER - PREVENTS UPDATE/DELETE
+
+CREATE OR REPLACE FUNCTION prevent_audit_mutation()
+RETURNS TRIGGER AS $$
+BEGIN
+  RAISE EXCEPTION 'audit_log is immutable: % operation not allowed', TG_OP;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER audit_immutable
+  BEFORE UPDATE OR DELETE ON audit_log
+  FOR EACH ROW
+  EXECUTE FUNCTION prevent_audit_mutation();

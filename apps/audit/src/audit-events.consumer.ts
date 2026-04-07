@@ -45,4 +45,9 @@ export class AuditEventsConsumer {
   async handleAdminEvents(@Payload() message: any) {
     await this.auditService.appendEntry(message);
   }
+
+  @EventPattern('audit.events')
+  async handleAuditEvents(@Payload() message: any) {
+    await this.auditService.appendEntry(message);
+  }
 }

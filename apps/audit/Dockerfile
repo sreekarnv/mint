@@ -14,7 +14,7 @@ COPY libs/proto/ ./libs/proto/
 COPY apps/audit/ ./apps/audit/
 
 WORKDIR /app/apps/audit
-RUN pnpm generate:audit
+RUN pnpm run generate:audit
 
 WORKDIR /app
 
