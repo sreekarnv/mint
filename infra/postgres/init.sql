@@ -34,6 +34,10 @@ CREATE USER mint_webhook_user WITH PASSWORD 'mint_webhook_pass';
 CREATE DATABASE mint_webhook OWNER mint_webhook_user;
 GRANT ALL PRIVILEGES ON DATABASE mint_webhook TO mint_webhook_user;
 
+CREATE USER mint_audit_user WITH PASSWORD 'mint_audit_pass';
+CREATE DATABASE mint_audit OWNER mint_audit_user;
+GRANT ALL PRIVILEGES ON DATABASE mint_audit TO mint_audit_user;
+
 -- Add a new block here for each service as you build them:
 -- CREATE USER mint_{svc}_user WITH PASSWORD 'mint_{svc}_pass';
 -- CREATE DATABASE mint_{svc} OWNER mint_{svc}_user;

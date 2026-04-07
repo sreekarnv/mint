@@ -1,17 +1,26 @@
+# Python
 .venv/
 __pycache__/
 **/__pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+
+# Environment variables
 .env
 *.env
 .env.*
 !.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
 
-# compiled output
+# Compiled output
 /dist
-/node_modules
 /build
+node_modules/
 
 # Logs
 logs
@@ -24,43 +33,82 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
 # Tests
 /coverage
 /.nyc_output
 
 # IDEs and editors
-/.idea
+.idea/
 .project
 .classpath
 .c9/
 *.launch
 .settings/
 *.sublime-workspace
+*.swp
+*.swo
+*~
 
-# IDE - VSCode
+# VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# Credentials and sensitive data
+.credentials.json
+*.key
+*.pem
+*.p12
+*.pfx
 
-# temp directory
-.temp
-.tmp
-
-# Runtime data
-pids
+# Temporary and cache files
+.cache/
+*.tmp
+*.temp
 *.pid
-*.seed
 *.pid.lock
+*.seed
+pids
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime and session data
+sessions/
+backups/
+chrome/
+shell-snapshots/
+todos/
+statsig/
+docs/
+projects/
+ide/
+plans/
+plugins/
+paste-cache/
+tasks/
+teams/
+
+# Local development
+local/
+*.local
+.claude/settings.local.json
+
+# Misc
+history.jsonl
+debug/
+file-history/
+/.statusline_cache
+stats-cache.json
+bin/
+tmpclaude-*
