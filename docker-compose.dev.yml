@@ -285,6 +285,20 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:webhook"]
     restart: no
+  
+  audit-migrate:
+    build:
+      context: .
+      dockerfile: apps/webhook/Dockerfile
+    container_name: mint-audit-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_audit_user:mint_audit_pass@postgres:5432/mint_audit
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:audit"]
+    restart: no
 
   auth:
     build:
@@ -627,6 +641,41 @@ services:
       kyc:
         condition: service_started
     restart: on-failure
+
+  audit:
+    build:
+      context: .
+      dockerfile: apps/audit/Dockerfile
+    container_name: mint-audit
+    networks: [mint]
+    ports:
+      - "4010:4010"
+    environment:
+      DATABASE_URL: postgresql://mint_audit_user:mint_audit_pass@postgres:5432/mint_audit
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+    volumes:
+      - ./apps/audit/src:/app/apps/audit/src
+      - ./apps/audit/prisma:/app/apps/audit/prisma
+      - ./libs/common/src:/app/libs/common/src
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      webhook-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: on-failure
+
 volumes:
   postgres-data:
   redis-data:

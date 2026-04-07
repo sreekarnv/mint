@@ -35,7 +35,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/audit/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/audit/tsconfig.app.json"
+        "tsConfigPath": "apps/audit/tsconfig.app.json",
+        "webpackConfigPath": "apps/audit/webpack.config.js"
       }
     },
     "common": {

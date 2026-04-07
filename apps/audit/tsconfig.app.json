@@ -2,8 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/audit"
+    "outDir": "../../dist/apps/audit",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolvePackageJsonExports": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }
+ 
