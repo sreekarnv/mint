@@ -1,0 +1,141 @@
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
+
+interface WalletResponse {
+  id: string;
+  userId: string;
+  balance: number;
+  currency: string;
+  status: string;
+}
+
+interface KycTierResponse {
+  tier: string;
+  isFrozen: boolean;
+}
+
+interface WalletServiceClient {
+  getWallet(data: {
+    userId: string;
+  }): import('rxjs').Observable<WalletResponse>;
+  freezeWallet(data: {
+    walletId: string;
+  }): import('rxjs').Observable<{ success: boolean }>;
+  unfreezeWallet(data: {
+    walletId: string;
+  }): import('rxjs').Observable<{ success: boolean }>;
+}
+
+interface KycServiceClient {
+  getUserTier(data: {
+    userId: string;
+  }): import('rxjs').Observable<KycTierResponse>;
+}
+
+@Injectable()
+export class UsersService implements OnModuleInit {
+  private readonly logger = new Logger(UsersService.name);
+  private walletClient: WalletServiceClient;
+  private kycClient: KycServiceClient;
+
+  constructor(
+    @Inject('WALLET_GRPC') private readonly walletGrpc: ClientGrpc,
+    @Inject('KYC_GRPC') private readonly kycGrpc: ClientGrpc,
+    @Inject('KAFKA_PRODUCER') private readonly kafka: ClientKafka,
+  ) {}
+
+  async onModuleInit() {
+    this.walletClient =
+      this.walletGrpc.getService<WalletServiceClient>('WalletService');
+    this.kycClient = this.kycGrpc.getService<KycServiceClient>('KycService');
+    await this.kafka.connect();
+  }
+
+  async getUserProfile(userId: string, adminId: string) {
+    this.logger.log(`Admin ${adminId} viewing user ${userId}`);
+
+    const [wallet, kyc] = await Promise.all([
+      firstValueFrom(this.walletClient.getWallet({ userId })),
+      firstValueFrom(this.kycClient.getUserTier({ userId })),
+    ]);
+
+    this.emitAuditEvent('admin.user_viewed', adminId, {
+      userId,
+      viewedBy: adminId,
+    });
+
+    return {
+      userId,
+      wallet: {
+        id: wallet.id,
+        balance: wallet.balance ?? 0,
+        currency: wallet.currency,
+        status: wallet.status,
+      },
+      kyc: {
+        tier: kyc.tier,
+        isFrozen: kyc.isFrozen,
+      },
+    };
+  }
+
+  async freezeUser(userId: string, adminId: string, reason: string) {
+    this.logger.warn(`Admin ${adminId} freezing user ${userId}: ${reason}`);
+
+    const wallet = await firstValueFrom(
+      this.walletClient.getWallet({ userId }),
+    );
+    await firstValueFrom(
+      this.walletClient.freezeWallet({ walletId: wallet.id }),
+    );
+
+    this.emitAuditEvent('admin.user_frozen', adminId, {
+      userId,
+      walletId: wallet.id,
+      frozenBy: adminId,
+      reason,
+    });
+
+    return { success: true };
+  }
+
+  async unfreezeUser(userId: string, adminId: string) {
+    this.logger.log(`Admin ${adminId} unfreezing user ${userId}`);
+
+    const wallet = await firstValueFrom(
+      this.walletClient.getWallet({ userId }),
+    );
+    await firstValueFrom(
+      this.walletClient.unfreezeWallet({ walletId: wallet.id }),
+    );
+
+    this.emitAuditEvent('admin.user_unfrozen', adminId, {
+      userId,
+      walletId: wallet.id,
+      unfrozenBy: adminId,
+    });
+
+    return { success: true };
+  }
+
+  private emitAuditEvent(
+    action: string,
+    adminId: string,
+    data: Record<string, any>,
+  ): void {
+    this.kafka.emit('audit.events', {
+      topic: 'audit.events',
+      eventId: uuidv4(),
+      timestamp: new Date().toISOString(),
+      version: '1',
+      service: 'admin-service',
+      actorId: adminId,
+      payload: {
+        event: action,
+        ...data,
+      },
+    });
+  }
+}

@@ -6,7 +6,8 @@ service WalletService {
   rpc DebitWallet(DebitWalletRequest) returns (MutationResponse);
   rpc CreditWallet(CreditWalletRequest) returns (MutationResponse);
   rpc GetBalance(GetBalanceRequest) returns (BalanceResponse);
-  rpc FreezeWallet(FreezeWalletRequest) returns (StatusResponse);  
+  rpc FreezeWallet(FreezeWalletRequest) returns (StatusResponse);
+  rpc UnfreezeWallet(UnfreezeWalletRequest) returns (StatusResponse);
   rpc GetWallet(GetWalletRequest) returns (WalletResponse);
 }
 
@@ -38,6 +39,10 @@ message BalanceResponse {
 }
 
 message FreezeWalletRequest {
+  string wallet_id = 1;
+}
+
+message UnfreezeWalletRequest {
   string wallet_id = 1;
 }
 

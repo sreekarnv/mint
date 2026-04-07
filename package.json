@@ -41,6 +41,8 @@
     "migrate:webhook:dev": "prisma migrate dev --config apps/webhook/prisma.config.ts",
     "migrate:webhook": "prisma migrate deploy --config apps/webhook/prisma.config.ts",
     "generate:webhook": "prisma generate --config apps/webhook/prisma.config.ts",
+    "dev:admin": "nest start --watch admin",
+    "start:dev:admin": "nest start --watch admin",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/mint/main",
