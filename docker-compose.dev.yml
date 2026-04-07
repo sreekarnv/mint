@@ -271,6 +271,20 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:social"]
     restart: no
+  
+  webhook-migrate:
+    build:
+      context: .
+      dockerfile: apps/webhook/Dockerfile
+    container_name: mint-webhook-migrate
+    networks: [mint]
+    environment:
+      DATABASE_URL: postgresql://mint_webhook_user:mint_webhook_pass@postgres:5432/mint_webhook
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "migrate:webhook"]
+    restart: no
 
   auth:
     build:
@@ -541,6 +555,40 @@ services:
       kafka-init:
         condition: service_completed_successfully
       social-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: on-failure
+
+  webhook:
+    build:
+      context: .
+      dockerfile: apps/webhook/Dockerfile
+    container_name: mint-webhook
+    networks: [mint]
+    ports:
+      - "4008:4008"
+    environment:
+      DATABASE_URL: postgresql://mint_webhook_user:mint_webhook_pass@postgres:5432/mint_webhook
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+    volumes:
+      - ./apps/webhook/src:/app/apps/webhook/src
+      - ./apps/webhook/prisma:/app/apps/webhook/prisma
+      - ./libs/common/src:/app/libs/common/src
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      webhook-migrate:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
