@@ -175,6 +175,28 @@ class WalletServicer(WalletServiceServicer):
                     message="Wallet frozen successfully"
                 )
     
+    async def UnfreezeWallet(self, request, context):
+        async for session in self.get_db():
+            async with session.begin():
+                stmt = (
+                    update(Wallet)
+                    .where(Wallet.id == request.wallet_id)
+                    .values(status="ACTIVE", updated_at=func.now())
+                )
+                result = await session.execute(stmt)
+
+                if result.rowcount == 0:
+                    await context.abort(
+                        grpc.StatusCode.NOT_FOUND,
+                        f"Wallet {request.wallet_id} not found"
+                    )
+                    return StatusResponse(success=False, message="Wallet not found")
+
+                return StatusResponse(
+                    success=True,
+                    message="Wallet unfrozen successfully"
+                )
+
     async def GetWallet(self, request, context):
         async for session in self.get_db():
             stmt = (

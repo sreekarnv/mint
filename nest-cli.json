@@ -9,6 +9,16 @@
   "monorepo": true,
   "root": "apps",
   "projects": {
+    "admin": {
+      "type": "application",
+      "root": "apps/admin",
+      "entryFile": "main",
+      "sourceRoot": "apps/admin/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/admin/tsconfig.app.json",
+        "webpackConfigPath": "apps/admin/webpack.config.js"
+      }
+    },
     "analytics": {
       "type": "application",
       "root": "apps/analytics",

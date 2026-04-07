@@ -594,6 +594,39 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: mint-admin
+    networks: [mint]
+    ports:
+      - "4009:4009"
+    environment:
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      WALLET_GRPC_URL: wallet:50051
+      KYC_GRPC_URL: kyc:50053
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+      # TODO: add user ids (comma separated) that have admin access
+      ADMIN_USER_IDS: "e9wmwd29j3ogm8ubfmjcat9t"
+    volumes:
+      - ./apps/admin/src:/app/apps/admin/src
+      - ./libs/common/src:/app/libs/common/src
+      - /app/node_modules
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      wallet:
+        condition: service_started
+      kyc:
+        condition: service_started
+    restart: on-failure
 volumes:
   postgres-data:
   redis-data:
