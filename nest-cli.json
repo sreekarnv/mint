@@ -77,6 +77,16 @@
         "tsConfigPath": "apps/transactions/tsconfig.app.json",
         "webpackConfigPath": "apps/transactions/webpack.config.js"
       }
+    },
+    "webhook": {
+      "type": "application",
+      "root": "apps/webhook",
+      "entryFile": "main",
+      "sourceRoot": "apps/webhook/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/webhook/tsconfig.app.json",
+        "webpackConfigPath": "apps/webhook/webpack.config.js"
+      }
     }
   },
   "watchOptions": {
