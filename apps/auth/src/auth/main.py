@@ -1,10 +1,16 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from mint_shared.telemetry import setup_telemetry
 
 from auth.core.fastauth_config import adapter, auth
 from auth.core.settings import settings
 from auth.kafka.router import kafka_router
+
+# Initialize OTel before the FastAPI app is constructed
+setup_telemetry(os.getenv("OTEL_SERVICE_NAME", "auth-service"))
 
 
 @asynccontextmanager
@@ -19,6 +25,8 @@ app = FastAPI(title="Auth Service", lifespan=lifespan)
 auth.mount(app)
 
 app.include_router(kafka_router)
+
+FastAPIInstrumentor.instrument_app(app)
 
 
 def start():

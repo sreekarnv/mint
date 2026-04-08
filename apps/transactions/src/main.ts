@@ -1,4 +1,7 @@
+import './tracing';
+
 import { NestFactory } from '@nestjs/core';
+import { KafkaTraceInterceptor } from '@mint/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { TransactionsModule } from './transactions.module';
 import { Logger } from '@nestjs/common';
@@ -19,6 +22,7 @@ async function bootstrap() {
     },
   });
 
+  app.useGlobalInterceptors(new KafkaTraceInterceptor());
   await app.startAllMicroservices();
   await app.listen(4003);
   logger.log('transactions-service listening on port 4003');

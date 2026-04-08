@@ -1,4 +1,7 @@
+import './tracing';
+
 import { NestFactory } from '@nestjs/core';
+import { KafkaTraceInterceptor } from '@mint/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { FraudModule } from './fraud.module';
@@ -23,6 +26,7 @@ async function bootstrap() {
     },
   });
 
+  app.useGlobalInterceptors(new KafkaTraceInterceptor());
   await app.startAllMicroservices();
 
   console.log('fraud-service gRPC listening on :50052, kafka consumer ready');

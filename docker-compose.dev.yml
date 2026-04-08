@@ -313,6 +313,9 @@ services:
       - "4001:4001"
     environment:
       ENV_FILENAME: ".env.development"
+      OTEL_SERVICE_NAME: auth-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     depends_on:
       postgres:
         condition: service_healthy
@@ -341,6 +344,9 @@ services:
       - "50051:50051"
     environment:
       ENV_FILENAME: ".env.development"
+      OTEL_SERVICE_NAME: wallet-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     depends_on:
       postgres:
         condition: service_healthy
@@ -375,8 +381,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: transactions-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/transactions/src:/app/apps/transactions/src
+      - /app/apps/transactions/src/generated
       - ./apps/transactions/prisma:/app/apps/transactions/prisma
       - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
@@ -411,6 +421,9 @@ services:
       FRAUD_BLOCK_THRESHOLD: "100"
       FRAUD_REVIEW_THRESHOLD: "50"
       NODE_ENV: development
+      OTEL_SERVICE_NAME: fraud-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     depends_on:
       postgres:
         condition: service_healthy
@@ -449,8 +462,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: kyc-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/kyc/src:/app/apps/kyc/src
+      - /app/apps/kyc/src/generated
       - ./apps/kyc/prisma:/app/apps/kyc/prisma
       - ./libs/common/src:/app/libs/common/src
       - ./libs/proto:/app/libs/proto
@@ -486,8 +503,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: analytics-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/analytics/src:/app/apps/analytics/src
+      - /app/apps/analytics/src/generated
       - ./apps/analytics/prisma:/app/apps/analytics/prisma
       - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
@@ -523,8 +544,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: notifications-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/notifications/src:/app/apps/notifications/src
+      - /app/apps/notifications/src/generated
       - ./apps/notifications/prisma:/app/apps/notifications/prisma
       - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
@@ -559,8 +584,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: social-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/social/src:/app/apps/social/src
+      - /app/apps/social/src/generated
       - ./apps/social/prisma:/app/apps/social/prisma
       - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
@@ -593,8 +622,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: webhook-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/webhook/src:/app/apps/webhook/src
+      - /app/apps/webhook/src/generated
       - ./apps/webhook/prisma:/app/apps/webhook/prisma
       - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
@@ -630,6 +663,9 @@ services:
       CHOKIDAR_INTERVAL: 1000
       # TODO: add user ids (comma separated) that have admin access
       ADMIN_USER_IDS: "e9wmwd29j3ogm8ubfmjcat9t"
+      OTEL_SERVICE_NAME: admin-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/admin/src:/app/apps/admin/src
       - ./libs/common/src:/app/libs/common/src
@@ -661,8 +697,12 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
+      OTEL_SERVICE_NAME: audit-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_EXPORTER: otlp
     volumes:
       - ./apps/audit/src:/app/apps/audit/src
+      - /app/apps/audit/src/generated
       - ./apps/audit/prisma:/app/apps/audit/prisma
       - ./libs/common/src:/app/libs/common/src
       - /app/node_modules
@@ -677,6 +717,47 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+    restart: on-failure
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: mint-otel-collector
+    networks: [mint]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./infra/otel/otel-collector.yml:/etc/otel-collector.yml:ro
+    command: ["--config=/etc/otel-collector.yml"]
+    depends_on:
+      - tempo
+    restart: on-failure
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: mint-tempo
+    networks: [mint]
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./infra/tempo/tempo.yml:/etc/tempo.yml:ro
+    command: ["-config.file=/etc/tempo.yml"]
+    restart: on-failure
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: mint-grafana
+    networks: [mint]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - tempo
     restart: on-failure
 
 volumes:

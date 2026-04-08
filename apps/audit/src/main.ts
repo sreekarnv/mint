@@ -1,5 +1,8 @@
+import './tracing';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { KafkaTraceInterceptor } from '@mint/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import cookieParser from 'cookie-parser';
 import { AuditModule } from './audit.module';
@@ -23,6 +26,7 @@ async function bootstrap() {
     },
   });
 
+  app.useGlobalInterceptors(new KafkaTraceInterceptor());
   await app.startAllMicroservices();
   await app.listen(4010);
 
