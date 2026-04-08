@@ -1,6 +1,10 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
+from mint_shared.telemetry import setup_telemetry
 
 from wallet.grpc import start_grpc_server
 from wallet.core.settings import settings
@@ -13,17 +17,25 @@ import wallet.kafka.consumers.transaction_events
 
 from wallet.db import get_db
 
+# Initialize OTel before the FastAPI app is constructed
+setup_telemetry(os.getenv("OTEL_SERVICE_NAME", "wallet-service"))
+GrpcInstrumentorServer().instrument()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    grpc_server = await start_grpc_server(get_db, port=50051) # TODO: update the port later (use an env var)
+    grpc_server = await start_grpc_server(get_db, port=50051)
     yield
     grpc_server.stop(0)
+
 
 app = FastAPI(title="Wallet Service", lifespan=lifespan)
 
 app.include_router(kafka_router)
 app.include_router(wallet_admin_route, prefix="/api/v1/wallet")
 app.include_router(wallet_user_route, prefix="/api/v1/wallet")
+
+FastAPIInstrumentor.instrument_app(app)
 
 
 def start():

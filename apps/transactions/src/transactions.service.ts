@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
-import { RedisService } from '@mint/common';
+import { RedisService, getTraceHeaders } from '@mint/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from './prisma/prisma.service';
@@ -573,13 +573,16 @@ export class TransactionsService {
     actorId: string,
   ): void {
     this.kafka.emit(topic, {
-      topic,
-      eventId: uuidv4(),
-      timestamp: new Date().toISOString(),
-      version: '1',
-      service: 'transactions-service',
-      actorId,
-      payload,
+      headers: getTraceHeaders(),
+      value: {
+        topic,
+        eventId: uuidv4(),
+        timestamp: new Date().toISOString(),
+        version: '1',
+        service: 'transactions-service',
+        actorId,
+        payload,
+      },
     });
   }
 }

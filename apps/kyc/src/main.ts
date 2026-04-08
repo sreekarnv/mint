@@ -1,4 +1,7 @@
+import './tracing';
+
 import { NestFactory } from '@nestjs/core';
+import { KafkaTraceInterceptor } from '@mint/common';
 import { KycModule } from './kyc.module';
 import cookieParser from 'cookie-parser';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -25,6 +28,7 @@ async function bootstrap() {
     },
   });
 
+  app.useGlobalInterceptors(new KafkaTraceInterceptor());
   await app.startAllMicroservices();
 
   await app.listen(4004);
