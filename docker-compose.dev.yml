@@ -67,6 +67,9 @@ services:
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic wallet.events --partitions 3 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic analytics.events --partitions 3 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic social.events --partitions 3 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic webhook.events --partitions 1 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic admin.events --partitions 1 --replication-factor 1 &&
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic audit.events --partitions 1 --replication-factor 1 &&
       echo 'All topics created'
       "
     restart: no
@@ -289,7 +292,7 @@ services:
   audit-migrate:
     build:
       context: .
-      dockerfile: apps/webhook/Dockerfile
+      dockerfile: apps/audit/Dockerfile
     container_name: mint-audit-migrate
     networks: [mint]
     environment:
@@ -297,7 +300,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:audit"]
+    command: ["pnpm", "run", "migrate:audit"]
     restart: no
 
   auth:
@@ -670,7 +673,7 @@ services:
         condition: service_healthy
       kafka-init:
         condition: service_completed_successfully
-      webhook-migrate:
+      audit-migrate:
         condition: service_completed_successfully
       redis:
         condition: service_healthy

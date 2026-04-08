@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InputJsonValue } from './generated/prisma/internal/prismaNamespace';
 import type {
+  AuditLogCreateInput,
   AuditLogWhereInput,
   AuditLogWhereUniqueInput,
-  InputJsonValue,
-} from './generated/prisma/internal/prismaNamespace';
-import { AuditLogCreateInput } from './generated/prisma/models';
+} from './generated/prisma/models';
 import { PrismaService } from './prisma/prisma.service';
 
 @Injectable()
@@ -113,12 +113,13 @@ export class AuditService {
       if (params.endDate) where.createdAt.lte = params.endDate;
     }
 
-    return this.prismaService.auditLog.findMany({
+    const rows = await this.prismaService.auditLog.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       take: params.limit || 100,
       skip: params.offset || 0,
     });
+    return rows.map((r) => ({ ...r, id: r.id.toString() }));
   }
 
   async __count(params: {
