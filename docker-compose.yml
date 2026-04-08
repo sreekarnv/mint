@@ -1,4 +1,4 @@
-name: "mint-dev"
+name: "mint"
 
 services:
   nginx:
@@ -7,14 +7,15 @@ services:
     networks: [mint]
     ports:
       - "80:80"
+      # For SSL: also expose 443 and mount ./infra/nginx/certs:/etc/nginx/certs:ro
     volumes:
       - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - auth
       - wallet
-    restart: on-failure
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -24,8 +25,6 @@ services:
     container_name: mint-kafka
     hostname: kafka
     networks: [mint]
-    ports:
-      - "9092:9092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -39,18 +38,12 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       CLUSTER_ID: "eYjp31bQQTit57aK84wZcw"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "kafka-topics",
-          "--bootstrap-server",
-          "localhost:9092",
-          "--list",
-        ]
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
       interval: 10s
       timeout: 10s
       retries: 10
       start_period: 30s
+    restart: unless-stopped
 
   kafka-init:
     image: confluentinc/cp-kafka:7.9.6
@@ -70,7 +63,7 @@ services:
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic webhook.events --partitions 1 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic admin.events --partitions 1 --replication-factor 1 &&
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic audit.events --partitions 1 --replication-factor 1 &&
-      echo 'All topics created'
+      echo All topics created
       "
     restart: no
 
@@ -78,8 +71,6 @@ services:
     image: postgres:18.3-alpine
     container_name: mint-postgres
     networks: [mint]
-    ports:
-      - "5433:5432"
     environment:
       POSTGRES_USER: mint-dev
       POSTGRES_PASSWORD: postgres
@@ -92,14 +83,12 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    restart: on-failure
+    restart: unless-stopped
 
   redis:
     image: redis:8-alpine
     container_name: mint-redis
     networks: [mint]
-    ports:
-      - "6379:6379"
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
@@ -108,24 +97,14 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    restart: on-failure
-
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
-    container_name: mint-mailhog
-    networks: [mint]
-    ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI → http://localhost:8025
-    restart: on-failure
+    restart: unless-stopped
 
   minio:
+    # To switch to AWS S3: remove this service and set S3_ENDPOINT, S3_ACCESS_KEY,
+    # S3_SECRET_KEY env vars on the kyc service.
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     container_name: mint-minio
     networks: [mint]
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -137,7 +116,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: on-failure
+    restart: unless-stopped
 
   minio-init:
     image: minio/mc:RELEASE.2025-08-13T08-35-41Z
@@ -151,22 +130,68 @@ services:
         mc alias set local http://minio:9000 minioadmin minioadmin &&
         mc mb --ignore-existing local/mint-kyc-docs &&
         mc anonymous set none local/mint-kyc-docs &&
-        echo 'MinIO bucket ready'
+        echo MinIO bucket ready
       "
     restart: no
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: mint-otel-collector
+    networks: [mint]
+    volumes:
+      - ./infra/otel/otel-collector.yml:/etc/otel-collector.yml:ro
+    command: ["--config=/etc/otel-collector.yml"]
+    depends_on:
+      - tempo
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: mint-tempo
+    networks: [mint]
+    volumes:
+      - ./infra/tempo/tempo.yml:/etc/tempo.yml:ro
+    command: ["-config.file=/etc/tempo.yml"]
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mint-mailhog
+    networks: [mint]
+    ports:
+      - "8025:8025"   # Web UI
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: mint-grafana
+    networks: [mint]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - tempo
+    restart: unless-stopped
 
   auth-migrate:
     build:
       context: .
-      dockerfile: apps/auth/Dockerfile.dev
+      dockerfile: apps/auth/Dockerfile
+      target: production
     container_name: mint-auth-migrate
     networks: [mint]
     environment:
-      ENV_FILENAME: ".env.development"
-    volumes:
-      - ./apps/auth/src:/app/apps/auth/src
-      - ./shared-py:/app/shared-py
-      - ./apps/auth/.env.development:/app/apps/auth/.env.development
+      APP_PORT: "4001"
+      APP_HOST: 0.0.0.0
+      APP_RELOAD: "false"
+      KEYS_DIR: /app/apps/auth/keys
+      FASTAUTH_SECRET: ${FASTAUTH_SECRET}
+      DATABASE_URL: postgresql+asyncpg://mint_auth_user:mint_auth_pass@postgres:5432/mint_auth
+      KAFKA_BROKERS: kafka:9092
     depends_on:
       postgres:
         condition: service_healthy
@@ -176,15 +201,16 @@ services:
   wallet-migrate:
     build:
       context: .
-      dockerfile: apps/wallet/Dockerfile.dev
+      dockerfile: apps/wallet/Dockerfile
+      target: production
     container_name: mint-wallet-migrate
     networks: [mint]
     environment:
-      ENV_FILENAME: ".env.development"
-    volumes:
-      - ./apps/wallet/src:/app/apps/wallet/src
-      - ./shared-py:/app/shared-py
-      - ./apps/wallet/.env.development:/app/apps/wallet/.env.development
+      APP_PORT: "4002"
+      APP_HOST: 0.0.0.0
+      APP_RELOAD: "false"
+      DATABASE_URL: postgresql+asyncpg://mint_wallet_user:mint_wallet_pass@postgres:5432/mint_wallet
+      KAFKA_BROKERS: kafka:9092
     depends_on:
       postgres:
         condition: service_healthy
@@ -194,7 +220,8 @@ services:
   transactions-migrate:
     build:
       context: .
-      dockerfile: apps/transactions/Dockerfile.dev
+      dockerfile: apps/transactions/Dockerfile
+      target: builder
     container_name: mint-transactions-migrate
     networks: [mint]
     environment:
@@ -208,7 +235,8 @@ services:
   fraud-migrate:
     build:
       context: .
-      dockerfile: apps/fraud/Dockerfile.dev
+      dockerfile: apps/fraud/Dockerfile
+      target: builder
     container_name: mint-fraud-migrate
     networks: [mint]
     environment:
@@ -222,7 +250,8 @@ services:
   kyc-migrate:
     build:
       context: .
-      dockerfile: apps/kyc/Dockerfile.dev
+      dockerfile: apps/kyc/Dockerfile
+      target: builder
     container_name: mint-kyc-migrate
     networks: [mint]
     environment:
@@ -232,11 +261,12 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:kyc"]
     restart: no
-  
+
   analytics-migrate:
     build:
       context: .
-      dockerfile: apps/analytics/Dockerfile.dev
+      dockerfile: apps/analytics/Dockerfile
+      target: builder
     container_name: mint-analytics-migrate
     networks: [mint]
     environment:
@@ -246,11 +276,12 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:analytics"]
     restart: no
-  
+
   notifications-migrate:
     build:
       context: .
-      dockerfile: apps/notifications/Dockerfile.dev
+      dockerfile: apps/notifications/Dockerfile
+      target: builder
     container_name: mint-notifications-migrate
     networks: [mint]
     environment:
@@ -260,11 +291,12 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:notifications"]
     restart: no
-  
+
   social-migrate:
     build:
       context: .
-      dockerfile: apps/social/Dockerfile.dev
+      dockerfile: apps/social/Dockerfile
+      target: builder
     container_name: mint-social-migrate
     networks: [mint]
     environment:
@@ -274,11 +306,12 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:social"]
     restart: no
-  
+
   webhook-migrate:
     build:
       context: .
-      dockerfile: apps/webhook/Dockerfile.dev
+      dockerfile: apps/webhook/Dockerfile
+      target: builder
     container_name: mint-webhook-migrate
     networks: [mint]
     environment:
@@ -288,11 +321,12 @@ services:
         condition: service_healthy
     command: ["pnpm", "migrate:webhook"]
     restart: no
-  
+
   audit-migrate:
     build:
       context: .
-      dockerfile: apps/audit/Dockerfile.dev
+      dockerfile: apps/audit/Dockerfile
+      target: builder
     container_name: mint-audit-migrate
     networks: [mint]
     environment:
@@ -306,16 +340,29 @@ services:
   auth:
     build:
       context: .
-      dockerfile: apps/auth/Dockerfile.dev
+      dockerfile: apps/auth/Dockerfile
+      target: production
     container_name: mint-auth
     networks: [mint]
     ports:
       - "4001:4001"
     environment:
-      ENV_FILENAME: ".env.development"
+      APP_PORT: "4001"
+      APP_HOST: 0.0.0.0
+      APP_RELOAD: "false"
+      KEYS_DIR: /app/apps/auth/keys
+      FASTAUTH_SECRET: ${FASTAUTH_SECRET}
+      DATABASE_URL: postgresql+asyncpg://mint_auth_user:mint_auth_pass@postgres:5432/mint_auth
+      KAFKA_BROKERS: kafka:9092
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+      SMTP_FROM: Mint <noreply@mint.dev>
       OTEL_SERVICE_NAME: auth-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
+    volumes:
+      - ./keys/private_key.pem:/app/apps/auth/keys/private_key.pem:ro
+      - ./keys/public_key.pem:/app/apps/auth/keys/public_key.pem:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -325,25 +372,24 @@ services:
         condition: service_completed_successfully
       auth-migrate:
         condition: service_completed_successfully
-      mailhog:
-        condition: service_started
-    volumes:
-      - ./apps/auth/src:/app/apps/auth/src
-      - ./shared-py:/app/shared-py
-      - ./apps/auth/.env.development:/app/apps/auth/.env.development
-    restart: on-failure
+    restart: unless-stopped
 
   wallet:
     build:
       context: .
-      dockerfile: apps/wallet/Dockerfile.dev
+      dockerfile: apps/wallet/Dockerfile
+      target: production
     container_name: mint-wallet
     networks: [mint]
     ports:
       - "4002:4002"
       - "50051:50051"
     environment:
-      ENV_FILENAME: ".env.development"
+      APP_PORT: "4002"
+      APP_HOST: 0.0.0.0
+      APP_RELOAD: "false"
+      DATABASE_URL: postgresql+asyncpg://mint_wallet_user:mint_wallet_pass@postgres:5432/mint_wallet
+      KAFKA_BROKERS: kafka:9092
       OTEL_SERVICE_NAME: wallet-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -352,25 +398,23 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      wallet-migrate:
-        condition: service_completed_successfully
       kafka-init:
         condition: service_completed_successfully
-    volumes:
-      - ./apps/wallet/src:/app/apps/wallet/src
-      - ./shared-py:/app/shared-py
-      - ./apps/wallet/.env.development:/app/apps/wallet/.env.development
-    restart: on-failure
+      wallet-migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
 
   transactions:
     build:
       context: .
-      dockerfile: apps/transactions/Dockerfile.dev
+      dockerfile: apps/transactions/Dockerfile
+      target: production
     container_name: mint-transactions
     networks: [mint]
     ports:
       - "4003:4003"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_txns_user:mint_txns_pass@postgres:5432/mint_txns
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
@@ -378,18 +422,9 @@ services:
       WALLET_SERVICE_URL: wallet:50051
       FRAUD_SERVICE_URL: fraud:50052
       KYC_SERVICE_URL: kyc:50053
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
       OTEL_SERVICE_NAME: transactions-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/transactions/src:/app/apps/transactions/src
-      - /app/apps/transactions/src/generated
-      - ./apps/transactions/prisma:/app/apps/transactions/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -403,24 +438,25 @@ services:
         condition: service_healthy
       wallet:
         condition: service_started
-    restart: on-failure
+    restart: unless-stopped
 
   fraud:
     build:
       context: .
-      dockerfile: apps/fraud/Dockerfile.dev
+      dockerfile: apps/fraud/Dockerfile
+      target: production
     container_name: mint-fraud
     networks: [mint]
     ports:
       - "50052:50052"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       FRAUD_BLOCK_THRESHOLD: "100"
       FRAUD_REVIEW_THRESHOLD: "50"
-      NODE_ENV: development
       OTEL_SERVICE_NAME: fraud-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -435,43 +471,32 @@ services:
         condition: service_healthy
       kafka-init:
         condition: service_completed_successfully
-    volumes:
-      - ./apps/fraud/src:/app/apps/fraud/src
-      - ./libs/proto:/app/libs/proto
-    restart: on-failure
+    restart: unless-stopped
 
   kyc:
     build:
       context: .
-      dockerfile: apps/kyc/Dockerfile.dev
+      dockerfile: apps/kyc/Dockerfile
+      target: production
     container_name: mint-kyc
     networks: [mint]
     ports:
       - "4004:4004"
       - "50053:50053"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_kyc_user:mint_kyc_pass@postgres:5432/mint_kyc
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      KYC_WEBHOOK_SECRET: "" # set in prod
+      KYC_WEBHOOK_SECRET: ${KYC_WEBHOOK_SECRET}
       S3_ENDPOINT: http://minio:9000
       S3_BUCKET: mint-kyc-docs
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
       OTEL_SERVICE_NAME: kyc-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/kyc/src:/app/apps/kyc/src
-      - /app/apps/kyc/src/generated
-      - ./apps/kyc/prisma:/app/apps/kyc/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - ./libs/proto:/app/libs/proto
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -485,33 +510,26 @@ services:
         condition: service_healthy
       minio-init:
         condition: service_completed_successfully
-    restart: on-failure
+    restart: unless-stopped
 
   analytics:
     build:
       context: .
-      dockerfile: apps/analytics/Dockerfile.dev
+      dockerfile: apps/analytics/Dockerfile
+      target: production
     container_name: mint-analytics
     networks: [mint]
     ports:
       - "4005:4005"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
       OTEL_SERVICE_NAME: analytics-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/analytics/src:/app/apps/analytics/src
-      - /app/apps/analytics/src/generated
-      - ./apps/analytics/prisma:/app/apps/analytics/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -523,36 +541,29 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-    restart: on-failure
+    restart: unless-stopped
 
   notifications:
     build:
       context: .
-      dockerfile: apps/notifications/Dockerfile.dev
+      dockerfile: apps/notifications/Dockerfile
+      target: production
     container_name: mint-notifications
     networks: [mint]
     ports:
       - "4006:4006"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       SMTP_HOST: mailhog
       SMTP_PORT: "1025"
-      SMTP_FROM: "Mint <noreply@mint.dev>"
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
+      SMTP_FROM: Mint <noreply@mint.dev>
       OTEL_SERVICE_NAME: notifications-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/notifications/src:/app/apps/notifications/src
-      - /app/apps/notifications/src/generated
-      - ./apps/notifications/prisma:/app/apps/notifications/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -564,35 +575,26 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-      mailhog:
-        condition: service_started
-    restart: on-failure
-  
+    restart: unless-stopped
+
   social:
     build:
       context: .
-      dockerfile: apps/social/Dockerfile.dev
+      dockerfile: apps/social/Dockerfile
+      target: production
     container_name: mint-social
     networks: [mint]
     ports:
       - "4007:4007"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_social_user:mint_social_pass@postgres:5432/mint_social
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
       OTEL_SERVICE_NAME: social-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/social/src:/app/apps/social/src
-      - /app/apps/social/src/generated
-      - ./apps/social/prisma:/app/apps/social/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -604,33 +606,26 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-    restart: on-failure
+    restart: unless-stopped
 
   webhook:
     build:
       context: .
-      dockerfile: apps/webhook/Dockerfile.dev
+      dockerfile: apps/webhook/Dockerfile
+      target: production
     container_name: mint-webhook
     networks: [mint]
     ports:
       - "4008:4008"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_webhook_user:mint_webhook_pass@postgres:5432/mint_webhook
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
       OTEL_SERVICE_NAME: webhook-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/webhook/src:/app/apps/webhook/src
-      - /app/apps/webhook/src/generated
-      - ./apps/webhook/prisma:/app/apps/webhook/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -642,34 +637,28 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-    restart: on-failure
+    restart: unless-stopped
 
   admin:
     build:
       context: .
-      dockerfile: apps/admin/Dockerfile.dev
+      dockerfile: apps/admin/Dockerfile
+      target: production
     container_name: mint-admin
     networks: [mint]
     ports:
       - "4009:4009"
     environment:
+      NODE_ENV: production
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       WALLET_GRPC_URL: wallet:50051
       KYC_GRPC_URL: kyc:50053
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
-      # TODO: add user ids (comma separated) that have admin access
-      ADMIN_USER_IDS: "e9wmwd29j3ogm8ubfmjcat9t"
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS}
       OTEL_SERVICE_NAME: admin-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/admin/src:/app/apps/admin/src
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       kafka:
         condition: service_healthy
@@ -679,33 +668,26 @@ services:
         condition: service_started
       kyc:
         condition: service_started
-    restart: on-failure
+    restart: unless-stopped
 
   audit:
     build:
       context: .
-      dockerfile: apps/audit/Dockerfile.dev
+      dockerfile: apps/audit/Dockerfile
+      target: production
     container_name: mint-audit
     networks: [mint]
     ports:
       - "4010:4010"
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://mint_audit_user:mint_audit_pass@postgres:5432/mint_audit
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: 1000
       OTEL_SERVICE_NAME: audit-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
-    volumes:
-      - ./apps/audit/src:/app/apps/audit/src
-      - /app/apps/audit/src/generated
-      - ./apps/audit/prisma:/app/apps/audit/prisma
-      - ./libs/common/src:/app/libs/common/src
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -717,48 +699,7 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-    restart: on-failure
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: mint-otel-collector
-    networks: [mint]
-    ports:
-      - "4317:4317"
-      - "4318:4318"
-    volumes:
-      - ./infra/otel/otel-collector.yml:/etc/otel-collector.yml:ro
-    command: ["--config=/etc/otel-collector.yml"]
-    depends_on:
-      - tempo
-    restart: on-failure
-
-  tempo:
-    image: grafana/tempo:2.4.1
-    container_name: mint-tempo
-    networks: [mint]
-    ports:
-      - "3200:3200"
-    volumes:
-      - ./infra/tempo/tempo.yml:/etc/tempo.yml:ro
-    command: ["-config.file=/etc/tempo.yml"]
-    restart: on-failure
-
-  grafana:
-    image: grafana/grafana:10.4.3
-    container_name: mint-grafana
-    networks: [mint]
-    ports:
-      - "3000:3000"
-    environment:
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-      GF_AUTH_DISABLE_LOGIN_FORM: "true"
-    volumes:
-      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
-    depends_on:
-      - tempo
-    restart: on-failure
+    restart: unless-stopped
 
 volumes:
   postgres-data:

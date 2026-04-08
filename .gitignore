@@ -68,6 +68,7 @@ desktop.ini
 .credentials.json
 *.key
 *.pem
+keys/
 *.p12
 *.pfx
 
