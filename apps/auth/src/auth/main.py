@@ -21,7 +21,13 @@ async def lifespan(app: FastAPI):
 
 
 auth.role_adapter = adapter.role
-app = FastAPI(title="Auth Service", lifespan=lifespan)
+app = FastAPI(
+    title="Auth Service",
+    description="Authentication and authorization service - JWT issuance, refresh, and RBAC.",
+    version="1.0.0",
+    docs_url="/api-docs",
+    lifespan=lifespan,
+)
 auth.mount(app)
 
 app.include_router(kafka_router)

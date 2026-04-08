@@ -29,7 +29,13 @@ async def lifespan(app: FastAPI):
     grpc_server.stop(0)
 
 
-app = FastAPI(title="Wallet Service", lifespan=lifespan)
+app = FastAPI(
+    title="Wallet Service",
+    description="Multi-currency wallet service - balances, top-ups, and gRPC interface for transaction settlement.",
+    version="1.0.0",
+    docs_url="/api-docs",
+    lifespan=lifespan,
+)
 
 app.include_router(kafka_router)
 app.include_router(wallet_admin_route, prefix="/api/v1/wallet")

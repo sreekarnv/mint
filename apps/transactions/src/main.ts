@@ -1,11 +1,12 @@
 import './tracing';
 
-import { NestFactory } from '@nestjs/core';
 import { KafkaTraceInterceptor } from '@mint/common';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { TransactionsModule } from './transactions.module';
 import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { TransactionsModule } from './transactions.module';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -13,6 +14,24 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors();
+
+  const config = new DocumentBuilder()
+    .setTitle('Transactions Service')
+    .setDescription(
+      'Top-ups, transfers, recurring payments, transaction history',
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
+    .build();
+  SwaggerModule.setup(
+    'api-docs',
+    app,
+    SwaggerModule.createDocument(app, config),
+    { customSiteTitle: 'Transactions Service - Swagger UI' },
+  );
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,

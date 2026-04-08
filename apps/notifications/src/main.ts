@@ -1,15 +1,33 @@
 import './tracing';
 
-import { NestFactory } from '@nestjs/core';
 import { KafkaTraceInterceptor } from '@mint/common';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { NotificationsModule } from './notifications.module';
-import cookieParser from 'cookie-parser';
 import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import cookieParser from 'cookie-parser';
+import { NotificationsModule } from './notifications.module';
+
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(NotificationsModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Notifications Service')
+    .setDescription('In-app notifications and real-time SSE stream')
+    .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
+    .build();
+  SwaggerModule.setup(
+    'api-docs',
+    app,
+    SwaggerModule.createDocument(app, config),
+    { customSiteTitle: 'Notifications Service - Swagger UI' },
+  );
 
   app.use(cookieParser());
 
