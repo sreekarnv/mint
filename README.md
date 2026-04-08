@@ -47,6 +47,13 @@ A production-style fintech platform built with a microservices architecture. Cov
   </a>
 </p>
 
+## Docs
+
+- [Architecture](docs/architecture.md) - service map, communication patterns, JWT flow
+- [Services](docs/services.md) - each service: endpoints, DB, Kafka topics
+- [Infrastructure](docs/infrastructure.md) - nginx, Kafka, Postgres, Redis, MinIO, observability
+- [Running](docs/running.md) - dev and production setup
+
 ## Services
 
 | Service       | Stack            | Port | Description                                        |

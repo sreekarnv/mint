@@ -17,3 +17,8 @@ select = ["E", "F", "I", "UP"]
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "mkdocs-material>=9.5,<10",
+]
