@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS base
+FROM python:3.12-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -6,15 +6,11 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends openssl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /app
-
-# Stage 1: base
-FROM base AS deps
 
 COPY pyproject.toml uv.lock ./
 COPY shared-py/ shared-py/
@@ -24,18 +20,15 @@ COPY scripts/generate_proto.py scripts/generate_proto.py
 
 RUN uv sync --package mint-wallet --no-install-project --frozen
 
-# Stage 2: prod
-FROM deps AS production
-
 COPY apps/wallet/src/ apps/wallet/src/
 COPY apps/wallet/alembic.ini apps/wallet/alembic.ini
 
-RUN uv sync --package mint-wallet --frozen && \
-    uv run python /app/scripts/generate_proto.py
+RUN uv sync --package mint-wallet --frozen
+RUN uv run python /app/scripts/generate_proto.py
 
 WORKDIR /app/apps/wallet
 
 EXPOSE 4002
 EXPOSE 50051
 
-CMD ["uv", "run", "uvicorn", "wallet.main:app", "--host", "0.0.0.0", "--port", "4002", "--workers", "1"]
+CMD ["uv", "run", "dev"]

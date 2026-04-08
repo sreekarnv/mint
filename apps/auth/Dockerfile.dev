@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS base
+FROM python:3.12-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -13,25 +13,23 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /app
 
-# Stage 1: base
-FROM base AS deps
-
 COPY pyproject.toml uv.lock ./
 COPY shared-py/ shared-py/
 COPY apps/auth/pyproject.toml apps/auth/README.md apps/auth/
 
 RUN uv sync --package mint-auth --no-install-project --frozen
 
-# Stage 2: prod
-FROM deps AS production
-
 COPY apps/auth/src/ apps/auth/src/
 COPY apps/auth/alembic.ini apps/auth/alembic.ini
 
 RUN uv sync --package mint-auth --frozen
 
+RUN mkdir -p apps/auth/keys && \
+    openssl genrsa -out apps/auth/keys/private_key.pem 2048 && \
+    openssl rsa -in apps/auth/keys/private_key.pem -pubout -out apps/auth/keys/public_key.pem
+
 WORKDIR /app/apps/auth
 
 EXPOSE 4001
 
-CMD ["uv", "run", "uvicorn", "auth.main:app", "--host", "0.0.0.0", "--port", "4001", "--workers", "1"]
+CMD ["uv", "run", "dev"]

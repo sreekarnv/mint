@@ -24,10 +24,10 @@ dependencies = [
 ]
 
 [project.scripts]
-dev = "auth.main:start"
+dev            = "auth.main:start"
 makemigrations = "cli:makemigrations"
-migrate       = "cli:migrate"
-downgrade     = "cli:downgrade"
+migrate        = "cli:migrate"
+downgrade      = "cli:downgrade"
 
 [build-system]
 requires = ["hatchling"]
