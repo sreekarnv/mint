@@ -6,6 +6,11 @@ on:
     paths:
       - "docs/**"
       - "mkdocs.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
   workflow_dispatch:
 
 permissions:
@@ -32,6 +37,7 @@ jobs:
       - run: uv run mkdocs build
 
       - uses: peaceiris/actions-gh-pages@v4
+        if: github.event_name != 'pull_request'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
