@@ -1,15 +1,3 @@
-/*
- * Zinc palette — matches the email templates.
- *
- * zinc-950  #18181b  header / primary
- * zinc-700  #3f3f46  body text
- * zinc-500  #71717a  muted text
- * zinc-400  #a1a1aa  subtle text
- * zinc-200  #e4e4e7  borders
- * zinc-100  #f4f4f5  page background
- */
-
-/* ── Light mode ─────────────────────────────────────────────────────────── */
 [data-md-color-scheme="default"] {
   --md-primary-fg-color:              #18181b;
   --md-primary-fg-color--light:       #3f3f46;
@@ -21,7 +9,6 @@
   --md-accent-fg-color--transparent:  rgba(24,24,27,.1);
   --md-accent-bg-color:               #ffffff;
 
-  /* Page background matches email wrapper background */
   --md-default-bg-color:              #f4f4f5;
   --md-default-fg-color:              #18181b;
   --md-default-fg-color--light:       #3f3f46;
@@ -41,7 +28,7 @@
   --md-typeset-table-color--light:    rgba(228,228,231,.4);
 }
 
-/* ── Dark mode ──────────────────────────────────────────────────────────── */
+/*  Dark mode */
 [data-md-color-scheme="slate"] {
   --md-primary-fg-color:              #18181b;
   --md-primary-fg-color--light:       #27272a;
@@ -53,7 +40,7 @@
   --md-accent-fg-color--transparent:  rgba(161,161,170,.1);
   --md-accent-bg-color:               #18181b;
 
-  /* Dark page background — slightly lighter than header */
+  /* Dark page background */
   --md-default-bg-color:              #27272a;
   --md-default-fg-color:              #f4f4f5;
   --md-default-fg-color--light:       #e4e4e7;
@@ -72,9 +59,6 @@
   --md-typeset-table-color:           rgba(228,228,231,.12);
   --md-typeset-table-color--light:    rgba(228,228,231,.06);
 }
-
-/* ── Shared tweaks ──────────────────────────────────────────────────────── */
-
 
 /* Mermaid diagram text inherits the zinc palette */
 .mermaid .label {
