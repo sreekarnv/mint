@@ -8,6 +8,7 @@ from mint_shared.telemetry import setup_telemetry
 from auth.core.fastauth_config import adapter, auth
 from auth.core.settings import settings
 from auth.kafka.router import kafka_router
+from auth.users.router import router as users_router
 
 # Initialize OTel before the FastAPI app is constructed
 setup_telemetry(os.getenv("OTEL_SERVICE_NAME", "auth-service"))
@@ -31,6 +32,7 @@ app = FastAPI(
 auth.mount(app)
 
 app.include_router(kafka_router)
+app.include_router(users_router)
 
 FastAPIInstrumentor.instrument_app(app)
 
