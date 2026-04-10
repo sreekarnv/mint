@@ -29,10 +29,11 @@ app = FastAPI(
     docs_url="/api-docs",
     lifespan=lifespan,
 )
-auth.mount(app)
 
-app.include_router(kafka_router)
 app.include_router(users_router)
+app.include_router(kafka_router)
+
+auth.mount(app)
 
 FastAPIInstrumentor.instrument_app(app)
 
