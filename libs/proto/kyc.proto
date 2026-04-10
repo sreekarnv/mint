@@ -4,6 +4,7 @@ package kyc;
 service KycService {
   rpc GetUserTier (GetTierRequest) returns (GetTierResponse);
   rpc GetLimits (GetLimitsRequest) returns (GetLimitsResponse);
+  rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
 }
 
 message GetTierRequest { 
@@ -24,4 +25,12 @@ message GetLimitsResponse {
     int64  daily_cents = 2;
     int64  monthly_cents = 3;
     string limits_currency = 4;
+}
+
+message GetProfileRequest { string user_id = 1; }
+message GetProfileResponse {
+    string profile_id = 1;
+    string tier = 2;
+    string status = 3;
+    bool   is_frozen = 4;
 }

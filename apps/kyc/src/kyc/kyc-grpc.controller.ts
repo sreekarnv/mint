@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { KycService } from './kyc.service';
 import { GrpcMethod } from '@nestjs/microservices';
+import { KycStatus } from '../generated/prisma/client';
 
 @Controller()
 export class KycGrpcController {
@@ -15,5 +16,16 @@ export class KycGrpcController {
   async getLimits({ userId }: { userId: string }) {
     const { tier } = await this.kycService.getTierCached(userId);
     return KycService.getLimitsForTier(tier);
+  }
+
+  @GrpcMethod('KycService', 'GetProfile')
+  async getProfile({ userId }: { userId: string }) {
+    const profile = await this.kycService.getOrCreateProfile(userId);
+    return {
+      profileId: profile.id,
+      tier: profile.tier,
+      status: profile.status,
+      isFrozen: profile.status === KycStatus.REJECTED,
+    };
   }
 }

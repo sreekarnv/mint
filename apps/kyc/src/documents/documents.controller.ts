@@ -37,7 +37,7 @@ export class DocumentsController {
   @ApiQuery({
     name: 'type',
     description: 'Document type',
-    enum: ['PASSPORT', 'DRIVERS_LICENSE', 'NATIONAL_ID', 'UTILITY_BILL'],
+    enum: ['PASSPORT', 'DRIVERS_LICENSE', 'SELFIE', 'UTILITY_BILL', 'OTHER'],
   })
   @ApiQuery({
     name: 'docName',

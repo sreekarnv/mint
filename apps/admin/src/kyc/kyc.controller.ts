@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -16,6 +16,15 @@ import { KycService } from './kyc.service';
 @UseGuards(AdminJwtGuard)
 export class KycController {
   constructor(private readonly kycService: KycService) {}
+
+  @Get('user/:userId')
+  @ApiOperation({ summary: 'Get KYC profile for a user (admin)' })
+  @ApiParam({ name: 'userId', description: 'Target user ID' })
+  @ApiResponse({ status: 200, description: 'KYC profile' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getKycProfile(@Req() req: any, @Param('userId') userId: string) {
+    return this.kycService.getKycProfile(userId, req.user.sub);
+  }
 
   @Post(':profileId/approve')
   @ApiOperation({ summary: 'Approve a KYC profile (admin)' })
