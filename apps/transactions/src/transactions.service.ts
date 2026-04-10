@@ -1,21 +1,21 @@
+import { getTraceHeaders, RedisService } from '@mint/common';
 import {
-  Injectable,
-  Inject,
   BadRequestException,
   ForbiddenException,
+  Inject,
+  Injectable,
   Logger,
 } from '@nestjs/common';
 import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
-import { RedisService, getTraceHeaders } from '@mint/common';
 import { firstValueFrom, Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-import { PrismaService } from './prisma/prisma.service';
-import { LimitService } from './limit/limit.service';
-import { StateMachineService } from './state-machine/state-machine.service';
+import { TopupDto } from './dto/topup.dto';
+import type { TransferDto } from './dto/transfer.dto';
 import { Prisma } from './generated/prisma/client';
 import { TxnStatus, TxnType } from './generated/prisma/enums';
-import type { TransferDto } from './dto/transfer.dto';
-import { TopupDto } from './dto/topup.dto';
+import { LimitService } from './limit/limit.service';
+import { PrismaService } from './prisma/prisma.service';
+import { StateMachineService } from './state-machine/state-machine.service';
 
 interface FraudServiceClient {
   ScoreTransaction(data: {

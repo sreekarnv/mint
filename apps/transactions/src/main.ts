@@ -13,7 +13,6 @@ async function bootstrap() {
   const app = await NestFactory.create(TransactionsModule);
 
   app.use(cookieParser());
-  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Transactions Service')
@@ -26,6 +25,7 @@ async function bootstrap() {
       'access-token',
     )
     .build();
+
   SwaggerModule.setup(
     'api-docs',
     app,

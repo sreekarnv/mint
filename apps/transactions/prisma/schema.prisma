@@ -41,7 +41,7 @@ enum Category {
 
 model Transaction {
   id                String    @id @default(cuid())
-  idempotencyKey    String    @unique @map("idempotency_key") @db.VarChar(255)
+  idempotencyKey    String    @unique @map("idempotency_key") @db.Uuid
   type              TxnType
   status            TxnStatus @default(PENDING)
   senderId          String    @map("sender_id")
