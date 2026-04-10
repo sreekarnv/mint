@@ -80,6 +80,13 @@ export class KycService {
     return TIER_LIMITS[tier];
   }
 
+  async getProfileById(profileId: string): Promise<KycProfileWithDocs | null> {
+    return this.prismaService.kycProfile.findUnique({
+      where: { id: profileId },
+      include: { kycDocuments: true },
+    });
+  }
+
   async getOrCreateProfile(userId: string): Promise<KycProfileWithDocs> {
     let kycProfile = await this.prismaService.kycProfile.findUnique({
       where: { userId },

@@ -8,7 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AdminJwtGuard } from '../guards/admin-jwt.guard';
-import { KycService } from './kyc.service';
+import { KycProfileResponse, KycService } from './kyc.service';
 
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
@@ -22,23 +22,25 @@ export class KycController {
   @ApiParam({ name: 'userId', description: 'Target user ID' })
   @ApiResponse({ status: 200, description: 'KYC profile' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getKycProfile(@Req() req: any, @Param('userId') userId: string) {
+  async getKycProfile(
+    @Req() req: any,
+    @Param('userId') userId: string,
+  ): Promise<KycProfileResponse> {
     return this.kycService.getKycProfile(userId, req.user.sub);
   }
 
-  @Post(':profileId/approve')
+  @Post('user/:userId/approve')
   @ApiOperation({ summary: 'Approve a KYC profile (admin)' })
-  @ApiParam({ name: 'profileId', description: 'KYC profile ID' })
+  @ApiParam({ name: 'userId', description: 'Target user ID' })
   @ApiResponse({ status: 201, description: 'KYC profile approved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Profile not found' })
-  async approve(@Req() req: any, @Param('profileId') profileId: string) {
-    return this.kycService.approveKyc(profileId, req.user.sub);
+  async approve(@Req() req: any, @Param('userId') userId: string) {
+    return this.kycService.approveKyc(userId, req.user.sub);
   }
 
-  @Post(':profileId/reject')
+  @Post('user/:userId/reject')
   @ApiOperation({ summary: 'Reject a KYC profile (admin)' })
-  @ApiParam({ name: 'profileId', description: 'KYC profile ID' })
+  @ApiParam({ name: 'userId', description: 'Target user ID' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -50,12 +52,11 @@ export class KycController {
   })
   @ApiResponse({ status: 201, description: 'KYC profile rejected' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Profile not found' })
   async reject(
     @Req() req: any,
-    @Param('profileId') profileId: string,
+    @Param('userId') userId: string,
     @Body() body: { reason: string },
   ) {
-    return this.kycService.rejectKyc(profileId, req.user.sub, body.reason);
+    return this.kycService.rejectKyc(userId, req.user.sub, body.reason);
   }
 }
