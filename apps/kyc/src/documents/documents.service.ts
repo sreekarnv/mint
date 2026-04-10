@@ -85,16 +85,24 @@ export class DocumentsService {
 
     await this.tryS3Upload(s3Key, file);
 
-    const doc = await this.prismaService.kycDocument.create({
-      data: {
+    const doc = await this.prismaService.kycDocument.upsert({
+      where: { profileId_type: { profileId: profile.id, type: docType } },
+      create: {
         profileId: profile.id,
         type: docType,
         s3Key,
         status: 'PENDING',
         docName,
       },
+      update: {
+        s3Key,
+        status: 'PENDING',
+        docName,
+        uploadedAt: new Date(),
+      },
     });
 
-    return doc;
+    const { s3Key: _omit, ...safeDoc } = doc;
+    return safeDoc;
   }
 }

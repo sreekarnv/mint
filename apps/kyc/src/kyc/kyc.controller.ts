@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Headers,
+  InternalServerErrorException,
   Logger,
   Post,
   Req,
@@ -80,14 +81,16 @@ export class KycController {
   ) {
     const secret = process.env.KYC_WEBHOOK_SECRET;
 
-    if (secret) {
-      const expected = createHmac('sha256', secret)
-        .update(JSON.stringify(body))
-        .digest('hex');
+    if (!secret) {
+      throw new InternalServerErrorException('Webhook secret not configured');
+    }
 
-      if (signature !== `sha256=${expected}`) {
-        throw new UnauthorizedException('Invalid signature');
-      }
+    const expected = createHmac('sha256', secret)
+      .update(JSON.stringify(body))
+      .digest('hex');
+
+    if (signature !== `sha256=${expected}`) {
+      throw new UnauthorizedException('Invalid signature');
     }
 
     const status = body?.data?.attributes?.status;

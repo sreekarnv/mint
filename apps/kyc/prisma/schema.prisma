@@ -58,5 +58,6 @@ model KycDocument {
   uploadedAt DateTime   @default(now()) @map("uploaded_at") @db.Timestamptz
   profile    KycProfile @relation(fields: [profileId], references: [id])
 
+  @@unique([profileId, type])
   @@map("kyc_documents")
 }
