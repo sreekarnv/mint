@@ -8,9 +8,11 @@ import {
 import { ClientKafka } from '@nestjs/microservices';
 import { v4 } from 'uuid';
 import {
+  DocType,
   KycStatus,
   KycTier,
   type KycProfile,
+  type KycDocument,
 } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -45,6 +47,15 @@ const TIER_LIMITS: Record<KycTier, Limits> = {
     monthlyCents: 20_000_000,
     limitsCurrency: 'USD',
   },
+};
+
+// Required document types for each tier upgrade submission
+const REQUIRED_DOCS_FOR_SUBMISSION: Partial<Record<KycTier, DocType[][]>> = {
+  // BASIC tier submitting for VERIFIED: needs one ID doc AND a selfie
+  BASIC: [
+    [DocType.PASSPORT, DocType.DRIVERS_LICENSE], // at least one of these
+    [DocType.SELFIE],                             // always required
+  ],
 };
 
 const VALID_UPGRADES: Partial<Record<KycTier, KycTier>> = {
@@ -111,18 +122,27 @@ export class KycService {
       );
     }
 
-    const kycDocs = await this.prismaService.kycDocument.findMany({
-      where: { profileId: profile.id },
-    });
+    if (profile.status === KycStatus.PENDING_REVIEW) {
+      throw new BadRequestException('Already under review');
+    }
 
-    if (kycDocs.length === 0) {
-      throw new BadRequestException('No documents uploaded');
+    const uploadedTypes = new Set(
+      profile.kycDocuments.map((d) => d.type as DocType),
+    );
+
+    // Validate that all required document groups are satisfied
+    const required = REQUIRED_DOCS_FOR_SUBMISSION[KycTier.BASIC] ?? [];
+    for (const group of required) {
+      const satisfied = group.some((t) => uploadedTypes.has(t));
+      if (!satisfied) {
+        throw new BadRequestException(
+          `Missing required document: ${group.join(' or ')}`,
+        );
+      }
     }
 
     await this.prismaService.kycProfile.update({
-      where: {
-        userId,
-      },
+      where: { userId },
       data: {
         status: KycStatus.PENDING_REVIEW,
         submittedAt: new Date(),
@@ -141,23 +161,30 @@ export class KycService {
       );
     }
 
-    await this.prismaService.kycProfile.update({
-      where: { userId },
+    // Atomic conditional update — only updates if still at `current` tier,
+    // preventing duplicate Kafka deliveries from racing into double-upgrade.
+    const { count } = await this.prismaService.kycProfile.updateMany({
+      where: { userId, tier: current },
       data: {
         tier: newTier,
         ...(newTier === KycTier.VERIFIED
-          ? {
-              status: KycStatus.APPROVED,
-              verifiedAt: new Date(),
-            }
-          : {}),
+          ? { status: KycStatus.APPROVED, verifiedAt: new Date() }
+          : { status: KycStatus.APPROVED }),
       },
     });
+
+    if (count === 0) {
+      // Either already upgraded by a concurrent event or tier mismatch — safe to skip
+      this.logger.warn(
+        `upgradeTier no-op for ${userId}: already at ${newTier} or concurrent update`,
+      );
+      return;
+    }
 
     await this.redisService.del(`kyc:tier:${userId}`);
     this.logger.log(`${userId}: ${current} => ${newTier}`);
     this.emit(
-      `kyc.events`,
+      'kyc.events',
       { event: 'kyc.tier_upgraded', userId, previousTier: current, newTier },
       userId,
     );

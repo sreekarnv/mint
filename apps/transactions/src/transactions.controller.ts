@@ -40,8 +40,13 @@ export class TransactionsController {
   @ApiHeader({
     name: 'Idempotency-Key',
     description:
-      'UUID v4. Identical requests with the same key return the cached response.',
+      'UUID. Identical requests with the same key return the cached response.',
     required: true,
+    schema: {
+      type: 'string',
+      format: 'uuid',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    },
   })
   @ApiBody({
     schema: {
@@ -108,8 +113,13 @@ export class TransactionsController {
   @ApiHeader({
     name: 'Idempotency-Key',
     description:
-      'UUID v4. Identical requests with the same key return the cached response.',
+      'UUID v4 (e.g. crypto.randomUUID()). Identical requests with the same key return the cached response.',
     required: true,
+    schema: {
+      type: 'string',
+      format: 'uuid',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    },
   })
   @ApiBody({
     schema: {

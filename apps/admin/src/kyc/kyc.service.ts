@@ -77,22 +77,22 @@ export class KycService implements OnModuleInit {
       actorId: adminId,
       payload: {
         event: 'admin.kyc_approved',
-        profileId,
+        userId,
         approvedBy: adminId,
       },
     });
 
     this.emitAuditEvent('admin.kyc_approved', adminId, {
-      profileId,
+      userId,
       approvedBy: adminId,
     });
 
-    return { success: true, profileId };
+    return { success: true, userId };
   }
 
-  async rejectKyc(profileId: string, adminId: string, reason: string) {
+  async rejectKyc(userId: string, adminId: string, reason: string) {
     this.logger.warn(
-      `Admin ${adminId} rejecting KYC profile ${profileId}: ${reason}`,
+      `Admin ${adminId} rejecting KYC for user ${userId}: ${reason}`,
     );
 
     this.kafka.emit('admin.events', {
@@ -104,19 +104,19 @@ export class KycService implements OnModuleInit {
       actorId: adminId,
       payload: {
         event: 'admin.kyc_rejected',
-        profileId,
+        userId,
         rejectedBy: adminId,
         reason,
       },
     });
 
     this.emitAuditEvent('admin.kyc_rejected', adminId, {
-      profileId,
+      userId,
       rejectedBy: adminId,
       reason,
     });
 
-    return { success: true, profileId };
+    return { success: true, userId };
   }
 
   private emitAuditEvent(

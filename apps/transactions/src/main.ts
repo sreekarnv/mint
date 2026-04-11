@@ -25,6 +25,7 @@ async function bootstrap() {
       'access-token',
     )
     .build();
+
   SwaggerModule.setup(
     'api-docs',
     app,

@@ -1,9 +1,11 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
+import { v5 as uuidv5 } from 'uuid';
 import { TransactionsService } from '../transactions.service';
 
 @Controller()
 export class SocialEventsController {
+  private readonly MONEY_REQUEST_NS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
   private readonly logger = new Logger(SocialEventsController.name);
 
   constructor(private readonly transactions: TransactionsService) {}
@@ -21,8 +23,10 @@ export class SocialEventsController {
     const senderId = payload.recipientId;
     const receiverId = payload.requesterId;
 
+    const idempotencyKey = uuidv5(payload.requestId, this.MONEY_REQUEST_NS);
+
     this.logger.log(
-      `Money request accepted: ${senderId} pays ${receiverId} ${payload.amount} ${payload.currency} (requestId: ${payload.requestId})`,
+      `Money request accepted: ${senderId} pays ${receiverId} ${payload.amount} ${payload.currency} (requestId: ${payload.requestId}, idempotencyKey: ${idempotencyKey})`,
     );
 
     try {
@@ -35,7 +39,7 @@ export class SocialEventsController {
           description: payload.note || 'Money request',
         },
         senderId,
-        payload.requestId,
+        idempotencyKey,
         '0.0.0.0',
       );
 

@@ -1,5 +1,4 @@
 import { Controller } from '@nestjs/common';
-import { KycService } from './kyc.service';
 import { GrpcMethod } from '@nestjs/microservices';
 import { KycStatus } from '../generated/prisma/client';
 
