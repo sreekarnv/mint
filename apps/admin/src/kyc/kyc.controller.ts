@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -8,8 +17,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { KycQueueItem } from 'apps/web/lib/api/admin';
 import { AdminJwtGuard } from '../guards/admin-jwt.guard';
-import { KycProfileResponse, KycService } from './kyc.service';
+import { KycService } from './kyc.service';
 
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
@@ -28,7 +38,10 @@ export class KycController {
     @Req() req: any,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
-  ) {
+  ): Promise<{
+    items: KycQueueItem[];
+    total: number;
+  }> {
     return this.kycService.listPendingQueue(
       req.user.sub,
       limit ? parseInt(limit, 10) : 50,
