@@ -1,21 +1,37 @@
-name: "mint"
+name: 'mint'
 
 services:
+  web:
+    build:
+      context: apps/web
+      dockerfile: Dockerfile
+    container_name: mint-web
+    networks: [mint]
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost}
+      NODE_ENV: production
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
   nginx:
     image: nginx:1.29-alpine
     container_name: mint-nginx
     networks: [mint]
     ports:
-      - "80:80"
+      - '80:80'
       # For SSL: also expose 443 and mount ./infra/nginx/certs:/etc/nginx/certs:ro
     volumes:
       - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - auth
       - wallet
+      - web
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1/health']
       interval: 10s
       timeout: 3s
       retries: 3
@@ -35,10 +51,17 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      CLUSTER_ID: "eYjp31bQQTit57aK84wZcw"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      CLUSTER_ID: 'eYjp31bQQTit57aK84wZcw'
     healthcheck:
-      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      test:
+        [
+          'CMD',
+          'kafka-topics',
+          '--bootstrap-server',
+          'localhost:9092',
+          '--list',
+        ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -79,7 +102,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -93,7 +116,7 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -112,7 +135,7 @@ services:
       - minio-data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -140,7 +163,7 @@ services:
     networks: [mint]
     volumes:
       - ./infra/otel/otel-collector.yml:/etc/otel-collector.yml:ro
-    command: ["--config=/etc/otel-collector.yml"]
+    command: ['--config=/etc/otel-collector.yml']
     depends_on:
       - tempo
     restart: unless-stopped
@@ -151,7 +174,7 @@ services:
     networks: [mint]
     volumes:
       - ./infra/tempo/tempo.yml:/etc/tempo.yml:ro
-    command: ["-config.file=/etc/tempo.yml"]
+    command: ['-config.file=/etc/tempo.yml']
     restart: unless-stopped
 
   mailhog:
@@ -159,7 +182,7 @@ services:
     container_name: mint-mailhog
     networks: [mint]
     ports:
-      - "8025:8025"   # Web UI
+      - '8025:8025' # Web UI
     restart: unless-stopped
 
   grafana:
@@ -167,7 +190,7 @@ services:
     container_name: mint-grafana
     networks: [mint]
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
@@ -185,9 +208,9 @@ services:
     container_name: mint-auth-migrate
     networks: [mint]
     environment:
-      APP_PORT: "4001"
+      APP_PORT: '4001'
       APP_HOST: 0.0.0.0
-      APP_RELOAD: "false"
+      APP_RELOAD: 'false'
       KEYS_DIR: /app/apps/auth/keys
       FASTAUTH_SECRET: ${FASTAUTH_SECRET}
       DATABASE_URL: postgresql+asyncpg://mint_auth_user:mint_auth_pass@postgres:5432/mint_auth
@@ -195,7 +218,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["uv", "run", "migrate"]
+    command: ['uv', 'run', 'migrate']
     restart: no
 
   wallet-migrate:
@@ -206,15 +229,15 @@ services:
     container_name: mint-wallet-migrate
     networks: [mint]
     environment:
-      APP_PORT: "4002"
+      APP_PORT: '4002'
       APP_HOST: 0.0.0.0
-      APP_RELOAD: "false"
+      APP_RELOAD: 'false'
       DATABASE_URL: postgresql+asyncpg://mint_wallet_user:mint_wallet_pass@postgres:5432/mint_wallet
       KAFKA_BROKERS: kafka:9092
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["uv", "run", "migrate"]
+    command: ['uv', 'run', 'migrate']
     restart: no
 
   transactions-migrate:
@@ -229,7 +252,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:transactions"]
+    command: ['pnpm', 'migrate:transactions']
     restart: no
 
   fraud-migrate:
@@ -244,7 +267,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:fraud"]
+    command: ['pnpm', 'migrate:fraud']
     restart: no
 
   kyc-migrate:
@@ -259,7 +282,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:kyc"]
+    command: ['pnpm', 'migrate:kyc']
     restart: no
 
   analytics-migrate:
@@ -274,7 +297,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:analytics"]
+    command: ['pnpm', 'migrate:analytics']
     restart: no
 
   notifications-migrate:
@@ -289,7 +312,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:notifications"]
+    command: ['pnpm', 'migrate:notifications']
     restart: no
 
   social-migrate:
@@ -304,7 +327,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:social"]
+    command: ['pnpm', 'migrate:social']
     restart: no
 
   webhook-migrate:
@@ -319,7 +342,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "migrate:webhook"]
+    command: ['pnpm', 'migrate:webhook']
     restart: no
 
   audit-migrate:
@@ -334,7 +357,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "run", "migrate:audit"]
+    command: ['pnpm', 'run', 'migrate:audit']
     restart: no
 
   auth:
@@ -345,17 +368,17 @@ services:
     container_name: mint-auth
     networks: [mint]
     ports:
-      - "4001:4001"
+      - '4001:4001'
     environment:
-      APP_PORT: "4001"
+      APP_PORT: '4001'
       APP_HOST: 0.0.0.0
-      APP_RELOAD: "false"
+      APP_RELOAD: 'false'
       KEYS_DIR: /app/apps/auth/keys
       FASTAUTH_SECRET: ${FASTAUTH_SECRET}
       DATABASE_URL: postgresql+asyncpg://mint_auth_user:mint_auth_pass@postgres:5432/mint_auth
       KAFKA_BROKERS: kafka:9092
       SMTP_HOST: mailhog
-      SMTP_PORT: "1025"
+      SMTP_PORT: '1025'
       SMTP_FROM: Mint <noreply@mint.dev>
       OTEL_SERVICE_NAME: auth-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
@@ -382,12 +405,12 @@ services:
     container_name: mint-wallet
     networks: [mint]
     ports:
-      - "4002:4002"
-      - "50051:50051"
+      - '4002:4002'
+      - '50051:50051'
     environment:
-      APP_PORT: "4002"
+      APP_PORT: '4002'
       APP_HOST: 0.0.0.0
-      APP_RELOAD: "false"
+      APP_RELOAD: 'false'
       DATABASE_URL: postgresql+asyncpg://mint_wallet_user:mint_wallet_pass@postgres:5432/mint_wallet
       KAFKA_BROKERS: kafka:9092
       OTEL_SERVICE_NAME: wallet-service
@@ -412,7 +435,7 @@ services:
     container_name: mint-transactions
     networks: [mint]
     ports:
-      - "4003:4003"
+      - '4003:4003'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_txns_user:mint_txns_pass@postgres:5432/mint_txns
@@ -448,15 +471,15 @@ services:
     container_name: mint-fraud
     networks: [mint]
     ports:
-      - "50052:50052"
+      - '50052:50052'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      FRAUD_BLOCK_THRESHOLD: "100"
-      FRAUD_REVIEW_THRESHOLD: "50"
+      FRAUD_BLOCK_THRESHOLD: '100'
+      FRAUD_REVIEW_THRESHOLD: '50'
       OTEL_SERVICE_NAME: fraud-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -481,8 +504,8 @@ services:
     container_name: mint-kyc
     networks: [mint]
     ports:
-      - "4004:4004"
-      - "50053:50053"
+      - '4004:4004'
+      - '50053:50053'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_kyc_user:mint_kyc_pass@postgres:5432/mint_kyc
@@ -520,7 +543,7 @@ services:
     container_name: mint-analytics
     networks: [mint]
     ports:
-      - "4005:4005"
+      - '4005:4005'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
@@ -551,7 +574,7 @@ services:
     container_name: mint-notifications
     networks: [mint]
     ports:
-      - "4006:4006"
+      - '4006:4006'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
@@ -559,7 +582,7 @@ services:
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       SMTP_HOST: mailhog
-      SMTP_PORT: "1025"
+      SMTP_PORT: '1025'
       SMTP_FROM: Mint <noreply@mint.dev>
       OTEL_SERVICE_NAME: notifications-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
@@ -585,7 +608,7 @@ services:
     container_name: mint-social
     networks: [mint]
     ports:
-      - "4007:4007"
+      - '4007:4007'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_social_user:mint_social_pass@postgres:5432/mint_social
@@ -616,7 +639,7 @@ services:
     container_name: mint-webhook
     networks: [mint]
     ports:
-      - "4008:4008"
+      - '4008:4008'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_webhook_user:mint_webhook_pass@postgres:5432/mint_webhook
@@ -647,7 +670,7 @@ services:
     container_name: mint-admin
     networks: [mint]
     ports:
-      - "4009:4009"
+      - '4009:4009'
     environment:
       NODE_ENV: production
       REDIS_URL: redis://redis:6379
@@ -678,7 +701,7 @@ services:
     container_name: mint-audit
     networks: [mint]
     ports:
-      - "4010:4010"
+      - '4010:4010'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_audit_user:mint_audit_pass@postgres:5432/mint_audit
