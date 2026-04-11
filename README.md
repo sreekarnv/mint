@@ -3,9 +3,6 @@
 A production-style fintech platform built with a microservices architecture. Covers authentication, wallet based payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
 
 <p align="left">
-  <a href="https://nextjs.org/" target="_blank">
-    <img src="https://img.shields.io/badge/NextJS-000000?style=for-the-badge&logo=next.js&logoColor=white" />
-  </a>
   <a href="https://nestjs.com/" target="_blank">
     <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
   </a>
@@ -50,6 +47,39 @@ A production-style fintech platform built with a microservices architecture. Cov
   </a>
 </p>
 
+## Frontend
+
+A Next.js web app serves both the user facing product and the admin console through the same nginx gateway.
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src=".github/assets/dashboard-user.png" alt="User dashboard showing wallet balance, recent transactions, and quick actions" />
+      <br /><sub><b>Dashboard</b> — wallet balance, recent activity, quick deposit &amp; send</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src=".github/assets/analytics-user.png" alt="Analytics page showing spending by category, breakdown chart, and monthly budgets" />
+      <br /><sub><b>Analytics</b> — category spend, breakdown, top merchants, budget tracking</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src=".github/assets/notifications-user.png" alt="Notifications feed showing transaction alerts and verification events" />
+      <br /><sub><b>Notifications</b> — real-time activity feed via SSE</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src=".github/assets/kyc-verification-user.png" alt="Identity verification page showing tier progression and active limits" />
+      <br /><sub><b>Identity Verification</b> — tier progression, document upload, active limits</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src=".github/assets/kyc-verification-admin.png" alt="Admin KYC management page showing pending review queue and profile review panel" width="75%" />
+      <br /><sub><b>Admin — KYC Management</b> — pending review queue, document inspection, approve / reject</sub>
+    </td>
+  </tr>
+</table>
+
 ## Docs
 
 - [Architecture](docs/architecture.md) - service map, communication patterns, JWT flow
@@ -59,19 +89,20 @@ A production-style fintech platform built with a microservices architecture. Cov
 
 ## Services
 
-| Service       | Stack            | Port | Description                                   |
-| ------------- | ---------------- | ---- | --------------------------------------------- |
-| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                   |
-| wallet        | Python / FastAPI | 4002 | gRPC settlement interface                     |
-| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency               |
-| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction  |
-| kyc           | NestJS           | 4004 | Document upload, tier management              |
-| analytics     | NestJS           | 4005 | Spend insights, category budgets              |
-| notifications | NestJS           | 4006 | Persistent notifications + SSE stream         |
-| social        | NestJS           | 4007 | Contacts, money requests, bill splits         |
-| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log       |
-| admin         | NestJS           | 4009 | Admin console (user management, fraud review) |
-| audit         | NestJS           | 4010 | Immutable append-only audit log               |
+| Service       | Stack            | Port | Description                                  |
+| ------------- | ---------------- | ---- | -------------------------------------------- |
+| web           | Next.js 15       | 3000 | User app and admin console                   |
+| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                  |
+| wallet        | Python / FastAPI | 4002 | gRPC settlement interface                    |
+| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency              |
+| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction |
+| kyc           | NestJS           | 4004 | Document upload, tier management             |
+| analytics     | NestJS           | 4005 | Spend insights, category budgets             |
+| notifications | NestJS           | 4006 | Persistent notifications + SSE stream        |
+| social        | NestJS           | 4007 | Contacts, money requests, bill splits        |
+| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log      |
+| admin         | NestJS           | 4009 | Admin console API (user mgmt, fraud review)  |
+| audit         | NestJS           | 4010 | Immutable append-only audit log              |
 
 \* fraud is gRPC-only, called internally by the transactions service.
 
@@ -80,6 +111,8 @@ A production-style fintech platform built with a microservices architecture. Cov
 ```bash
 docker compose -f docker-compose.dev.yml up -d --build
 ```
+
+The app is available at **http://localhost**. The admin console is at **http://localhost/app-admin**.
 
 ### Admin User
 
@@ -96,28 +129,6 @@ Migrations run automatically before each service starts. API docs are at `/api-d
 
 ## Observability
 
-Every service ships OpenTelemetry traces to a local collector, stored in Tempo and visualised in Grafana at http://localhost:3000. Trace context is propagated across HTTP, gRPC, and Kafka so a single top-up request produces one trace spanning all downstream consumers.
+Every service ships OpenTelemetry traces to a local collector, stored in Tempo and visualised in Grafana at http://localhost:4000. Trace context is propagated across HTTP, gRPC, and Kafka so a single top-up request produces one trace spanning all downstream consumers.
 
 ![Grafana Tempo showing a distributed trace for a top-up request](.github/assets/grafana-traces.png)
-
-## Screenshots
-
-### User Dashboard
-
-![User Dashboard](.github/assets/dashboard-user.png)
-
-### Analytics
-
-![Analytics](.github/assets/analytics-user.png)
-
-### KYC Verification (User)
-
-![KYC Verification - User](.github/assets/kyc-verification-user.png)
-
-### KYC Verification (Admin)
-
-![KYC Verification - Admin](.github/assets/kyc-verification-admin.png)
-
-### Notifications
-
-![Notifications](.github/assets/notifications-user.png)

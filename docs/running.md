@@ -23,16 +23,41 @@ This creates `keys/private_key.pem` and `keys/public_key.pem` used by the auth s
 **2. Start everything**
 
 ```sh
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
-Services are available at the same ports as production (see below). MailHog UI is at `http://localhost:8025`.
+**3. Create an admin user**
 
-**3. Rebuild a single service after code changes**
+```sh
+docker exec -it mint-auth uv run python /app/apps/auth/src/create_admin.py \
+  --email admin@mint.dev \
+  --password adminpass \
+  --name "Admin User"
+```
+
+Then set the returned user ID in `ADMIN_USER_IDS` in `docker-compose.dev.yml` and restart the admin service:
+
+```sh
+docker compose -f docker-compose.dev.yml up -d --build admin
+```
+
+**4. Rebuild a single service after code changes**
 
 ```sh
 docker compose -f docker-compose.dev.yml up -d --build <service-name>
 ```
+
+---
+
+## URLs
+
+| URL | Description |
+|-----|-------------|
+| http://localhost | User app |
+| http://localhost/app-admin | Admin console |
+| http://localhost:4000 | Grafana (traces) |
+| http://localhost:8025 | MailHog (dev email) |
+| http://localhost:9001 | MinIO console |
 
 ---
 
@@ -80,6 +105,7 @@ docker compose up -d --build <service-name>
 | Service | HTTP | gRPC |
 |---------|------|------|
 | nginx (gateway) | 80 | — |
+| web | 3000 | — |
 | auth | 4001 | — |
 | wallet | 4002 | 50051 |
 | transactions | 4003 | — |
@@ -91,14 +117,14 @@ docker compose up -d --build <service-name>
 | admin | 4009 | — |
 | audit | 4010 | — |
 | fraud | — | 50052 |
-| Grafana | 3000 | — |
+| Grafana | 4000 | — |
 | MailHog UI | 8025 | — |
 
 ---
 
 ## API Docs (Swagger)
 
-Each service exposes Swagger UI at `/api-docs`.
+Each backend service exposes Swagger UI at `/api-docs`.
 
 | Service | URL |
 |---------|-----|
@@ -122,7 +148,6 @@ Migrations run automatically on startup, but you can also run them manually:
 **Python services (auth, wallet)**
 
 ```sh
-# From the repo root
 docker compose exec auth uv run migrate
 docker compose exec wallet uv run migrate
 ```
