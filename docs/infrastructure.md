@@ -2,12 +2,12 @@
 
 ## nginx (API Gateway)
 
-Entry point for all client traffic. Handles rate limiting and routes to services by path prefix.
+Entry point for all client traffic. Routes to the Next.js web app for UI requests and to backend services for API calls.
 
 **Routing**
 
-| Path prefix | Service | Notes |
-|-------------|---------|-------|
+| Path prefix | Target | Notes |
+|-------------|--------|-------|
 | `/api/v1/auth/login`, `/register` | auth:4001 | Rate limit: 1 req/s, burst 5 |
 | `/api/v1/auth/*` | auth:4001 | Rate limit: 30 req/s |
 | `/api/v1/wallet/*` | wallet:4002 | |
@@ -17,7 +17,10 @@ Entry point for all client traffic. Handles rate limiting and routes to services
 | `/api/v1/notifications/*` | notifications:4006 | SSE: proxy buffering disabled |
 | `/api/v1/social/*` | social:4007 | |
 | `/api/v1/webhooks/*` | webhook:4008 | |
-| `/admin/*` | admin:4009 | Internal network only in prod |
+| `/admin/*` | admin:4009 | |
+| `/app-admin/*` | web:3000 | Admin console (Next.js) |
+| `/_next/*` | web:3000 | Next.js assets and HMR websocket |
+| `/` | web:3000 | User app catch-all (Next.js) |
 | `/health` | — | Returns 200 |
 
 Config: `infra/nginx/nginx.conf`
@@ -38,8 +41,9 @@ Handles all async event propagation between services.
 | `kyc.events` | kyc | notifications, audit |
 | `social.events` | social | transactions, notifications, audit |
 | `analytics.events` | analytics | notifications, webhook |
+| `admin.events` | admin | kyc, audit |
 | `webhook.events` | webhook | audit |
-| `admin.events` | admin | audit |
+| `audit.events` | all | audit |
 
 Topics are created by the `kafka-init` container on first startup. OpenTelemetry trace context is propagated in Kafka message headers via `KafkaTraceInterceptor` so traces span async boundaries.
 
@@ -112,7 +116,7 @@ flowchart LR
 
     Services -->|OTLP HTTP :4318| otel[OTel Collector]
     otel -->|OTLP| tempo[Grafana Tempo]
-    tempo --> grafana[Grafana :3000]
+    tempo --> grafana[Grafana :4000]
 ```
 
 **What's instrumented in every service:**

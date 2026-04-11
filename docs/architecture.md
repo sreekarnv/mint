@@ -1,6 +1,6 @@
 # Architecture
 
-Mint is a polyglot microservices monorepo. 9 services are written in NestJS (TypeScript), 2 in FastAPI (Python). All services are independently deployable and communicate over HTTP (public), gRPC (synchronous internal), and Kafka (asynchronous internal).
+Mint is a polyglot microservices monorepo. 9 services are written in NestJS (TypeScript), 2 in FastAPI (Python), and the frontend is a Next.js 15 app. All services are independently deployable and communicate over HTTP (public), gRPC (synchronous internal), and Kafka (asynchronous internal).
 
 ## Service Map
 
@@ -8,6 +8,8 @@ Mint is a polyglot microservices monorepo. 9 services are written in NestJS (Typ
 graph TD
     Client -->|HTTP| nginx
 
+    nginx -->|/| web
+    nginx -->|/app-admin| web
     nginx -->|/api/v1/auth| auth
     nginx -->|/api/v1/wallet| wallet
     nginx -->|/api/v1/transactions| transactions
@@ -15,7 +17,6 @@ graph TD
     nginx -->|/api/v1/analytics| analytics
     nginx -->|/api/v1/notifications| notifications
     nginx -->|/api/v1/social| social
-    nginx -->|/api/v1/webhooks| webhook
     nginx -->|/admin| admin
 
     transactions -->|gRPC :50052| fraud
@@ -34,6 +35,9 @@ Used for blocking operations where the caller needs a result before proceeding.
 | transactions | fraud | 50052 | Score every transaction before settlement |
 | transactions | kyc | 50053 | Check per-transaction and daily/monthly limits |
 | transactions | wallet | 50051 | Debit sender, credit recipient |
+| admin | kyc | 50053 | Fetch KYC profile and pending queue |
+| admin | wallet | 50051 | Fetch wallet status for user management |
+| admin | fraud | 50052 | Fetch and action fraud cases |
 
 ### Asynchronous — Kafka
 
@@ -65,6 +69,7 @@ flowchart LR
     analytics -->|analytics.events| notifications
     analytics -->|analytics.events| webhook
 
+    admin -->|admin.events| kyc
     admin -->|admin.events| audit
     webhook -->|webhook.events| audit
 ```
@@ -125,13 +130,32 @@ sequenceDiagram
     Kafka-)audit: immutable log entry
 ```
 
+## KYC Approval Flow
+
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant admin
+    participant Kafka
+    participant kyc
+
+    Admin->>+admin: POST /admin/kyc/:profileId/approve
+    admin-)Kafka: admin.events (admin.kyc_approved, profileId)
+    admin-->>-Admin: { success: true }
+
+    Kafka-)kyc: admin.events consumer
+    kyc->>kyc: upgradeTier(userId, VERIFIED)
+    kyc-)Kafka: kyc.events (tier_upgraded)
+```
+
 ## Monorepo Layout
 
 ```
 mint/
-├── apps/           # 11 services
+├── apps/           # 12 services + web
 │   ├── auth/       # FastAPI
 │   ├── wallet/     # FastAPI
+│   ├── web/        # Next.js 15 (user app + admin console)
 │   └── */          # NestJS (transactions, fraud, kyc, analytics,
 │                   #         notifications, social, webhook, admin, audit)
 ├── libs/
