@@ -56,6 +56,30 @@ export class FraudService {
     return decision;
   }
 
+  async listReviewQueue(limit: number, offset: number) {
+    const [items, total] = await Promise.all([
+      this.prismaService.fraudCase.findMany({
+        where: { decision: 'REVIEW' },
+        orderBy: { createdAt: 'asc' },
+        take: limit,
+        skip: offset,
+      }),
+      this.prismaService.fraudCase.count({ where: { decision: 'REVIEW' } }),
+    ]);
+
+    return {
+      items: items.map((c) => ({
+        caseId: c.id,
+        transactionId: c.transactionId,
+        userId: c.userId,
+        score: c.score,
+        rulesFired: c.rulesFired,
+        createdAt: c.createdAt.toISOString(),
+      })),
+      total,
+    };
+  }
+
   async updateUserStats(userId: string, amountCents: number): Promise<void> {
     const amountSq = amountCents * amountCents;
 

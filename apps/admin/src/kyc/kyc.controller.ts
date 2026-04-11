@@ -1,14 +1,24 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AdminJwtGuard } from '../guards/admin-jwt.guard';
-import { KycProfileResponse, KycService } from './kyc.service';
+import { KycService } from './kyc.service';
 
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
@@ -17,30 +27,46 @@ import { KycProfileResponse, KycService } from './kyc.service';
 export class KycController {
   constructor(private readonly kycService: KycService) {}
 
+  @Get('queue')
+  @ApiOperation({ summary: 'List KYC profiles pending review (admin)' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiResponse({ status: 200, description: 'Pending KYC queue' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async listQueue(
+    @Req() req: any,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.kycService.listPendingQueue(
+      req.user.sub,
+      limit ? parseInt(limit, 10) : 50,
+      offset ? parseInt(offset, 10) : 0,
+    );
+  }
+
   @Get('user/:userId')
   @ApiOperation({ summary: 'Get KYC profile for a user (admin)' })
   @ApiParam({ name: 'userId', description: 'Target user ID' })
   @ApiResponse({ status: 200, description: 'KYC profile' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getKycProfile(
-    @Req() req: any,
-    @Param('userId') userId: string,
-  ): Promise<KycProfileResponse> {
+  async getKycProfile(@Req() req: any, @Param('userId') userId: string) {
     return this.kycService.getKycProfile(userId, req.user.sub);
   }
 
-  @Post('user/:userId/approve')
+  @Post(':profileId/approve')
   @ApiOperation({ summary: 'Approve a KYC profile (admin)' })
-  @ApiParam({ name: 'userId', description: 'Target user ID' })
+  @ApiParam({ name: 'profileId', description: 'KYC profile ID' })
   @ApiResponse({ status: 201, description: 'KYC profile approved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async approve(@Req() req: any, @Param('userId') userId: string) {
-    return this.kycService.approveKyc(userId, req.user.sub);
+  async approve(@Req() req: any, @Param('profileId') profileId: string) {
+    console.log({ profileId });
+    return this.kycService.approveKyc(profileId, req.user.sub);
   }
 
-  @Post('user/:userId/reject')
+  @Post(':profileId/reject')
   @ApiOperation({ summary: 'Reject a KYC profile (admin)' })
-  @ApiParam({ name: 'userId', description: 'Target user ID' })
+  @ApiParam({ name: 'profileId', description: 'KYC profile ID' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -54,9 +80,9 @@ export class KycController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async reject(
     @Req() req: any,
-    @Param('userId') userId: string,
+    @Param('profileId') profileId: string,
     @Body() body: { reason: string },
   ) {
-    return this.kycService.rejectKyc(userId, req.user.sub, body.reason);
+    return this.kycService.rejectKyc(profileId, req.user.sub, body.reason);
   }
 }

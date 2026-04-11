@@ -1,10 +1,12 @@
+import { RedisService } from '@mint/common';
 import {
   BadRequestException,
   Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { ClientKafka } from '@nestjs/microservices';
+import { v4 } from 'uuid';
 import {
   DocType,
   KycStatus,
@@ -12,12 +14,7 @@ import {
   type KycProfile,
   type KycDocument,
 } from '../generated/prisma/client';
-
-type KycProfileWithDocs = KycProfile & { kycDocuments: KycDocument[] };
-
-import { RedisService } from '@mint/common';
-import { ClientKafka } from '@nestjs/microservices';
-import { v4 } from 'uuid';
+import { PrismaService } from '../prisma/prisma.service';
 
 export type TierCacheResult = {
   tier: KycTier;
@@ -80,27 +77,24 @@ export class KycService {
     return TIER_LIMITS[tier];
   }
 
-  async getProfileById(profileId: string): Promise<KycProfileWithDocs | null> {
-    return this.prismaService.kycProfile.findUnique({
+  async getProfileById(profileId: string): Promise<KycProfile | null> {
+    return await this.prismaService.kycProfile.findUnique({
       where: { id: profileId },
-      include: { kycDocuments: true },
     });
   }
 
-  async getOrCreateProfile(userId: string): Promise<KycProfileWithDocs> {
-    let kycProfile = await this.prismaService.kycProfile.findUnique({
+  async getOrCreateProfile(userId: string) {
+    const existing = await this.prismaService.kycProfile.findUnique({
       where: { userId },
       include: { kycDocuments: true },
     });
 
-    if (!kycProfile) {
-      kycProfile = await this.prismaService.kycProfile.create({
-        data: { userId },
-        include: { kycDocuments: true },
-      });
-    }
+    if (existing) return existing;
 
-    return kycProfile;
+    return this.prismaService.kycProfile.create({
+      data: { userId },
+      include: { kycDocuments: true },
+    });
   }
 
   async getTierCached(userId: string): Promise<TierCacheResult> {
@@ -194,6 +188,30 @@ export class KycService {
       { event: 'kyc.tier_upgraded', userId, previousTier: current, newTier },
       userId,
     );
+  }
+
+  async listPendingQueue(limit: number, offset: number) {
+    const [items, total] = await Promise.all([
+      this.prismaService.kycProfile.findMany({
+        where: { status: KycStatus.PENDING_REVIEW },
+        orderBy: { submittedAt: 'asc' },
+        take: limit,
+        skip: offset,
+      }),
+      this.prismaService.kycProfile.count({
+        where: { status: KycStatus.PENDING_REVIEW },
+      }),
+    ]);
+
+    return {
+      items: items.map((p) => ({
+        profileId: p.id,
+        userId: p.userId,
+        tier: p.tier,
+        submittedAt: p.submittedAt?.toISOString() ?? '',
+      })),
+      total,
+    };
   }
 
   async rejectProfile(userId: string, reason?: string): Promise<void> {

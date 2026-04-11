@@ -26,6 +26,26 @@ export class KycGrpcController {
       tier: profile.tier,
       status: profile.status,
       isFrozen: profile.status === KycStatus.REJECTED,
+      submittedAt: profile.submittedAt?.toISOString() ?? '',
+      rejectionReason: profile.rejectionReason ?? '',
+      documents: (profile.kycDocuments ?? []).map((d) => ({
+        id: d.id,
+        type: d.type,
+        status: d.status,
+        uploadedAt: d.uploadedAt.toISOString(),
+        docName: d.docName ?? '',
+      })),
     };
+  }
+
+  @GrpcMethod('KycService', 'ListPendingQueue')
+  async listPendingQueue({
+    limit = 50,
+    offset = 0,
+  }: {
+    limit?: number;
+    offset?: number;
+  }) {
+    return this.kycService.listPendingQueue(limit, offset);
   }
 }

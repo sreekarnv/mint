@@ -2,6 +2,8 @@ import { CommonModule } from '@mint/common';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { AuditController } from './audit/audit.controller';
+import { AuditService } from './audit/audit.service';
 import { FraudController } from './fraud/fraud.controller';
 import { FraudService } from './fraud/fraud.service';
 import { KycController } from './kyc/kyc.controller';
@@ -36,6 +38,15 @@ import { UsersService } from './users/users.service';
         },
       },
       {
+        name: 'FRAUD_GRPC',
+        transport: Transport.GRPC,
+        options: {
+          url: process.env.FRAUD_GRPC_URL || 'fraud:50052',
+          package: 'fraud',
+          protoPath: join(process.cwd(), 'libs/proto/fraud.proto'),
+        },
+      },
+      {
         name: 'KAFKA_PRODUCER',
         transport: Transport.KAFKA,
         options: {
@@ -50,6 +61,7 @@ import { UsersService } from './users/users.service';
     FraudController,
     KycController,
     SystemController,
+    AuditController,
   ],
   providers: [
     UsersService,
@@ -57,6 +69,7 @@ import { UsersService } from './users/users.service';
     FraudService,
     KycService,
     SystemService,
+    AuditService,
   ],
 })
 export class AdminModule {}

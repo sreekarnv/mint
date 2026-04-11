@@ -3,17 +3,39 @@ import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-export interface KycProfileResponse {
+export interface AdminKycDocument {
+  id: string;
+  type: string;
+  status: string;
+  uploadedAt: string;
+  docName: string;
+}
+
+export interface AdminKycProfile {
   profileId: string;
   tier: string;
   status: string;
   isFrozen: boolean;
+  submittedAt: string;
+  rejectionReason: string;
+  documents: AdminKycDocument[];
+}
+
+export interface KycQueueItem {
+  profileId: string;
+  userId: string;
+  tier: string;
+  submittedAt: string;
 }
 
 interface KycServiceClient {
   getProfile(data: {
     userId: string;
-  }): import('rxjs').Observable<KycProfileResponse>;
+  }): import('rxjs').Observable<AdminKycProfile>;
+  listPendingQueue(data: {
+    limit: number;
+    offset: number;
+  }): import('rxjs').Observable<{ items: KycQueueItem[]; total: number }>;
 }
 
 @Injectable()
@@ -31,19 +53,26 @@ export class KycService implements OnModuleInit {
     await this.kafka.connect();
   }
 
-  async getKycProfile(userId: string, adminId: string) {
-    this.logger.log(`Admin ${adminId} viewing KYC profile for ${userId}`);
+  async listPendingQueue(adminId: string, limit: number, offset: number) {
+    this.logger.log(`Admin ${adminId} listing KYC pending queue`);
+    return firstValueFrom(this.kycClient.listPendingQueue({ limit, offset }));
+  }
+
+  async getKycProfile(
+    userId: string,
+    adminId: string,
+  ): Promise<AdminKycProfile> {
+    this.logger.log(`Admin ${adminId} viewing KYC profile for user ${userId}`);
     const profile = await firstValueFrom(this.kycClient.getProfile({ userId }));
     this.emitAuditEvent('admin.kyc_viewed', adminId, {
       userId,
       viewedBy: adminId,
     });
-
     return profile;
   }
 
-  async approveKyc(userId: string, adminId: string) {
-    this.logger.log(`Admin ${adminId} approving KYC for user ${userId}`);
+  async approveKyc(profileId: string, adminId: string) {
+    this.logger.log(`Admin ${adminId} approving KYC profile ${profileId}`);
 
     this.kafka.emit('admin.events', {
       topic: 'admin.events',
@@ -54,22 +83,22 @@ export class KycService implements OnModuleInit {
       actorId: adminId,
       payload: {
         event: 'admin.kyc_approved',
-        userId,
+        profileId,
         approvedBy: adminId,
       },
     });
 
     this.emitAuditEvent('admin.kyc_approved', adminId, {
-      userId,
+      profileId,
       approvedBy: adminId,
     });
 
-    return { success: true, userId };
+    return { success: true, profileId };
   }
 
-  async rejectKyc(userId: string, adminId: string, reason: string) {
+  async rejectKyc(profileId: string, adminId: string, reason: string) {
     this.logger.warn(
-      `Admin ${adminId} rejecting KYC for user ${userId}: ${reason}`,
+      `Admin ${adminId} rejecting KYC profile ${profileId}: ${reason}`,
     );
 
     this.kafka.emit('admin.events', {
@@ -81,19 +110,19 @@ export class KycService implements OnModuleInit {
       actorId: adminId,
       payload: {
         event: 'admin.kyc_rejected',
-        userId,
+        profileId,
         rejectedBy: adminId,
         reason,
       },
     });
 
     this.emitAuditEvent('admin.kyc_rejected', adminId, {
-      userId,
+      profileId,
       rejectedBy: adminId,
       reason,
     });
 
-    return { success: true, userId };
+    return { success: true, profileId };
   }
 
   private emitAuditEvent(
@@ -108,10 +137,7 @@ export class KycService implements OnModuleInit {
       version: '1',
       service: 'admin-service',
       actorId: adminId,
-      payload: {
-        event: action,
-        ...data,
-      },
+      payload: { event: action, ...data },
     });
   }
 }

@@ -193,6 +193,29 @@ export class TransactionsController {
     );
   }
 
+  @Get('admin/list')
+  @UseGuards(JWTAuthGuard)
+  @ApiOperation({ summary: 'List all transactions (admin — requires internal call)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
+  @ApiQuery({ name: 'userId', required: false, type: String, description: 'Filter by user' })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiResponse({ status: 200, description: 'Transaction list' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async adminList(
+    @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string,
+    @Query('userId') userId?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.transactionsService.adminListTransactions({
+      limit: limit ? parseInt(limit, 10) : 50,
+      cursor,
+      userId,
+      status,
+    });
+  }
+
   @Get(':id')
   @UseGuards(JWTAuthGuard)
   @ApiOperation({ summary: 'Get a single transaction by ID' })

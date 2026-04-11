@@ -4,6 +4,7 @@ package fraud;
 
 service FraudService {
   rpc ScoreTransaction (ScoreRequest) returns (ScoreResponse);
+  rpc ListReviewQueue (ListReviewQueueRequest) returns (ListReviewQueueResponse);
 }
 
 message ScoreRequest {
@@ -23,8 +24,27 @@ message ScoreRequest {
 
 message ScoreResponse {
     // ALLOW | REVIEW | BLOCK
-  string decision            = 1;  
+  string decision            = 1;
   int32  score               = 2;
   repeated string rules_fired = 3;
   string reason              = 4;
+}
+
+message ListReviewQueueRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message FraudQueueItem {
+  string case_id = 1;
+  string transaction_id = 2;
+  string user_id = 3;
+  int32  score = 4;
+  repeated string rules_fired = 5;
+  string created_at = 6;
+}
+
+message ListReviewQueueResponse {
+  repeated FraudQueueItem items = 1;
+  int32 total = 2;
 }

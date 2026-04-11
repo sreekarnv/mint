@@ -1,8 +1,11 @@
 # Mint
 
-A production-style fintech platform built with a microservices architecture. Covers authentication, multi-currency wallets, payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
+A production-style fintech platform built with a microservices architecture. Covers authentication, wallet based payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
 
 <p align="left">
+  <a href="https://nextjs.org/" target="_blank">
+    <img src="https://img.shields.io/badge/NextJS-000000?style=for-the-badge&logo=next.js&logoColor=white" />
+  </a>
   <a href="https://nestjs.com/" target="_blank">
     <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
   </a>
@@ -56,19 +59,19 @@ A production-style fintech platform built with a microservices architecture. Cov
 
 ## Services
 
-| Service       | Stack            | Port | Description                                        |
-| ------------- | ---------------- | ---- | -------------------------------------------------- |
-| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                        |
-| wallet        | Python / FastAPI | 4002 | Multi-currency balances, gRPC settlement interface |
-| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency                    |
-| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction       |
-| kyc           | NestJS           | 4004 | Document upload, tier management                   |
-| analytics     | NestJS           | 4005 | Spend insights, category budgets                   |
-| notifications | NestJS           | 4006 | Persistent notifications + SSE stream              |
-| social        | NestJS           | 4007 | Contacts, money requests, bill splits              |
-| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log            |
-| admin         | NestJS           | 4009 | Admin console (user management, fraud review)      |
-| audit         | NestJS           | 4010 | Immutable append-only audit log                    |
+| Service       | Stack            | Port | Description                                   |
+| ------------- | ---------------- | ---- | --------------------------------------------- |
+| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                   |
+| wallet        | Python / FastAPI | 4002 | gRPC settlement interface                     |
+| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency               |
+| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction  |
+| kyc           | NestJS           | 4004 | Document upload, tier management              |
+| analytics     | NestJS           | 4005 | Spend insights, category budgets              |
+| notifications | NestJS           | 4006 | Persistent notifications + SSE stream         |
+| social        | NestJS           | 4007 | Contacts, money requests, bill splits         |
+| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log       |
+| admin         | NestJS           | 4009 | Admin console (user management, fraud review) |
+| audit         | NestJS           | 4010 | Immutable append-only audit log               |
 
 \* fraud is gRPC-only, called internally by the transactions service.
 
@@ -78,6 +81,17 @@ A production-style fintech platform built with a microservices architecture. Cov
 docker compose -f docker-compose.dev.yml up -d --build
 ```
 
+### Admin User
+
+Create an admin user in the auth service database.
+
+```bash
+docker exec -it mint-auth uv run python /app/apps/auth/src/create_admin.py \
+  --email admin@mint.dev \
+  --password adminpass \
+  --name "Admin User"
+```
+
 Migrations run automatically before each service starts. API docs are at `/api-docs` on every service.
 
 ## Observability
@@ -85,3 +99,25 @@ Migrations run automatically before each service starts. API docs are at `/api-d
 Every service ships OpenTelemetry traces to a local collector, stored in Tempo and visualised in Grafana at http://localhost:3000. Trace context is propagated across HTTP, gRPC, and Kafka so a single top-up request produces one trace spanning all downstream consumers.
 
 ![Grafana Tempo showing a distributed trace for a top-up request](.github/assets/grafana-traces.png)
+
+## Screenshots
+
+### User Dashboard
+
+![User Dashboard](.github/assets/dashboard-user.png)
+
+### Analytics
+
+![Analytics](.github/assets/analytics-user.png)
+
+### KYC Verification (User)
+
+![KYC Verification - User](.github/assets/kyc-verification-user.png)
+
+### KYC Verification (Admin)
+
+![KYC Verification - Admin](.github/assets/kyc-verification-admin.png)
+
+### Notifications
+
+![Notifications](.github/assets/notifications-user.png)
