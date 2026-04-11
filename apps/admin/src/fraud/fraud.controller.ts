@@ -1,9 +1,10 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -16,6 +17,24 @@ import { FraudService } from './fraud.service';
 @UseGuards(AdminJwtGuard)
 export class FraudController {
   constructor(private readonly fraudService: FraudService) {}
+
+  @Get('queue')
+  @ApiOperation({ summary: 'List fraud cases in REVIEW state (admin)' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiResponse({ status: 200, description: 'Fraud review queue' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async listQueue(
+    @Req() req: any,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.fraudService.listReviewQueue(
+      req.user.sub,
+      limit ? parseInt(limit, 10) : 50,
+      offset ? parseInt(offset, 10) : 0,
+    );
+  }
 
   @Post(':caseId/approve')
   @ApiOperation({ summary: 'Approve a fraud case (clear transaction) (admin)' })

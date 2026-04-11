@@ -21,6 +21,11 @@ interface GrpcScoreRequest {
 export class FraudController {
   constructor(private fraudService: FraudService) {}
 
+  @GrpcMethod('FraudService', 'ListReviewQueue')
+  async listReviewQueue(req: { limit?: number; offset?: number }) {
+    return this.fraudService.listReviewQueue(req.limit ?? 50, req.offset ?? 0);
+  }
+
   @GrpcMethod('FraudService', 'ScoreTransaction')
   async scoreTransaction(req: GrpcScoreRequest) {
     const request = {

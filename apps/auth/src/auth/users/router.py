@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 from sqlalchemy import select
+from typing import Literal
 
 from fastauth.adapters.sqlalchemy.models import UserModel
 from fastauth.adapters.sqlalchemy.rbac import SQLAlchemyRoleAdapter
@@ -42,13 +43,12 @@ async def me(current_user: dict = Depends(require_auth)) -> MeResponse:
     roles = await role_adapter.get_user_roles(user_id)
 
     async with adapter._session_factory() as session:
-        result = await session.execute(
-            select(UserModel).where(UserModel.id == user_id)
-        )
+        result = await session.execute(select(UserModel).where(UserModel.id == user_id))
         user = result.scalar_one_or_none()
 
     if not user:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="User not found")
 
     role = "ADMIN" if "admin" in roles else "USER"
@@ -60,6 +60,10 @@ async def me(current_user: dict = Depends(require_auth)) -> MeResponse:
         email_verified=user.email_verified,
         role=role,
     )
+
+
+class UpdateRoleRequest(BaseModel):
+    role: Literal["USER", "ADMIN"]
 
 
 @router.get("/users/search", response_model=list[UserSearchResult])
@@ -79,3 +83,48 @@ async def search_users(
         rows = result.all()
 
     return [UserSearchResult(id=row.id, email=row.email, name=row.name) for row in rows]
+
+
+@router.get("/users/{user_id}")
+async def get_user_by_id(
+    user_id: str,
+    current_user: dict = Depends(require_auth),
+):
+    caller_id = current_user.get("sub")
+    caller_roles = await SQLAlchemyRoleAdapter(adapter._session_factory).get_user_roles(
+        caller_id
+    )
+    if "admin" not in caller_roles:
+        raise HTTPException(status_code=403, detail="Admin role required")
+
+    async with adapter._session_factory() as session:
+        result = await session.execute(select(UserModel).where(UserModel.id == user_id))
+        user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserSearchResult(id=user.id, email=user.email, name=user.name)
+
+
+@router.patch("/users/{user_id}/role")
+async def update_user_role(
+    user_id: str,
+    body: UpdateRoleRequest,
+    current_user: dict = Depends(require_auth),
+):
+    caller_id = current_user.get("sub")
+    caller_roles = await SQLAlchemyRoleAdapter(adapter._session_factory).get_user_roles(
+        caller_id
+    )
+    if "admin" not in caller_roles:
+        raise HTTPException(status_code=403, detail="Admin role required")
+
+    role_adapter = SQLAlchemyRoleAdapter(adapter._session_factory)
+
+    if body.role == "ADMIN":
+        await role_adapter.assign_role(user_id, "admin")
+    else:
+        await role_adapter.revoke_role(user_id, "admin")
+
+    return {"userId": user_id, "role": body.role}

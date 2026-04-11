@@ -1,9 +1,10 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -16,6 +17,28 @@ import { TransactionsService } from './transactions.service';
 @UseGuards(AdminJwtGuard)
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'List all transactions (admin)' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiQuery({ name: 'userId', required: false })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiResponse({ status: 200, description: 'Transaction list' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async list(
+    @Req() req: any,
+    @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string,
+    @Query('userId') userId?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.transactionsService.listTransactions(
+      req.user.sub,
+      req.headers.authorization,
+      { limit: limit ? parseInt(limit, 10) : 50, cursor, userId, status },
+    );
+  }
 
   @Post(':id/reverse')
   @ApiOperation({ summary: 'Reverse a transaction (admin)' })

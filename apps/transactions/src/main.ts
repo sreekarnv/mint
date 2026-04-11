@@ -13,7 +13,6 @@ async function bootstrap() {
   const app = await NestFactory.create(TransactionsModule);
 
   app.use(cookieParser());
-  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Transactions Service')

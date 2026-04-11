@@ -1,15 +1,68 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
+import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
+
+export interface AdminKycDocument {
+  id: string;
+  type: string;
+  status: string;
+  uploadedAt: string;
+  docName: string;
+}
+
+export interface AdminKycProfile {
+  profileId: string;
+  tier: string;
+  status: string;
+  isFrozen: boolean;
+  submittedAt: string;
+  rejectionReason: string;
+  documents: AdminKycDocument[];
+}
+
+interface KycQueueItem {
+  profileId: string;
+  userId: string;
+  tier: string;
+  submittedAt: string;
+}
+
+interface KycServiceClient {
+  getProfile(data: {
+    userId: string;
+  }): import('rxjs').Observable<AdminKycProfile>;
+  listPendingQueue(data: {
+    limit: number;
+    offset: number;
+  }): import('rxjs').Observable<{ items: KycQueueItem[]; total: number }>;
+}
 
 @Injectable()
 export class KycService implements OnModuleInit {
   private readonly logger = new Logger(KycService.name);
+  private kycClient: KycServiceClient;
 
-  constructor(@Inject('KAFKA_PRODUCER') private readonly kafka: ClientKafka) {}
+  constructor(
+    @Inject('KYC_GRPC') private readonly kycGrpc: ClientGrpc,
+    @Inject('KAFKA_PRODUCER') private readonly kafka: ClientKafka,
+  ) {}
 
   async onModuleInit() {
+    this.kycClient = this.kycGrpc.getService<KycServiceClient>('KycService');
     await this.kafka.connect();
+  }
+
+  async listPendingQueue(adminId: string, limit: number, offset: number) {
+    this.logger.log(`Admin ${adminId} listing KYC pending queue`);
+    return firstValueFrom(this.kycClient.listPendingQueue({ limit, offset }));
+  }
+
+  async getKycProfile(userId: string, adminId: string): Promise<AdminKycProfile> {
+    this.logger.log(`Admin ${adminId} viewing KYC profile for user ${userId}`);
+    const profile = await firstValueFrom(this.kycClient.getProfile({ userId }));
+    this.emitAuditEvent('admin.kyc_viewed', adminId, { userId, viewedBy: adminId });
+    return profile;
   }
 
   async approveKyc(profileId: string, adminId: string) {
@@ -78,10 +131,7 @@ export class KycService implements OnModuleInit {
       version: '1',
       service: 'admin-service',
       actorId: adminId,
-      payload: {
-        event: action,
-        ...data,
-      },
+      payload: { event: action, ...data },
     });
   }
 }

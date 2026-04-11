@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+/* ── Light mode — Obsidian & Sapphire ──────────────────────────────────────── */
+:root {
+  --radius: 0.5rem;
+
+  /* Page */
+  --background: #F6F5F1;
+  --foreground: #0F1117;
+
+  /* Cards & Surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #0F1117;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #0F1117;
+
+  /* Brand — Sapphire blue */
+  --primary: #1D4ED8;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary surfaces */
+  --secondary: #EEF2FF;
+  --secondary-foreground: #1D4ED8;
+
+  /* Neutral surfaces */
+  --muted: #F0EDE8;
+  --muted-foreground: #6B7280;
+
+  /* Hover/active accent */
+  --accent: #EEF2FF;
+  --accent-foreground: #1D4ED8;
+
+  /* Status */
+  --destructive: #E11D48;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders & inputs */
+  --border: #E2DDD8;
+  --input: #E2DDD8;
+  --ring: #1D4ED8;
+
+  /* ── Sidebar — dark in light mode (VS Code / GitHub style) ── */
+  --sidebar: #0F1117;
+  --sidebar-foreground: #C8CDD8;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(59, 130, 246, 0.12);
+  --sidebar-accent-foreground: #93C5FD;
+  --sidebar-border: #1C2032;
+  --sidebar-ring: #3B82F6;
+}
+
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display font utility for hero numbers */
+@utility font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle dot grid pattern for hero cards */
+@utility bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Sapphire gradient for accent elements */
+@utility bg-sapphire-gradient {
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+}

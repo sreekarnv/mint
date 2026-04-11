@@ -418,6 +418,39 @@ export class TransactionsService {
     }));
   }
 
+  async adminListTransactions(params: {
+    limit: number;
+    cursor?: string;
+    userId?: string;
+    status?: string;
+  }) {
+    const { limit, cursor, userId, status } = params;
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        ...(userId ? { OR: [{ senderId: userId }, { recipientId: userId }] } : {}),
+        ...(status ? { status: status as TxnStatus } : {}),
+        ...(cursor ? { id: { lt: cursor } } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return transactions.map((txn) => ({
+      id: txn.id,
+      type: txn.type,
+      status: txn.status,
+      amount: Number(txn.senderAmount),
+      currency: txn.senderCurrency,
+      description: txn.description,
+      senderId: txn.senderId,
+      recipientId: txn.recipientId,
+      fraudDecision: txn.fraudDecision,
+      fraudScore: txn.fraudScore,
+      createdAt: txn.createdAt,
+      completedAt: txn.completedAt,
+    }));
+  }
+
   async topup(dto: TopupDto, userId: string, idempotencyKey: string) {
     this.logger.log(
       `Topup initiated: ${userId}, ${dto.amount} ${dto.currency}`,

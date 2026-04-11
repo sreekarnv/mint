@@ -4,9 +4,11 @@ package kyc;
 service KycService {
   rpc GetUserTier (GetTierRequest) returns (GetTierResponse);
   rpc GetLimits (GetLimitsRequest) returns (GetLimitsResponse);
+  rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
+  rpc ListPendingQueue (ListPendingQueueRequest) returns (ListPendingQueueResponse);
 }
 
-message GetTierRequest { 
+message GetTierRequest {
     string user_id = 1;
 }
 
@@ -15,8 +17,8 @@ message GetTierResponse {
     bool is_frozen = 2;
 }
 
-message GetLimitsRequest { 
-    string user_id = 1; 
+message GetLimitsRequest {
+    string user_id = 1;
 }
 
 message GetLimitsResponse {
@@ -24,4 +26,43 @@ message GetLimitsResponse {
     int64  daily_cents = 2;
     int64  monthly_cents = 3;
     string limits_currency = 4;
+}
+
+message GetProfileRequest {
+    string user_id = 1;
+}
+
+message KycDocumentItem {
+    string id = 1;
+    string type = 2;
+    string status = 3;
+    string uploaded_at = 4;
+    string doc_name = 5;
+}
+
+message GetProfileResponse {
+    string profile_id = 1;
+    string tier = 2;
+    string status = 3;
+    bool is_frozen = 4;
+    string submitted_at = 5;
+    string rejection_reason = 6;
+    repeated KycDocumentItem documents = 7;
+}
+
+message ListPendingQueueRequest {
+    int32 limit = 1;
+    int32 offset = 2;
+}
+
+message KycQueueItem {
+    string profile_id = 1;
+    string user_id = 2;
+    string tier = 3;
+    string submitted_at = 4;
+}
+
+message ListPendingQueueResponse {
+    repeated KycQueueItem items = 1;
+    int32 total = 2;
 }

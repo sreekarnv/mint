@@ -1,6 +1,6 @@
 # Mint
 
-A production-style fintech platform built with a microservices architecture. Covers authentication, multi-currency wallets, payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
+A production-style fintech platform built with a microservices architecture. Covers authentication, wallet based payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
 
 <p align="left">
   <a href="https://nestjs.com/" target="_blank">
@@ -56,19 +56,19 @@ A production-style fintech platform built with a microservices architecture. Cov
 
 ## Services
 
-| Service       | Stack            | Port | Description                                        |
-| ------------- | ---------------- | ---- | -------------------------------------------------- |
-| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                        |
-| wallet        | Python / FastAPI | 4002 | Multi-currency balances, gRPC settlement interface |
-| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency                    |
-| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction       |
-| kyc           | NestJS           | 4004 | Document upload, tier management                   |
-| analytics     | NestJS           | 4005 | Spend insights, category budgets                   |
-| notifications | NestJS           | 4006 | Persistent notifications + SSE stream              |
-| social        | NestJS           | 4007 | Contacts, money requests, bill splits              |
-| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log            |
-| admin         | NestJS           | 4009 | Admin console (user management, fraud review)      |
-| audit         | NestJS           | 4010 | Immutable append-only audit log                    |
+| Service       | Stack            | Port | Description                                   |
+| ------------- | ---------------- | ---- | --------------------------------------------- |
+| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                   |
+| wallet        | Python / FastAPI | 4002 | gRPC settlement interface                     |
+| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency               |
+| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction  |
+| kyc           | NestJS           | 4004 | Document upload, tier management              |
+| analytics     | NestJS           | 4005 | Spend insights, category budgets              |
+| notifications | NestJS           | 4006 | Persistent notifications + SSE stream         |
+| social        | NestJS           | 4007 | Contacts, money requests, bill splits         |
+| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log       |
+| admin         | NestJS           | 4009 | Admin console (user management, fraud review) |
+| audit         | NestJS           | 4010 | Immutable append-only audit log               |
 
 \* fraud is gRPC-only, called internally by the transactions service.
 
@@ -76,6 +76,17 @@ A production-style fintech platform built with a microservices architecture. Cov
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d --build
+```
+
+### Admin User
+
+Create an admin user in the auth service database.
+
+```bash
+docker exec -it mint-auth python /app/apps/auth/create_admin.py \
+  --email admin@mint.dev \
+  --password adminpass \
+  --name "Admin User"
 ```
 
 Migrations run automatically before each service starts. API docs are at `/api-docs` on every service.

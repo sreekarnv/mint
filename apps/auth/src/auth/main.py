@@ -10,7 +10,6 @@ from auth.core.settings import settings
 from auth.kafka.router import kafka_router
 from auth.users.router import router as users_router
 
-# Initialize OTel before the FastAPI app is constructed
 setup_telemetry(os.getenv("OTEL_SERVICE_NAME", "auth-service"))
 
 

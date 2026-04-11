@@ -53,12 +53,48 @@ export class UsersService implements OnModuleInit {
     await this.kafka.connect();
   }
 
-  async getUserProfile(userId: string, adminId: string) {
+  private get authUrl(): string {
+    return process.env.AUTH_SERVICE_URL ?? 'http://auth:4001';
+  }
+
+  async listUsers(adminId: string, authHeader: string, email?: string) {
+    this.logger.log(`Admin ${adminId} searching users email=${email ?? '*'}`);
+    const qs = email ? `?email=${encodeURIComponent(email)}` : '?email=';
+    const res = await fetch(`${this.authUrl}/api/v1/auth/users/search${qs}`, {
+      headers: { Authorization: authHeader },
+    });
+    if (!res.ok) throw new Error(`Auth search failed: ${res.status}`);
+    return res.json();
+  }
+
+  async updateUserRole(userId: string, adminId: string, role: 'USER' | 'ADMIN', authHeader: string) {
+    this.logger.warn(`Admin ${adminId} updating user ${userId} role to ${role}`);
+
+    const res = await fetch(`${this.authUrl}/api/v1/auth/users/${userId}/role`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: authHeader },
+      body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new Error(`Auth role update failed: ${res.status}`);
+
+    this.emitAuditEvent('admin.user_role_updated', adminId, {
+      userId,
+      role,
+      updatedBy: adminId,
+    });
+
+    return res.json();
+  }
+
+  async getUserProfile(userId: string, adminId: string, authHeader: string) {
     this.logger.log(`Admin ${adminId} viewing user ${userId}`);
 
-    const [wallet, kyc] = await Promise.all([
+    const [wallet, kyc, identity] = await Promise.all([
       firstValueFrom(this.walletClient.getWallet({ userId })),
       firstValueFrom(this.kycClient.getUserTier({ userId })),
+      fetch(`${this.authUrl}/api/v1/auth/users/${userId}`, {
+        headers: { Authorization: authHeader },
+      }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
     ]);
 
     this.emitAuditEvent('admin.user_viewed', adminId, {
@@ -68,6 +104,8 @@ export class UsersService implements OnModuleInit {
 
     return {
       userId,
+      email: identity?.email ?? null,
+      name: identity?.name ?? null,
       wallet: {
         id: wallet.id,
         balance: wallet.balance ?? 0,

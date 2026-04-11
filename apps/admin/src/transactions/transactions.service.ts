@@ -6,10 +6,32 @@ import { v4 as uuidv4 } from 'uuid';
 export class TransactionsService implements OnModuleInit {
   private readonly logger = new Logger(TransactionsService.name);
 
+  private get txnUrl(): string {
+    return process.env.TRANSACTIONS_SERVICE_URL ?? 'http://transactions:4003';
+  }
+
   constructor(@Inject('KAFKA_PRODUCER') private readonly kafka: ClientKafka) {}
 
   async onModuleInit() {
     await this.kafka.connect();
+  }
+
+  async listTransactions(
+    adminId: string,
+    authHeader: string,
+    params: { limit: number; cursor?: string; userId?: string; status?: string },
+  ) {
+    this.logger.log(`Admin ${adminId} listing transactions`);
+    const qs = new URLSearchParams();
+    qs.set('limit', String(params.limit));
+    if (params.cursor) qs.set('cursor', params.cursor);
+    if (params.userId) qs.set('userId', params.userId);
+    if (params.status) qs.set('status', params.status);
+    const res = await fetch(`${this.txnUrl}/api/v1/transactions/admin/list?${qs}`, {
+      headers: { Authorization: authHeader },
+    });
+    if (!res.ok) throw new Error(`Transactions list failed: ${res.status}`);
+    return res.json();
   }
 
   async reverseTransaction(
