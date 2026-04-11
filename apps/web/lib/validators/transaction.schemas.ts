@@ -7,7 +7,7 @@ export const topupSchema = z.object({
 });
 
 export const transferSchema = z.object({
-  recipientId: z.string().uuid('Invalid recipient ID'),
+  recipientId: z.string().min(1, 'Recipient is required'),
   amount: z.number().int().positive('Amount must be positive'),
   senderCurrency: z.string().optional(),
   recipientCurrency: z.string().optional(),

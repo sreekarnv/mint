@@ -21,7 +21,7 @@ export interface AdminKycProfile {
   documents: AdminKycDocument[];
 }
 
-interface KycQueueItem {
+export interface KycQueueItem {
   profileId: string;
   userId: string;
   tier: string;
@@ -58,10 +58,16 @@ export class KycService implements OnModuleInit {
     return firstValueFrom(this.kycClient.listPendingQueue({ limit, offset }));
   }
 
-  async getKycProfile(userId: string, adminId: string): Promise<AdminKycProfile> {
+  async getKycProfile(
+    userId: string,
+    adminId: string,
+  ): Promise<AdminKycProfile> {
     this.logger.log(`Admin ${adminId} viewing KYC profile for user ${userId}`);
     const profile = await firstValueFrom(this.kycClient.getProfile({ userId }));
-    this.emitAuditEvent('admin.kyc_viewed', adminId, { userId, viewedBy: adminId });
+    this.emitAuditEvent('admin.kyc_viewed', adminId, {
+      userId,
+      viewedBy: adminId,
+    });
     return profile;
   }
 
@@ -77,22 +83,22 @@ export class KycService implements OnModuleInit {
       actorId: adminId,
       payload: {
         event: 'admin.kyc_approved',
-        userId,
+        profileId,
         approvedBy: adminId,
       },
     });
 
     this.emitAuditEvent('admin.kyc_approved', adminId, {
-      userId,
+      profileId,
       approvedBy: adminId,
     });
 
-    return { success: true, userId };
+    return { success: true, profileId };
   }
 
-  async rejectKyc(userId: string, adminId: string, reason: string) {
+  async rejectKyc(profileId: string, adminId: string, reason: string) {
     this.logger.warn(
-      `Admin ${adminId} rejecting KYC for user ${userId}: ${reason}`,
+      `Admin ${adminId} rejecting KYC profile ${profileId}: ${reason}`,
     );
 
     this.kafka.emit('admin.events', {
@@ -104,19 +110,19 @@ export class KycService implements OnModuleInit {
       actorId: adminId,
       payload: {
         event: 'admin.kyc_rejected',
-        userId,
+        profileId,
         rejectedBy: adminId,
         reason,
       },
     });
 
     this.emitAuditEvent('admin.kyc_rejected', adminId, {
-      userId,
+      profileId,
       rejectedBy: adminId,
       reason,
     });
 
-    return { success: true, userId };
+    return { success: true, profileId };
   }
 
   private emitAuditEvent(

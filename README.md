@@ -83,7 +83,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 Create an admin user in the auth service database.
 
 ```bash
-docker exec -it mint-auth python /app/apps/auth/create_admin.py \
+docker exec -it mint-auth uv run python /app/apps/auth/src/create_admin.py \
   --email admin@mint.dev \
   --password adminpass \
   --name "Admin User"
@@ -96,3 +96,25 @@ Migrations run automatically before each service starts. API docs are at `/api-d
 Every service ships OpenTelemetry traces to a local collector, stored in Tempo and visualised in Grafana at http://localhost:3000. Trace context is propagated across HTTP, gRPC, and Kafka so a single top-up request produces one trace spanning all downstream consumers.
 
 ![Grafana Tempo showing a distributed trace for a top-up request](.github/assets/grafana-traces.png)
+
+## Screenshots
+
+### User Dashboard
+
+![User Dashboard](.github/assets/dashboard-user.png)
+
+### Analytics
+
+![Analytics](.github/assets/analytics-user.png)
+
+### KYC Verification (User)
+
+![KYC Verification - User](.github/assets/kyc-verification-user.png)
+
+### KYC Verification (Admin)
+
+![KYC Verification - Admin](.github/assets/kyc-verification-admin.png)
+
+### Notifications
+
+![Notifications](.github/assets/notifications-user.png)

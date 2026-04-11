@@ -17,7 +17,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { KycQueueItem } from 'apps/web/lib/api/admin';
 import { AdminJwtGuard } from '../guards/admin-jwt.guard';
 import { KycService } from './kyc.service';
 
@@ -38,10 +37,7 @@ export class KycController {
     @Req() req: any,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
-  ): Promise<{
-    items: KycQueueItem[];
-    total: number;
-  }> {
+  ) {
     return this.kycService.listPendingQueue(
       req.user.sub,
       limit ? parseInt(limit, 10) : 50,
@@ -60,16 +56,17 @@ export class KycController {
 
   @Post(':profileId/approve')
   @ApiOperation({ summary: 'Approve a KYC profile (admin)' })
-  @ApiParam({ name: 'userId', description: 'Target user ID' })
+  @ApiParam({ name: 'profileId', description: 'KYC profile ID' })
   @ApiResponse({ status: 201, description: 'KYC profile approved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async approve(@Req() req: any, @Param('userId') userId: string) {
-    return this.kycService.approveKyc(userId, req.user.sub);
+  async approve(@Req() req: any, @Param('profileId') profileId: string) {
+    console.log({ profileId });
+    return this.kycService.approveKyc(profileId, req.user.sub);
   }
 
-  @Post('user/:userId/reject')
+  @Post(':profileId/reject')
   @ApiOperation({ summary: 'Reject a KYC profile (admin)' })
-  @ApiParam({ name: 'userId', description: 'Target user ID' })
+  @ApiParam({ name: 'profileId', description: 'KYC profile ID' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -83,9 +80,9 @@ export class KycController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async reject(
     @Req() req: any,
-    @Param('userId') userId: string,
+    @Param('profileId') profileId: string,
     @Body() body: { reason: string },
   ) {
-    return this.kycService.rejectKyc(userId, req.user.sub, body.reason);
+    return this.kycService.rejectKyc(profileId, req.user.sub, body.reason);
   }
 }

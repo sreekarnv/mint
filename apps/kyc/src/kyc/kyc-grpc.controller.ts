@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { KycStatus } from '../generated/prisma/client';
+import { KycService } from './kyc.service';
 
 @Controller()
 export class KycGrpcController {
@@ -38,7 +39,13 @@ export class KycGrpcController {
   }
 
   @GrpcMethod('KycService', 'ListPendingQueue')
-  async listPendingQueue({ limit = 50, offset = 0 }: { limit?: number; offset?: number }) {
+  async listPendingQueue({
+    limit = 50,
+    offset = 0,
+  }: {
+    limit?: number;
+    offset?: number;
+  }) {
     return this.kycService.listPendingQueue(limit, offset);
   }
 }

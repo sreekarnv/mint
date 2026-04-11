@@ -12,6 +12,7 @@ services:
     depends_on:
       - auth
       - wallet
+      - web
     restart: on-failure
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://localhost/health']
@@ -666,7 +667,7 @@ services:
       CHOKIDAR_USEPOLLING: 'true'
       CHOKIDAR_INTERVAL: 1000
       # TODO: add user ids (comma separated) that have admin access
-      ADMIN_USER_IDS: 'exdowtzn53vrmsz6gt2awcz1'
+      ADMIN_USER_IDS: 'qmq0nb3e15fo1uwlu6pdejkj'
       OTEL_SERVICE_NAME: admin-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -767,26 +768,24 @@ services:
       - tempo
     restart: on-failure
 
-  # web:
-  #   build:
-  #     context: apps/web
-  #     dockerfile: Dockerfile
-  #   container_name: mint-web
-  #   networks: [mint]
-  #   ports:
-  #     - '3000:3000'
-  #   environment:
-  #     NEXT_PUBLIC_API_URL: http://localhost
-  #     NODE_ENV: development
-  #   volumes:
-  #     - ./apps/web:/app
-  #     - web_node_modules:/app/node_modules
-  #     - web_next:/app/.next
-  #   working_dir: /app
-  #   command: pnpm dev --port 3000 --webpack
-  #   depends_on:
-  #     - nginx
-  #   restart: on-failure
+  web:
+    build:
+      context: apps/web
+      dockerfile: Dockerfile
+    container_name: mint-web
+    networks: [mint]
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost
+      NODE_ENV: development
+    volumes:
+      - ./apps/web:/app
+      - web_node_modules:/app/node_modules
+      - web_next:/app/.next
+    working_dir: /app
+    command: pnpm dev --port 3000 --webpack
+    restart: on-failure
 
 volumes:
   postgres-data:

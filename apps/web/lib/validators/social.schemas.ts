@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
+const id = z.string().min(1, 'Required');
+
 export const addContactSchema = z.object({
-  contactId: z.string().uuid('Invalid contact ID'),
+  contactId: id,
 });
 
 export const moneyRequestSchema = z.object({
-  recipientId: z.string().uuid('Invalid recipient ID'),
+  recipientId: id,
   amount: z.number().int().positive('Amount must be positive'),
   currency: z.string().optional(),
   note: z.string().max(255).optional(),
@@ -18,7 +20,7 @@ export const createSplitSchema = z.object({
   participants: z
     .array(
       z.object({
-        userId: z.string().uuid('Invalid user ID'),
+        userId: id,
         amountCents: z.number().int().positive('Amount must be positive'),
       }),
     )
