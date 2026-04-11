@@ -637,13 +637,13 @@
 
 <h1 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h1>
 <h2 id="nginx-api-gateway">nginx (API Gateway)<a class="headerlink" href="#nginx-api-gateway" title="Permanent link">&para;</a></h2>
-<p>Entry point for all client traffic. Handles rate limiting and routes to services by path prefix.</p>
+<p>Entry point for all client traffic. Routes to the Next.js web app for UI requests and to backend services for API calls.</p>
 <p><strong>Routing</strong></p>
 <table>
 <thead>
 <tr>
 <th>Path prefix</th>
-<th>Service</th>
+<th>Target</th>
 <th>Notes</th>
 </tr>
 </thead>
@@ -696,7 +696,22 @@
 <tr>
 <td><code>/admin/*</code></td>
 <td>admin:4009</td>
-<td>Internal network only in prod</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/app-admin/*</code></td>
+<td>web:3000</td>
+<td>Admin console (Next.js)</td>
+</tr>
+<tr>
+<td><code>/_next/*</code></td>
+<td>web:3000</td>
+<td>Next.js assets and HMR websocket</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>web:3000</td>
+<td>User app catch-all (Next.js)</td>
 </tr>
 <tr>
 <td><code>/health</code></td>
@@ -750,13 +765,18 @@
 <td>notifications, webhook</td>
 </tr>
 <tr>
+<td><code>admin.events</code></td>
+<td>admin</td>
+<td>kyc, audit</td>
+</tr>
+<tr>
 <td><code>webhook.events</code></td>
 <td>webhook</td>
 <td>audit</td>
 </tr>
 <tr>
-<td><code>admin.events</code></td>
-<td>admin</td>
+<td><code>audit.events</code></td>
+<td>all</td>
 <td>audit</td>
 </tr>
 </tbody>
@@ -873,7 +893,7 @@
 
     Services --&gt;|OTLP HTTP :4318| otel[OTel Collector]
     otel --&gt;|OTLP| tempo[Grafana Tempo]
-    tempo --&gt; grafana[Grafana :3000]</code></pre>
+    tempo --&gt; grafana[Grafana :4000]</code></pre>
 <p><strong>What's instrumented in every service:</strong></p>
 <ul>
 <li>Incoming HTTP requests</li>

@@ -374,6 +374,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#web-port-3000" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web - port 3000
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#auth-port-4001" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -583,6 +594,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#web-port-3000" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web - port 3000
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#auth-port-4001" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -724,6 +746,85 @@
 
 
 <h1 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h1>
+<h2 id="web-port-3000">Web - port 3000<a class="headerlink" href="#web-port-3000" title="Permanent link">&para;</a></h2>
+<p>Next.js 15 app serving both the user-facing product and the admin console. Routed through nginx — the user app is at <code>/</code>, the admin console at <code>/app-admin</code>.</p>
+<p><strong>User pages</strong></p>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>Dashboard — wallet balance, recent activity</td>
+</tr>
+<tr>
+<td><code>/wallet</code></td>
+<td>Wallet details, balance chart, transaction limits</td>
+</tr>
+<tr>
+<td><code>/transactions</code></td>
+<td>Transaction history with filtering</td>
+</tr>
+<tr>
+<td><code>/analytics</code></td>
+<td>Spend by category, top merchants, monthly budgets</td>
+</tr>
+<tr>
+<td><code>/social</code></td>
+<td>Contacts, money requests, bill splits</td>
+</tr>
+<tr>
+<td><code>/notifications</code></td>
+<td>Activity feed (SSE-backed real-time updates)</td>
+</tr>
+<tr>
+<td><code>/verification</code></td>
+<td>KYC tier status and document upload</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Admin pages</strong> (requires <code>role=ADMIN</code> JWT)</p>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/app-admin</code></td>
+<td>User search, freeze/unfreeze, role management</td>
+</tr>
+<tr>
+<td><code>/app-admin/kyc</code></td>
+<td>KYC review queue and user lookup</td>
+</tr>
+<tr>
+<td><code>/app-admin/fraud</code></td>
+<td>Fraud case review queue</td>
+</tr>
+<tr>
+<td><code>/app-admin/transactions</code></td>
+<td>Transaction list, reverse, force-complete</td>
+</tr>
+<tr>
+<td><code>/app-admin/system</code></td>
+<td>Global transaction limit configuration</td>
+</tr>
+<tr>
+<td><code>/app-admin/audit</code></td>
+<td>Audit log viewer</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Stack:</strong> Next.js 15, React, TanStack Query, Tailwind CSS, Shadcn UI<br />
+<strong>Notes:</strong> All API calls are proxied through nginx at <code>http://localhost</code>. <code>NEXT_PUBLIC_API_URL</code> sets the API base URL.</p>
+<hr />
 <h2 id="auth-port-4001">Auth - port 4001<a class="headerlink" href="#auth-port-4001" title="Permanent link">&para;</a></h2>
 <p>Handles user registration, login, JWT issuance, and RBAC. Built with FastAPI + SQLAlchemy, using <a href="https://pypi.org/project/sreekarnv-fastauth/">sreekarnv-fastauth</a> for auth primitives.</p>
 <p><strong>Key endpoints</strong></p>
@@ -887,12 +988,12 @@
 </tr>
 </tbody>
 </table>
-<p><strong>gRPC methods:</strong> <code>GetUserTier</code>, <code>GetLimits</code><br />
+<p><strong>gRPC methods:</strong> <code>GetUserTier</code>, <code>GetLimits</code>, <code>GetProfile</code>, <code>ListPendingQueue</code><br />
 <strong>Database:</strong> <code>mint_kyc</code> - profiles, tiers, document metadata<br />
 <strong>Object storage:</strong> MinIO bucket <code>mint-kyc-docs</code> (uploaded documents)<br />
-<strong>Kafka in:</strong> <code>auth.events</code> (create profile on signup)<br />
+<strong>Kafka in:</strong> <code>auth.events</code> (create profile on signup), <code>admin.events</code> (approve/reject KYC)<br />
 <strong>Kafka out:</strong> <code>kyc.events</code><br />
-<strong>Tiers:</strong> UNVERIFIED → VERIFIED → PREMIUM. Tiers can be frozen by admin.</p>
+<strong>Tiers:</strong> UNVERIFIED → BASIC → VERIFIED. Tiers can be frozen by admin.</p>
 <hr />
 <h2 id="analytics-port-4005">Analytics - port 4005<a class="headerlink" href="#analytics-port-4005" title="Permanent link">&para;</a></h2>
 <p>Spend categorization and budget tracking. Powered entirely by Kafka events - no writes from HTTP clients.</p>
@@ -913,6 +1014,16 @@
 </tr>
 <tr>
 <td>GET</td>
+<td><code>/api/v1/analytics/summary</code></td>
+<td>Transaction count and total spend</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/analytics/top-merchants</code></td>
+<td>Top merchants this month</td>
+</tr>
+<tr>
+<td>GET</td>
 <td><code>/api/v1/analytics/budgets</code></td>
 <td>List budgets</td>
 </tr>
@@ -921,12 +1032,17 @@
 <td><code>/api/v1/analytics/budgets</code></td>
 <td>Create / update budget</td>
 </tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/v1/analytics/budgets/:id</code></td>
+<td>Delete budget</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Database:</strong> <code>mint_analytics</code> - spend events, monthly aggregates, budgets<br />
 <strong>Kafka in:</strong> <code>transaction.events</code> (completed non-topup transactions)<br />
 <strong>Kafka out:</strong> <code>analytics.events</code> (budget threshold alerts)<br />
-<strong>Categories:</strong> FOOD, TRANSPORT, ENTERTAINMENT, UTILITIES, OTHER</p>
+<strong>Categories:</strong> FOOD, TRANSPORT, ENTERTAINMENT, UTILITIES, OTHER — auto-classified from merchant name and description.</p>
 <hr />
 <h2 id="notifications-port-4006">Notifications - port 4006<a class="headerlink" href="#notifications-port-4006" title="Permanent link">&para;</a></h2>
 <p>Persistent in-app notifications with real-time delivery via Server-Sent Events.</p>
@@ -1009,14 +1125,19 @@
 <td>Decline request</td>
 </tr>
 <tr>
+<td>DELETE</td>
+<td><code>/api/v1/social/requests/:id</code></td>
+<td>Cancel request</td>
+</tr>
+<tr>
 <td>GET/POST</td>
 <td><code>/api/v1/social/splits</code></td>
 <td>List / create bill splits</td>
 </tr>
 <tr>
 <td>POST</td>
-<td><code>/api/v1/social/splits/:id/settle</code></td>
-<td>Settle split</td>
+<td><code>/api/v1/social/splits/:id/pay</code></td>
+<td>Pay participant share</td>
 </tr>
 </tbody>
 </table>
@@ -1060,7 +1181,7 @@
 <strong>Notes:</strong> Payloads are HMAC-signed. Delivery log captures HTTP status and response body.</p>
 <hr />
 <h2 id="admin-port-4009">Admin - port 4009<a class="headerlink" href="#admin-port-4009" title="Permanent link">&para;</a></h2>
-<p>Privileged operational API. All endpoints require <code>role=ADMIN</code> in the JWT.</p>
+<p>Privileged operational API. All endpoints require <code>role=ADMIN</code> in the JWT. Backs the admin console at <code>/app-admin</code>.</p>
 <p><strong>Key endpoints</strong></p>
 <table>
 <thead>
@@ -1073,8 +1194,13 @@
 <tbody>
 <tr>
 <td>GET</td>
+<td><code>/admin/users/search</code></td>
+<td>Search users by email</td>
+</tr>
+<tr>
+<td>GET</td>
 <td><code>/admin/users/:id</code></td>
-<td>Get user (cross-service)</td>
+<td>Get user profile (cross-service)</td>
 </tr>
 <tr>
 <td>POST</td>
@@ -1087,35 +1213,69 @@
 <td>Unfreeze account</td>
 </tr>
 <tr>
-<td>GET/POST</td>
-<td><code>/admin/fraud/cases</code></td>
-<td>List / review fraud cases</td>
+<td>PATCH</td>
+<td><code>/admin/users/:id/role</code></td>
+<td>Update user role</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/admin/kyc/queue</code></td>
+<td>Pending KYC review queue</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/admin/kyc/user/:userId</code></td>
+<td>Get KYC profile by user</td>
 </tr>
 <tr>
 <td>POST</td>
-<td><code>/admin/kyc/tier/:id</code></td>
-<td>Update KYC tier</td>
+<td><code>/admin/kyc/:profileId/approve</code></td>
+<td>Approve KYC submission</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/admin/kyc/:profileId/reject</code></td>
+<td>Reject KYC submission</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/admin/fraud/queue</code></td>
+<td>Pending fraud review queue</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/admin/fraud/:caseId/approve</code></td>
+<td>Approve flagged transaction</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/admin/fraud/:caseId/block</code></td>
+<td>Block flagged transaction</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/admin/transactions</code></td>
+<td>List transactions (filterable)</td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/admin/transactions/:id/reverse</code></td>
-<td>Reverse transaction</td>
+<td>Reverse a transaction</td>
 </tr>
 <tr>
-<td>GET</td>
-<td><code>/admin/system/health</code></td>
-<td>System health</td>
+<td>POST</td>
+<td><code>/admin/transactions/:id/force-complete</code></td>
+<td>Force-complete a stuck transaction</td>
 </tr>
 <tr>
-<td>GET</td>
-<td><code>/admin/system/stats</code></td>
-<td>System statistics</td>
+<td>GET/PATCH</td>
+<td><code>/admin/system/limits</code></td>
+<td>View and update global limits</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Database:</strong> none (reads across other service DBs)<br />
-<strong>Kafka out:</strong> <code>admin.events</code> (every action logged)<br />
-<strong>Notes:</strong> nginx restricts <code>/admin/*</code> to internal network (<code>10.0.0.0/8</code>) in production.</p>
+<p><strong>Kafka out:</strong> <code>admin.events</code> (every action logged and consumed by kyc + audit)<br />
+<strong>Notes:</strong> KYC approve/reject flow: admin emits a Kafka event → KYC service consumes it and updates the profile/tier.</p>
 <hr />
 <h2 id="audit-port-4010">Audit - port 4010<a class="headerlink" href="#audit-port-4010" title="Permanent link">&para;</a></h2>
 <p>Immutable, append-only audit log. Every event from every service lands here.</p>

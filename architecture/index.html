@@ -419,6 +419,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#kyc-approval-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KYC Approval Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#monorepo-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -617,6 +628,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#kyc-approval-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KYC Approval Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#monorepo-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -648,11 +670,13 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>Mint is a polyglot microservices monorepo. 9 services are written in NestJS (TypeScript), 2 in FastAPI (Python). All services are independently deployable and communicate over HTTP (public), gRPC (synchronous internal), and Kafka (asynchronous internal).</p>
+<p>Mint is a polyglot microservices monorepo. 9 services are written in NestJS (TypeScript), 2 in FastAPI (Python), and the frontend is a Next.js 15 app. All services are independently deployable and communicate over HTTP (public), gRPC (synchronous internal), and Kafka (asynchronous internal).</p>
 <h2 id="service-map">Service Map<a class="headerlink" href="#service-map" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>graph TD
     Client --&gt;|HTTP| nginx
 
+    nginx --&gt;|/| web
+    nginx --&gt;|/app-admin| web
     nginx --&gt;|/api/v1/auth| auth
     nginx --&gt;|/api/v1/wallet| wallet
     nginx --&gt;|/api/v1/transactions| transactions
@@ -660,7 +684,6 @@
     nginx --&gt;|/api/v1/analytics| analytics
     nginx --&gt;|/api/v1/notifications| notifications
     nginx --&gt;|/api/v1/social| social
-    nginx --&gt;|/api/v1/webhooks| webhook
     nginx --&gt;|/admin| admin
 
     transactions --&gt;|gRPC :50052| fraud
@@ -697,6 +720,24 @@
 <td>50051</td>
 <td>Debit sender, credit recipient</td>
 </tr>
+<tr>
+<td>admin</td>
+<td>kyc</td>
+<td>50053</td>
+<td>Fetch KYC profile and pending queue</td>
+</tr>
+<tr>
+<td>admin</td>
+<td>wallet</td>
+<td>50051</td>
+<td>Fetch wallet status for user management</td>
+</tr>
+<tr>
+<td>admin</td>
+<td>fraud</td>
+<td>50052</td>
+<td>Fetch and action fraud cases</td>
+</tr>
 </tbody>
 </table>
 <h3 id="asynchronous-kafka">Asynchronous — Kafka<a class="headerlink" href="#asynchronous-kafka" title="Permanent link">&para;</a></h3>
@@ -726,6 +767,7 @@
     analytics --&gt;|analytics.events| notifications
     analytics --&gt;|analytics.events| webhook
 
+    admin --&gt;|admin.events| kyc
     admin --&gt;|admin.events| audit
     webhook --&gt;|webhook.events| audit</code></pre>
 <h2 id="auth-jwt-flow">Auth / JWT Flow<a class="headerlink" href="#auth-jwt-flow" title="Permanent link">&para;</a></h2>
@@ -777,21 +819,36 @@
     Kafka-)notifications: "Transfer completed"
     Kafka-)webhook: deliver to user webhooks
     Kafka-)audit: immutable log entry</code></pre>
+<h2 id="kyc-approval-flow">KYC Approval Flow<a class="headerlink" href="#kyc-approval-flow" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Admin
+    participant admin
+    participant Kafka
+    participant kyc
+
+    Admin-&gt;&gt;+admin: POST /admin/kyc/:profileId/approve
+    admin-)Kafka: admin.events (admin.kyc_approved, profileId)
+    admin--&gt;&gt;-Admin: { success: true }
+
+    Kafka-)kyc: admin.events consumer
+    kyc-&gt;&gt;kyc: upgradeTier(userId, VERIFIED)
+    kyc-)Kafka: kyc.events (tier_upgraded)</code></pre>
 <h2 id="monorepo-layout">Monorepo Layout<a class="headerlink" href="#monorepo-layout" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mint/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── apps/           # 11 services
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── apps/           # 12 services + web
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── auth/       # FastAPI
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── wallet/     # FastAPI
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   └── */          # NestJS (transactions, fraud, kyc, analytics,
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│                   #         notifications, social, webhook, admin, audit)
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── libs/
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── common/     # Shared NestJS: JWTAuthGuard, IdempotencyInterceptor, RedisService
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   └── proto/      # gRPC .proto definitions (fraud, wallet, kyc)
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── shared-py/      # Shared Python: JWKS manager, OTel setup, Alembic utils
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── infra/          # nginx, Kafka, Postgres init, OTel, Tempo, Grafana configs
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── scripts/        # generate-keys.sh, generate_proto.py
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── docker-compose.yml      # Production
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>└── docker-compose.dev.yml  # Development (hot reload)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── web/        # Next.js 15 (user app + admin console)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   └── */          # NestJS (transactions, fraud, kyc, analytics,
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│                   #         notifications, social, webhook, admin, audit)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── libs/
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── common/     # Shared NestJS: JWTAuthGuard, IdempotencyInterceptor, RedisService
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └── proto/      # gRPC .proto definitions (fraud, wallet, kyc)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── shared-py/      # Shared Python: JWKS manager, OTel setup, Alembic utils
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── infra/          # nginx, Kafka, Postgres init, OTel, Tempo, Grafana configs
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── scripts/        # generate-keys.sh, generate_proto.py
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── docker-compose.yml      # Production
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>└── docker-compose.dev.yml  # Development (hot reload)
 </code></pre></div>
 
 
