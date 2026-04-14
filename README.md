@@ -80,6 +80,8 @@ A Next.js web app serves both the user facing product and the admin console thro
   </tr>
 </table>
 
+> Looking for the original version built with Express, MongoDB, RabbitMQ, and React? See the [v1 branch](https://github.com/sreekarnv/mint/tree/v1).
+
 ## Docs
 
 - [Architecture](docs/architecture.md) - service map, communication patterns, JWT flow
