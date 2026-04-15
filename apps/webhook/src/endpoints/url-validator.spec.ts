@@ -40,6 +40,18 @@ describe('validateWebhookUrl', () => {
     it('rejects ::1 (IPv6 loopback)', () => {
       expect(() => validateWebhookUrl('https://[::1]/hook')).toThrow(BadRequestException);
     });
+
+    it('rejects ::ffff:127.0.0.1 (IPv4-mapped IPv6 loopback)', () => {
+      expect(() => validateWebhookUrl('https://[::ffff:127.0.0.1]/hook')).toThrow(BadRequestException);
+    });
+
+    it('rejects ::ffff:192.168.1.1 (IPv4-mapped IPv6 RFC1918)', () => {
+      expect(() => validateWebhookUrl('https://[::ffff:192.168.1.1]/hook')).toThrow(BadRequestException);
+    });
+
+    it('rejects ::ffff:10.0.0.1 (IPv4-mapped IPv6 RFC1918)', () => {
+      expect(() => validateWebhookUrl('https://[::ffff:10.0.0.1]/hook')).toThrow(BadRequestException);
+    });
   });
 
   describe('rejects private RFC1918 ranges', () => {

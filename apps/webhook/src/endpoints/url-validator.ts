@@ -24,8 +24,22 @@ function isBlockedIpv4(ip: string): boolean {
   );
 }
 
+function ipv4MappedToDecimal(after: string): string | null {
+  const parts = after.split(':');
+  if (parts.length !== 2) return null;
+  const hi = parseInt(parts[0].padStart(4, '0'), 16);
+  const lo = parseInt(parts[1].padStart(4, '0'), 16);
+  if (isNaN(hi) || isNaN(lo)) return null;
+  return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+}
+
 function isBlockedIpv6(ip: string): boolean {
   const lower = ip.toLowerCase().replace(/^\[|\]$/g, '');
+  if (lower.startsWith('::ffff:')) {
+    const ipv4 = ipv4MappedToDecimal(lower.slice(7));
+    if (ipv4) return isBlockedIpv4(ipv4);
+  }
+
   return (
     lower === '::1' ||
     lower === '::' ||
@@ -51,7 +65,9 @@ export function validateWebhookUrl(url: string): void {
   const hostname = parsed.hostname.toLowerCase();
 
   if (BLOCKED_HOSTNAMES.has(hostname)) {
-    throw new BadRequestException('Webhook URL targets a disallowed destination');
+    throw new BadRequestException(
+      'Webhook URL targets a disallowed destination',
+    );
   }
 
   if (
@@ -59,16 +75,22 @@ export function validateWebhookUrl(url: string): void {
     hostname.endsWith('.local') ||
     hostname.endsWith('.localhost')
   ) {
-    throw new BadRequestException('Webhook URL targets a disallowed destination');
+    throw new BadRequestException(
+      'Webhook URL targets a disallowed destination',
+    );
   }
 
   const rawHost = hostname.replace(/^\[|\]$/g, '');
 
   if (isIPv4(rawHost) && isBlockedIpv4(rawHost)) {
-    throw new BadRequestException('Webhook URL targets a disallowed destination');
+    throw new BadRequestException(
+      'Webhook URL targets a disallowed destination',
+    );
   }
 
   if (isIPv6(rawHost) && isBlockedIpv6(rawHost)) {
-    throw new BadRequestException('Webhook URL targets a disallowed destination');
+    throw new BadRequestException(
+      'Webhook URL targets a disallowed destination',
+    );
   }
 }
