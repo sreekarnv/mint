@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     smtp_port: int = 1025
     smtp_from: str = "Mint <noreply@mint.dev>"
     base_url: str = "http://localhost/api/v1"
+    jwt_issuer: str = "mint-auth"
+    jwt_audience: str = "mint-services"
 
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 

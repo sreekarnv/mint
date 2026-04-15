@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { v4 as uuidv4 } from 'uuid';
 import { EndpointsService } from '../endpoints/endpoints.service';
+import { validateWebhookUrl } from '../endpoints/url-validator';
 import { PrismaService } from '../prisma/prisma.service';
 import { SigningService } from '../signing/signing.service';
 
@@ -44,6 +45,16 @@ export class DeliveryWorker extends WorkerHost {
 
     if (!endpoint.active) {
       this.logger.warn(`Endpoint ${endpointId} is inactive, skipping delivery`);
+      return;
+    }
+
+    try {
+      validateWebhookUrl(endpoint.url);
+    } catch {
+      this.logger.warn(
+        `Endpoint ${endpointId} URL failed SSRF check, skipping delivery`,
+      );
+      await this.endpoints.deactivateEndpoint(endpointId);
       return;
     }
 

@@ -1,4 +1,4 @@
-import { IdempotencyInterceptor, JWTAuthGuard } from '@mint/common';
+import { AdminGuard, IdempotencyInterceptor, JWTAuthGuard } from '@mint/common';
 import {
   BadRequestException,
   Body,
@@ -194,14 +194,15 @@ export class TransactionsController {
   }
 
   @Get('admin/list')
-  @UseGuards(JWTAuthGuard)
-  @ApiOperation({ summary: 'List all transactions (admin — requires internal call)' })
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'List all transactions (admin only)' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiQuery({ name: 'userId', required: false, type: String, description: 'Filter by user' })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Transaction list' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async adminList(
     @Query('limit') limit?: string,
     @Query('cursor') cursor?: string,

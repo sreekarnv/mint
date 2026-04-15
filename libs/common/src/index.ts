@@ -1,4 +1,5 @@
 export * from './guards/jwt-auth.guard';
+export * from './guards/admin.guard';
 export * from './interceptors/idempotency.interceptor';
 export * from './services/redis.service';
 export * from './common.module';

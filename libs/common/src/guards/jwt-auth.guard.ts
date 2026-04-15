@@ -17,8 +17,17 @@ export class JWTAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const { payload } = await jwtVerify(token, this.jwks);
-    req.user = payload;
+    try {
+      const issuer = process.env.JWT_ISSUER || 'mint-auth';
+      const audience = process.env.JWT_AUDIENCE || 'mint-services';
+      const { payload } = await jwtVerify(token, this.jwks, {
+        issuer,
+        audience,
+      });
+      req.user = payload;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
 
     return true;
   }

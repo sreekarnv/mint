@@ -366,8 +366,6 @@ services:
       target: production
     container_name: mint-auth
     networks: [mint]
-    ports:
-      - '4001:4001'
     environment:
       APP_PORT: '4001'
       APP_HOST: 0.0.0.0
@@ -403,9 +401,6 @@ services:
       target: production
     container_name: mint-wallet
     networks: [mint]
-    ports:
-      - '4002:4002'
-      - '50051:50051'
     environment:
       APP_PORT: '4002'
       APP_HOST: 0.0.0.0
@@ -433,14 +428,14 @@ services:
       target: production
     container_name: mint-transactions
     networks: [mint]
-    ports:
-      - '4003:4003'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_txns_user:mint_txns_pass@postgres:5432/mint_txns
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       WALLET_SERVICE_URL: wallet:50051
       FRAUD_SERVICE_URL: fraud:50052
       KYC_SERVICE_URL: kyc:50053
@@ -469,8 +464,6 @@ services:
       target: production
     container_name: mint-fraud
     networks: [mint]
-    ports:
-      - '50052:50052'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_fraud_user:mint_fraud_pass@postgres:5432/mint_fraud
@@ -502,15 +495,14 @@ services:
       target: production
     container_name: mint-kyc
     networks: [mint]
-    ports:
-      - '4004:4004'
-      - '50053:50053'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_kyc_user:mint_kyc_pass@postgres:5432/mint_kyc
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       KYC_WEBHOOK_SECRET: ${KYC_WEBHOOK_SECRET}
       S3_ENDPOINT: http://minio:9000
       S3_BUCKET: mint-kyc-docs
@@ -541,14 +533,14 @@ services:
       target: production
     container_name: mint-analytics
     networks: [mint]
-    ports:
-      - '4005:4005'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_analytics_user:mint_analytics_pass@postgres:5432/mint_analytics
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       OTEL_SERVICE_NAME: analytics-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -572,14 +564,14 @@ services:
       target: production
     container_name: mint-notifications
     networks: [mint]
-    ports:
-      - '4006:4006'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_notifications_user:mint_notifications_pass@postgres:5432/mint_notifications
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       SMTP_HOST: mailhog
       SMTP_PORT: '1025'
       SMTP_FROM: Mint <noreply@mint.dev>
@@ -606,14 +598,14 @@ services:
       target: production
     container_name: mint-social
     networks: [mint]
-    ports:
-      - '4007:4007'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_social_user:mint_social_pass@postgres:5432/mint_social
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       OTEL_SERVICE_NAME: social-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -637,14 +629,14 @@ services:
       target: production
     container_name: mint-webhook
     networks: [mint]
-    ports:
-      - '4008:4008'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_webhook_user:mint_webhook_pass@postgres:5432/mint_webhook
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       OTEL_SERVICE_NAME: webhook-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp
@@ -668,13 +660,13 @@ services:
       target: production
     container_name: mint-admin
     networks: [mint]
-    ports:
-      - '4009:4009'
     environment:
       NODE_ENV: production
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       WALLET_GRPC_URL: wallet:50051
       KYC_GRPC_URL: kyc:50053
       ADMIN_USER_IDS: ${ADMIN_USER_IDS}
@@ -699,14 +691,14 @@ services:
       target: production
     container_name: mint-audit
     networks: [mint]
-    ports:
-      - '4010:4010'
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://mint_audit_user:mint_audit_pass@postgres:5432/mint_audit
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      JWT_ISSUER: ${JWT_ISSUER:-mint-auth}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-mint-services}
       OTEL_SERVICE_NAME: audit-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_TRACES_EXPORTER: otlp

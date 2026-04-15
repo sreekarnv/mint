@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SigningService } from '../signing/signing.service';
+import { validateWebhookUrl } from './url-validator';
 
 @Injectable()
 export class EndpointsService {
@@ -22,15 +23,7 @@ export class EndpointsService {
     events: string[];
     description?: string;
   }) {
-    if (!data.url.startsWith('https://')) {
-      throw new BadRequestException('Webhook URL must use HTTPS');
-    }
-
-    try {
-      new URL(data.url);
-    } catch {
-      throw new BadRequestException('Invalid URL format');
-    }
+    validateWebhookUrl(data.url);
 
     if (data.events.length === 0) {
       throw new BadRequestException('Must subscribe to at least one event');
@@ -119,14 +112,7 @@ export class EndpointsService {
     }
 
     if (data.url) {
-      if (!data.url.startsWith('https://')) {
-        throw new BadRequestException('Webhook URL must use HTTPS');
-      }
-      try {
-        new URL(data.url);
-      } catch {
-        throw new BadRequestException('Invalid URL format');
-      }
+      validateWebhookUrl(data.url);
     }
 
     if (data.events && data.events.length === 0) {
