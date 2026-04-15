@@ -37,6 +37,8 @@ config = FastAuthConfig(
         public_key=_PUBLIC_KEY,
         jwks_enabled=True,
         access_token_ttl=900,
+        issuer=settings.jwt_issuer,
+        audience=settings.jwt_audience,
     ),
     roles=[
         {"name": "user", "permissions": ["wallet:read", "wallet:transfer"]},
@@ -48,7 +50,7 @@ config = FastAuthConfig(
     default_role="user",
     base_url=settings.base_url,
     email_template_dir=EMAIL_TEMPLATES_DIR,
-    debug=True,
+    debug=settings.app_reload,
 )
 
 auth = FastAuth(config)
