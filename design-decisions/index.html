@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../design-decisions/">
+        <link rel="next" href="../services/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Architecture - Mint</title>
+        <title>Design Decisions - Mint</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#design-decisions" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Design Decisions
             
           </span>
         </div>
@@ -248,7 +248,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -442,6 +442,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -461,7 +489,7 @@
   <span class="md-ellipsis">
     
   
-    Architecture
+    Design Decisions
   
 
     
@@ -479,7 +507,7 @@
   <span class="md-ellipsis">
     
   
-    Architecture
+    Design Decisions
   
 
     
@@ -505,10 +533,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#service-map" class="md-nav__link">
+  <a href="#polyglot-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Map
+        Polyglot Architecture
       
     </span>
   </a>
@@ -516,22 +544,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#communication-patterns" class="md-nav__link">
+  <a href="#database-per-service" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Communication Patterns
+        Database per Service
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Communication Patterns">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-grpc-vs-kafka" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use gRPC vs Kafka
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fraud-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fraud Scoring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fraud Scoring">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#synchronous-grpc" class="md-nav__link">
+  <a href="#rules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Synchronous - gRPC
+        Rules
       
     </span>
   </a>
@@ -539,10 +600,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#asynchronous-kafka" class="md-nav__link">
+  <a href="#decision-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Asynchronous - Kafka
+        Decision Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statistical-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistical Anomaly Detection
       
     </span>
   </a>
@@ -555,10 +627,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#auth-jwt-flow" class="md-nav__link">
+  <a href="#transaction-state-machine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Auth / JWT Flow
+        Transaction State Machine
       
     </span>
   </a>
@@ -566,10 +638,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transfer-request-flow" class="md-nav__link">
+  <a href="#jwt-jwks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Transfer Request Flow
+        JWT + JWKS
       
     </span>
   </a>
@@ -577,10 +649,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kyc-approval-flow" class="md-nav__link">
+  <a href="#audit-log-immutability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        KYC Approval Flow
+        Audit Log Immutability
       
     </span>
   </a>
@@ -588,10 +660,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#monorepo-layout" class="md-nav__link">
+  <a href="#kyc-tier-system" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Monorepo Layout
+        KYC Tier System
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-time-notifications-sse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-Time Notifications (SSE)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#webhook-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Webhook Delivery
       
     </span>
   </a>
@@ -602,34 +696,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../design-decisions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Design Decisions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -817,10 +883,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#service-map" class="md-nav__link">
+  <a href="#polyglot-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Map
+        Polyglot Architecture
       
     </span>
   </a>
@@ -828,22 +894,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#communication-patterns" class="md-nav__link">
+  <a href="#database-per-service" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Communication Patterns
+        Database per Service
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Communication Patterns">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-grpc-vs-kafka" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use gRPC vs Kafka
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fraud-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fraud Scoring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fraud Scoring">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#synchronous-grpc" class="md-nav__link">
+  <a href="#rules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Synchronous - gRPC
+        Rules
       
     </span>
   </a>
@@ -851,10 +950,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#asynchronous-kafka" class="md-nav__link">
+  <a href="#decision-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Asynchronous - Kafka
+        Decision Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statistical-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistical Anomaly Detection
       
     </span>
   </a>
@@ -867,10 +977,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#auth-jwt-flow" class="md-nav__link">
+  <a href="#transaction-state-machine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Auth / JWT Flow
+        Transaction State Machine
       
     </span>
   </a>
@@ -878,10 +988,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transfer-request-flow" class="md-nav__link">
+  <a href="#jwt-jwks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Transfer Request Flow
+        JWT + JWKS
       
     </span>
   </a>
@@ -889,10 +999,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kyc-approval-flow" class="md-nav__link">
+  <a href="#audit-log-immutability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        KYC Approval Flow
+        Audit Log Immutability
       
     </span>
   </a>
@@ -900,10 +1010,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#monorepo-layout" class="md-nav__link">
+  <a href="#kyc-tier-system" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Monorepo Layout
+        KYC Tier System
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-time-notifications-sse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-Time Notifications (SSE)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#webhook-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Webhook Delivery
       
     </span>
   </a>
@@ -930,186 +1062,204 @@
   
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>Mint is a polyglot microservices monorepo. 9 services are written in NestJS (TypeScript), 2 in FastAPI (Python), and the frontend is a Next.js 15 app. All services are independently deployable and communicate over HTTP (public), gRPC (synchronous internal), and Kafka (asynchronous internal).</p>
-<h2 id="service-map">Service Map<a class="headerlink" href="#service-map" title="Permanent link">&para;</a></h2>
-<pre class="mermaid"><code>graph TD
-    Client --&gt;|HTTP| nginx
-
-    nginx --&gt;|/| web
-    nginx --&gt;|/app-admin| web
-    nginx --&gt;|/api/v1/auth| auth
-    nginx --&gt;|/api/v1/wallet| wallet
-    nginx --&gt;|/api/v1/transactions| transactions
-    nginx --&gt;|/api/v1/kyc| kyc
-    nginx --&gt;|/api/v1/analytics| analytics
-    nginx --&gt;|/api/v1/notifications| notifications
-    nginx --&gt;|/api/v1/social| social
-    nginx --&gt;|/admin| admin
-
-    transactions --&gt;|gRPC :50052| fraud
-    transactions --&gt;|gRPC :50053| kyc
-    transactions --&gt;|gRPC :50051| wallet</code></pre>
-<h2 id="communication-patterns">Communication Patterns<a class="headerlink" href="#communication-patterns" title="Permanent link">&para;</a></h2>
-<h3 id="synchronous-grpc">Synchronous - gRPC<a class="headerlink" href="#synchronous-grpc" title="Permanent link">&para;</a></h3>
-<p>Used for blocking operations where the caller needs a result before proceeding.</p>
+<h1 id="design-decisions">Design Decisions<a class="headerlink" href="#design-decisions" title="Permanent link">&para;</a></h1>
+<p>Key technical choices made in Mint, with the reasoning behind each.</p>
+<hr />
+<h2 id="polyglot-architecture">Polyglot Architecture<a class="headerlink" href="#polyglot-architecture" title="Permanent link">&para;</a></h2>
+<p>Auth and wallet are in Python (FastAPI). Everything else is NestJS (TypeScript).</p>
+<p><strong>Why Python for auth and wallet?</strong></p>
+<ul>
+<li>Auth needs a mature ecosystem for RSA key management, JWT handling, and Alembic migrations. FastAPI + <code>joserfc</code> + SQLAlchemy is a tighter fit than the NestJS equivalents.</li>
+<li>Wallet exposes a gRPC server alongside a FastAPI HTTP server in the same process. Python's <code>grpcio</code> handles async gRPC servers cleanly with <code>asyncio</code>. The <code>grpc.aio.server</code> API integrates directly with FastAPI's <code>lifespan</code> hook.</li>
+</ul>
+<p><strong>Why NestJS for everything else?</strong></p>
+<ul>
+<li>NestJS's dependency injection maps cleanly to microservice architecture — each module declares its own providers (Prisma, Redis, Kafka, gRPC clients) and can be tested in isolation.</li>
+<li>The decorator-based approach (<code>@GrpcMethod</code>, <code>@EventPattern</code>, <code>@MessagePattern</code>) makes service boundaries explicit in code.</li>
+</ul>
+<hr />
+<h2 id="database-per-service">Database per Service<a class="headerlink" href="#database-per-service" title="Permanent link">&para;</a></h2>
+<p>Each service owns exactly one PostgreSQL database with its own credentials. Services cannot connect to each other's databases.</p>
+<p><strong>What this forces:</strong></p>
+<ul>
+<li>Cross-service data access must go through an API (gRPC or HTTP) — not a join.</li>
+<li>Schema changes in one service never break another service at the database level.</li>
+<li>Services can be migrated, replaced, or scaled independently.</li>
+</ul>
+<p><strong>The cost:</strong></p>
+<ul>
+<li>Queries that would be a single join in a monolith become a network call. The admin service, for example, assembles a user profile by calling auth (gRPC) + kyc (gRPC) + wallet (gRPC) and stitching the results.</li>
+</ul>
+<hr />
+<h2 id="when-to-use-grpc-vs-kafka">When to Use gRPC vs Kafka<a class="headerlink" href="#when-to-use-grpc-vs-kafka" title="Permanent link">&para;</a></h2>
+<p>These two mechanisms are used for different communication patterns.</p>
+<p><strong>gRPC — use when the caller needs a result before continuing</strong></p>
 <table>
 <thead>
 <tr>
 <th>Caller</th>
-<th>Target</th>
-<th>Port</th>
-<th>Purpose</th>
+<th>Callee</th>
+<th>Why gRPC</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>transactions</td>
 <td>fraud</td>
-<td>50052</td>
-<td>Score every transaction before settlement</td>
+<td>Must know ALLOW/BLOCK before debiting</td>
 </tr>
 <tr>
 <td>transactions</td>
 <td>kyc</td>
-<td>50053</td>
-<td>Check per-transaction and daily/monthly limits</td>
+<td>Must know limit approval before debiting</td>
 </tr>
 <tr>
 <td>transactions</td>
 <td>wallet</td>
-<td>50051</td>
-<td>Debit sender, credit recipient</td>
+<td>Debit and credit are the settlement — they must succeed or fail atomically</td>
 </tr>
 <tr>
 <td>admin</td>
-<td>kyc</td>
-<td>50053</td>
-<td>Fetch KYC profile and pending queue</td>
-</tr>
-<tr>
-<td>admin</td>
-<td>wallet</td>
-<td>50051</td>
-<td>Fetch wallet status for user management</td>
-</tr>
-<tr>
-<td>admin</td>
-<td>fraud</td>
-<td>50052</td>
-<td>Fetch and action fraud cases</td>
+<td>kyc / wallet / fraud</td>
+<td>Admin endpoints assemble cross-service views synchronously</td>
 </tr>
 </tbody>
 </table>
-<h3 id="asynchronous-kafka">Asynchronous - Kafka<a class="headerlink" href="#asynchronous-kafka" title="Permanent link">&para;</a></h3>
-<p>Used for fan-out side effects: audit logging, analytics, notifications, and cross-service reactions.</p>
+<p><strong>Kafka — use for fan-out side effects</strong></p>
+<p>When a transfer completes, five things need to happen: analytics ingestion, notification delivery, webhook dispatch, fraud stats update, audit logging. None of these should block the HTTP response. Kafka decouples producers from consumers — the transactions service doesn't know or care how many services are listening.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>transaction.events (COMPLETED)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  → analytics   (update monthly spend)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  → notifications (send &quot;Transfer sent&quot; notification)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  → webhook     (deliver to user&#39;s registered endpoints)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  → fraud       (update user transfer statistics)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  → audit       (immutable log entry)
+</code></pre></div>
+<p>The rule of thumb: <strong>gRPC for blocking decisions, Kafka for fire-and-forget effects.</strong></p>
+<hr />
+<h2 id="idempotency">Idempotency<a class="headerlink" href="#idempotency" title="Permanent link">&para;</a></h2>
+<p>Every <code>POST /api/v1/transactions/transfer</code> requires an <code>Idempotency-Key</code> header. The first call executes the transfer and caches the full HTTP response in Redis for 24 hours, keyed by <code>{userId}:{idempotencyKey}</code>. Duplicate requests within 24 hours return the cached response immediately — no database writes, no fraud check, no wallet mutations.</p>
+<p>This is implemented in <code>IdempotencyInterceptor</code> (<code>libs/common</code>), which wraps the NestJS request pipeline. The interceptor runs before the controller method and short-circuits on cache hit.</p>
 <pre class="mermaid"><code>flowchart LR
-    auth --&gt;|auth.events| wallet
-    auth --&gt;|auth.events| kyc
-    auth --&gt;|auth.events| notifications
-    auth --&gt;|auth.events| audit
-
-    wallet --&gt;|wallet.events| notifications
-    wallet --&gt;|wallet.events| webhook
-    wallet --&gt;|wallet.events| audit
-
-    transactions --&gt;|transaction.events| analytics
-    transactions --&gt;|transaction.events| notifications
-    transactions --&gt;|transaction.events| webhook
-    transactions --&gt;|transaction.events| audit
-
-    kyc --&gt;|kyc.events| notifications
-    kyc --&gt;|kyc.events| audit
-
-    social --&gt;|social.events| transactions
-    social --&gt;|social.events| notifications
-    social --&gt;|social.events| audit
-
-    analytics --&gt;|analytics.events| notifications
-    analytics --&gt;|analytics.events| webhook
-
-    admin --&gt;|admin.events| kyc
-    admin --&gt;|admin.events| audit
-    webhook --&gt;|webhook.events| audit</code></pre>
-<h2 id="auth-jwt-flow">Auth / JWT Flow<a class="headerlink" href="#auth-jwt-flow" title="Permanent link">&para;</a></h2>
-<pre class="mermaid"><code>sequenceDiagram
-    participant Client
-    participant auth
-    participant Other Services
-
-    Client-&gt;&gt;auth: POST /api/v1/auth/login
-    auth--&gt;&gt;Client: JWT (signed with RSA private key)
-
-    Note over Other Services: On startup, fetch JWKS
-    Other Services-&gt;&gt;auth: GET /.well-known/jwks.json
-    auth--&gt;&gt;Other Services: Public key
-
-    Client-&gt;&gt;Other Services: Request + Authorization: Bearer &lt;JWT&gt;
-    Other Services-&gt;&gt;Other Services: Verify JWT locally with cached public key</code></pre>
-<ul>
-<li>JWT payload includes <code>sub</code> (user ID) and <code>role</code> claim.</li>
-<li>All services share <code>JWTAuthGuard</code> from <code>libs/common</code> for verification.</li>
-<li>The admin service additionally checks <code>role=ADMIN</code> on every request.</li>
-</ul>
-<h2 id="transfer-request-flow">Transfer Request Flow<a class="headerlink" href="#transfer-request-flow" title="Permanent link">&para;</a></h2>
-<pre class="mermaid"><code>sequenceDiagram
-    participant Client
-    participant transactions
-    participant fraud
-    participant kyc
-    participant wallet
-    participant Kafka
-
-    Client-&gt;&gt;+transactions: POST /api/v1/transactions/transfer
-    transactions-&gt;&gt;+fraud: ScoreTransaction() [gRPC]
-    fraud--&gt;&gt;-transactions: ALLOW / REVIEW / BLOCK
-
-    transactions-&gt;&gt;+kyc: GetLimits() [gRPC]
-    kyc--&gt;&gt;-transactions: per-txn + daily limits
-
-    transactions-&gt;&gt;+wallet: DebitWallet(sender) [gRPC]
-    wallet--&gt;&gt;-transactions: OK
-
-    transactions-&gt;&gt;+wallet: CreditWallet(recipient) [gRPC]
-    wallet--&gt;&gt;-transactions: OK
-
-    transactions--&gt;&gt;-Client: 200 OK
-
-    transactions-)Kafka: transaction.events (COMPLETED)
-    Kafka-)analytics: update monthly spend
-    Kafka-)notifications: "Transfer completed"
-    Kafka-)webhook: deliver to user webhooks
-    Kafka-)audit: immutable log entry</code></pre>
-<h2 id="kyc-approval-flow">KYC Approval Flow<a class="headerlink" href="#kyc-approval-flow" title="Permanent link">&para;</a></h2>
-<pre class="mermaid"><code>sequenceDiagram
-    participant Admin
-    participant admin
-    participant Kafka
-    participant kyc
-
-    Admin-&gt;&gt;+admin: POST /admin/kyc/:profileId/approve
-    admin-)Kafka: admin.events (admin.kyc_approved, profileId)
-    admin--&gt;&gt;-Admin: { success: true }
-
-    Kafka-)kyc: admin.events consumer
-    kyc-&gt;&gt;kyc: upgradeTier(userId, VERIFIED)
-    kyc-)Kafka: kyc.events (tier_upgraded)</code></pre>
-<h2 id="monorepo-layout">Monorepo Layout<a class="headerlink" href="#monorepo-layout" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mint/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── apps/           # 12 services + web
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── auth/       # FastAPI
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── wallet/     # FastAPI
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── web/        # Next.js 15 (user app + admin console)
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   └── */          # NestJS (transactions, fraud, kyc, analytics,
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│                   #         notifications, social, webhook, admin, audit)
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── libs/
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── common/     # Shared NestJS: JWTAuthGuard, IdempotencyInterceptor, RedisService
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └── proto/      # gRPC .proto definitions (fraud, wallet, kyc)
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── shared-py/      # Shared Python: JWKS manager, OTel setup, Alembic utils
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── infra/          # nginx, Kafka, Postgres init, OTel, Tempo, Grafana configs
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── scripts/        # generate-keys.sh, generate_proto.py
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── docker-compose.yml      # Production
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>└── docker-compose.dev.yml  # Development (hot reload)
+    A[POST /transfer + Idempotency-Key] --&gt; B{Key in Redis?}
+    B --&gt;|Yes| C[Return cached response]
+    B --&gt;|No| D[Execute transfer] --&gt; E[Cache response] --&gt; F[Return response]</code></pre>
+<p><strong>Why this matters:</strong> payment networks retry on timeout. Without idempotency, a network error between the client and server could cause the transfer to execute twice even though only one succeeded.</p>
+<hr />
+<h2 id="fraud-scoring">Fraud Scoring<a class="headerlink" href="#fraud-scoring" title="Permanent link">&para;</a></h2>
+<p>Every transaction is scored before any money moves. The fraud service runs six rules in parallel, accumulates scores, and returns a decision.</p>
+<h3 id="rules">Rules<a class="headerlink" href="#rules" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Fires when</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>velocity_breach</code></td>
+<td>More than 3 transfers in a 5-minute window</td>
+<td>80</td>
+</tr>
+<tr>
+<td><code>large_amount_deviation</code></td>
+<td>Amount exceeds user's mean + 3 standard deviations</td>
+<td>60</td>
+</tr>
+<tr>
+<td><code>new_recipient</code></td>
+<td>First transfer to this recipient</td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>geo_anomaly</code></td>
+<td>IP geolocation country differs from registered country</td>
+<td>40</td>
+</tr>
+<tr>
+<td><code>night_large</code></td>
+<td>UTC hour 00:00–04:59 AND amount &gt; $500</td>
+<td>30</td>
+</tr>
+<tr>
+<td><code>sanctioned_recipient</code></td>
+<td>Recipient ID is on the sanctions list in Redis</td>
+<td>100 + force-block</td>
+</tr>
+</tbody>
+</table>
+<h3 id="decision-thresholds">Decision Thresholds<a class="headerlink" href="#decision-thresholds" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>totalScore &gt;= 100  OR  any rule sets forceBlock=true  →  BLOCK
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>totalScore &gt;= 50                                       →  REVIEW
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>otherwise                                              →  ALLOW
+</code></pre></div>
+<p><code>REVIEW</code> cases are written to the <code>fraudCase</code> table. Admins can inspect and manually approve or block them via the admin console.</p>
+<h3 id="statistical-anomaly-detection">Statistical Anomaly Detection<a class="headerlink" href="#statistical-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p>The <code>large_amount_deviation</code> rule uses Welford's online algorithm via stored aggregates (<code>count</code>, <code>sumCents</code>, <code>sumSqCents</code> in <code>userTransferStats</code>). This lets it compute mean and variance incrementally — no scan of transaction history needed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mean   = sumCents / count
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>E[x²]  = sumSqCents / count
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>stddev = sqrt(E[x²] - mean²)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>threshold = mean + 3 * stddev
+</code></pre></div>
+<p>A user who always sends ~$100 will trigger the rule at ~$100.01 if variance is near zero. A user with variable amounts needs a much larger deviation to fire.</p>
+<hr />
+<h2 id="transaction-state-machine">Transaction State Machine<a class="headerlink" href="#transaction-state-machine" title="Permanent link">&para;</a></h2>
+<p>Transfers move through a formal state machine. The <code>StateMachineService</code> validates every transition and rejects invalid ones with a <code>400 Bad Request</code>.</p>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; PENDING
+    PENDING --&gt; PROCESSING
+    PENDING --&gt; CANCELLED
+    PROCESSING --&gt; COMPLETED
+    PROCESSING --&gt; FAILED
+    COMPLETED --&gt; REVERSED</code></pre>
+<p>Terminal states (<code>FAILED</code>, <code>CANCELLED</code>, <code>REVERSED</code>) have no outgoing transitions. Attempting to move a terminal transaction produces an error rather than silently doing nothing.</p>
+<hr />
+<h2 id="jwt-jwks">JWT + JWKS<a class="headerlink" href="#jwt-jwks" title="Permanent link">&para;</a></h2>
+<p>Auth issues RSA-signed JWTs. All other services verify tokens locally using the auth service's public key — no auth service call on every request.</p>
+<p><strong>Startup flow:</strong></p>
+<ol>
+<li>Each service fetches <code>GET /.well-known/jwks.json</code> from auth on startup and caches the public key.</li>
+<li>Incoming requests are verified locally with the cached key via <code>JWTAuthGuard</code> (shared from <code>libs/common</code>).</li>
+<li>The JWT payload includes <code>sub</code> (user ID) and <code>role</code>. Admin routes additionally check <code>role=ADMIN</code>.</li>
+</ol>
+<p><strong>Why RSA (asymmetric) instead of a shared HMAC secret?</strong></p>
+<p>With a shared secret, any service that can verify tokens can also forge them. RSA separates signing (only auth has the private key) from verification (every service has the public key). A compromised internal service cannot mint its own tokens.</p>
+<hr />
+<h2 id="audit-log-immutability">Audit Log Immutability<a class="headerlink" href="#audit-log-immutability" title="Permanent link">&para;</a></h2>
+<p>The <code>mint_audit</code> database table has a PostgreSQL trigger that fires on <code>BEFORE UPDATE OR DELETE</code> and raises an exception. No application code is needed — the constraint is enforced at the database level and cannot be bypassed by application bugs.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">FUNCTION</span><span class="w"> </span><span class="n">prevent_audit_modification</span><span class="p">()</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">RETURNS</span><span class="w"> </span><span class="k">TRIGGER</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="err">$$</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">BEGIN</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">RAISE</span><span class="w"> </span><span class="k">EXCEPTION</span><span class="w"> </span><span class="s1">&#39;audit log is immutable&#39;</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">END</span><span class="p">;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="err">$$</span><span class="w"> </span><span class="k">LANGUAGE</span><span class="w"> </span><span class="n">plpgsql</span><span class="p">;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TRIGGER</span><span class="w"> </span><span class="n">audit_immutability</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">BEFORE</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">audit_log</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">FOR</span><span class="w"> </span><span class="k">EACH</span><span class="w"> </span><span class="k">ROW</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="k">FUNCTION</span><span class="w"> </span><span class="n">prevent_audit_modification</span><span class="p">();</span>
+</code></pre></div>
+<p>Every Kafka event from every service lands here, keyed by <code>actorId</code>, <code>action</code>, <code>resourceId</code>, and the OpenTelemetry <code>traceId</code>. The trace ID lets you correlate an audit entry with the full distributed trace in Grafana Tempo.</p>
+<hr />
+<h2 id="kyc-tier-system">KYC Tier System<a class="headerlink" href="#kyc-tier-system" title="Permanent link">&para;</a></h2>
+<p>Users start at <code>UNVERIFIED</code>. Document submission moves them to <code>BASIC</code>. A successful Persona webhook verification or manual admin approval moves them to <code>VERIFIED</code>.</p>
+<p>Each tier has per-transaction, daily, and monthly spend limits enforced by the kyc service via gRPC. The transactions service calls <code>GetLimits</code> before every transfer and rejects requests that would exceed the caller's tier.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>UNVERIFIED  →  BASIC  →  VERIFIED
+</code></pre></div>
+<p>Admins can freeze a tier (no new submissions accepted, existing limits stay in force) or reject a pending submission (returns user to <code>UNVERIFIED</code>).</p>
+<hr />
+<h2 id="real-time-notifications-sse">Real-Time Notifications (SSE)<a class="headerlink" href="#real-time-notifications-sse" title="Permanent link">&para;</a></h2>
+<p>Notifications are delivered to the browser via Server-Sent Events (<code>GET /api/v1/notifications/stream</code>). Each connection registers a Redis pub/sub subscriber. When any Kafka consumer writes a new notification to the database, it also publishes the notification ID to Redis. The SSE handler receives the pub/sub message and pushes the event to the client.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Kafka event → NotificationService.create() → Redis PUBLISH → SSE handler → browser
+</code></pre></div>
+<p>nginx disables proxy buffering for the <code>/stream</code> endpoint so events are not held in the buffer before being forwarded to the client.</p>
+<hr />
+<h2 id="webhook-delivery">Webhook Delivery<a class="headerlink" href="#webhook-delivery" title="Permanent link">&para;</a></h2>
+<p>User-registered webhooks are delivered by BullMQ workers on a Redis queue. The worker attempts delivery with exponential backoff (max 5 retries). Each attempt is logged to the <code>deliveries</code> table with the HTTP status and response body.</p>
+<p>Payloads are signed with <code>HMAC-SHA256</code> using a per-endpoint secret. Recipients can verify the <code>X-Mint-Signature</code> header to confirm the payload originated from Mint.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Kafka event → WebhookService → BullMQ queue → worker → POST to endpoint
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>                                                      ↕
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>                                              delivery log (status, body, attempt)
 </code></pre></div>
 
 

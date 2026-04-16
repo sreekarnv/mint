@@ -88,9 +88,7 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="Mint" class="md-header__button md-logo" aria-label="Mint" data-md-component="logo">
       
@@ -175,6 +173,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
@@ -212,6 +212,99 @@
       
         
           
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  System Design
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="services/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="running/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Running
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -225,8 +318,10 @@
                     
 
 
+  
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="." title="Mint" class="md-nav__button md-logo" aria-label="Mint" data-md-component="logo">
       
@@ -318,6 +413,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#whats-inside" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Inside
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-design-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Design Properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -353,6 +470,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    System Design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="architecture/" class="md-nav__link">
         
@@ -373,9 +548,103 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="design-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
@@ -400,9 +669,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -424,6 +694,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -482,6 +760,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#whats-inside" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Inside
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-design-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Design Properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -524,7 +824,73 @@
 
 
 <h1 id="mint">Mint<a class="headerlink" href="#mint" title="Permanent link">&para;</a></h1>
-<p>A production-style fintech platform built as a polyglot microservices monorepo. Covers authentication, multi-currency wallets, payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.</p>
+<p>A production-style fintech platform built as a polyglot microservices monorepo. Covers authentication, multi-currency wallets, real-time payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.</p>
+<hr />
+<h2 id="whats-inside">What's Inside<a class="headerlink" href="#whats-inside" title="Permanent link">&para;</a></h2>
+<p><strong>12 independently deployable services</strong> communicating over HTTP, gRPC, and Kafka. Two are written in Python (FastAPI), nine in TypeScript (NestJS), plus a Next.js 15 web app.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What's there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API gateway</strong></td>
+<td>nginx — routing, rate limiting, SSE proxy</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>RSA-signed JWTs, JWKS endpoint, refresh tokens, RBAC</td>
+</tr>
+<tr>
+<td><strong>Payments</strong></td>
+<td>Idempotent transfers with a formal state machine</td>
+</tr>
+<tr>
+<td><strong>Fraud</strong></td>
+<td>Rules-based scoring engine, called synchronously on every transaction</td>
+</tr>
+<tr>
+<td><strong>Wallets</strong></td>
+<td>gRPC settlement interface with idempotent debit/credit</td>
+</tr>
+<tr>
+<td><strong>KYC</strong></td>
+<td>Document upload → tier promotion → spend limit enforcement</td>
+</tr>
+<tr>
+<td><strong>Analytics</strong></td>
+<td>Kafka-driven spend aggregation, category classification, budget alerts</td>
+</tr>
+<tr>
+<td><strong>Social</strong></td>
+<td>Contacts, money requests with expiry, bill splits</td>
+</tr>
+<tr>
+<td><strong>Webhooks</strong></td>
+<td>User-registered endpoints, HMAC-signed payloads, delivery retry</td>
+</tr>
+<tr>
+<td><strong>Audit</strong></td>
+<td>Immutable append-only log — PostgreSQL trigger prevents UPDATE/DELETE</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>End-to-end distributed traces across HTTP, gRPC, and Kafka</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-design-properties">Key Design Properties<a class="headerlink" href="#key-design-properties" title="Permanent link">&para;</a></h2>
+<p><strong>Every transaction is safe to retry.</strong> The transactions service accepts an <code>Idempotency-Key</code> header. Duplicate requests return the cached response from Redis rather than executing twice.</p>
+<p><strong>Fraud scores every payment before any money moves.</strong> The fraud service (gRPC-only) runs six rules in parallel and returns ALLOW / REVIEW / BLOCK. Blocked transactions never reach wallet settlement.</p>
+<p><strong>KYC gates spend limits.</strong> The kyc service exposes per-transaction, daily, and monthly caps via gRPC. Transactions that exceed the caller's tier are rejected before the fraud check.</p>
+<p><strong>Audit trail is tamper-proof.</strong> Every Kafka event from every service is written to an append-only PostgreSQL table. A database trigger rejects any UPDATE or DELETE.</p>
+<p><strong>Traces span async boundaries.</strong> OpenTelemetry trace context is forwarded in Kafka message headers via <code>KafkaTraceInterceptor</code>. A single transfer request produces one trace that spans fraud scoring, wallet debit/credit, analytics ingestion, notification delivery, and webhook dispatch.</p>
+<p><strong>Database isolation.</strong> Each service owns exactly one PostgreSQL database with its own credentials. No service can query another service's tables.</p>
+<hr />
 <h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -604,6 +970,7 @@
 </tr>
 </tbody>
 </table>
+<hr />
 <h2 id="tech-stack">Tech Stack<a class="headerlink" href="#tech-stack" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -649,6 +1016,14 @@
 <td>Containerisation</td>
 <td>Docker, Docker Compose</td>
 </tr>
+<tr>
+<td>Testing</td>
+<td>Jest (NestJS), pytest + pytest-asyncio (Python)</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>GitHub Actions</td>
+</tr>
 </tbody>
 </table>
 
@@ -668,6 +1043,8 @@
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -706,7 +1083,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.top", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
