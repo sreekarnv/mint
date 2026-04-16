@@ -71,7 +71,6 @@ describe('AuditService', () => {
     it('derives service from topic when service field is absent', async () => {
       mockPrisma.auditLog.create.mockResolvedValue({});
       const envelope = makeEnvelope();
-      // @ts-ignore
       delete envelope.service;
 
       await service.appendEntry(envelope);

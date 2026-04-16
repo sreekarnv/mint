@@ -130,7 +130,6 @@ describe('TransactionsService', () => {
       mockKafka as any,
     );
 
-    // happy-path defaults
     mockWalletClient.GetWallet.mockReturnValue(of(SENDER_WALLET));
     mockLimitService.checkAll.mockResolvedValue(undefined);
     mockLimitService.recordTransaction.mockResolvedValue(undefined);
@@ -149,7 +148,6 @@ describe('TransactionsService', () => {
     );
   });
 
-  // ─── getTransaction ──────────────────────────────────────────────────────────
 
   describe('getTransaction', () => {
     it('throws BadRequestException when transaction not found', async () => {
@@ -187,7 +185,6 @@ describe('TransactionsService', () => {
     });
   });
 
-  // ─── listTransactions ────────────────────────────────────────────────────────
 
   describe('listTransactions', () => {
     it('maps BigInt senderAmount to number', async () => {
@@ -221,7 +218,6 @@ describe('TransactionsService', () => {
     });
   });
 
-  // ─── adminListTransactions ───────────────────────────────────────────────────
 
   describe('adminListTransactions', () => {
     it('applies userId filter when provided', async () => {
@@ -264,7 +260,6 @@ describe('TransactionsService', () => {
     });
   });
 
-  // ─── topup ───────────────────────────────────────────────────────────────────
 
   describe('topup', () => {
     const dto = { amount: 5000, currency: 'USD', description: 'Test topup' };
@@ -354,7 +349,6 @@ describe('TransactionsService', () => {
     });
   });
 
-  // ─── transfer ────────────────────────────────────────────────────────────────
 
   describe('transfer', () => {
     const dto = {
@@ -380,8 +374,8 @@ describe('TransactionsService', () => {
         completedAt: new Date(),
       });
       mockPrisma.transaction.update
-        .mockResolvedValueOnce(makeTxn({ status: TxnStatus.PROCESSING })) // PROCESSING update
-        .mockResolvedValue(completed); // COMPLETED update
+        .mockResolvedValueOnce(makeTxn({ status: TxnStatus.PROCESSING }))
+        .mockResolvedValue(completed);
 
       const result = await service.transfer(dto, 'u-1', 'idem-1', '1.2.3.4');
 

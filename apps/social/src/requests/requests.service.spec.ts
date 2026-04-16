@@ -74,7 +74,6 @@ describe('RequestsService', () => {
     mockQueue.getJob.mockResolvedValue({ remove: jest.fn() });
   });
 
-  // ─── create ──────────────────────────────────────────────────────────────────
 
   describe('create', () => {
     const validData = { requesterId: 'u-1', recipientId: 'u-2', amount: 1500 };
@@ -144,7 +143,6 @@ describe('RequestsService', () => {
     });
   });
 
-  // ─── accept ──────────────────────────────────────────────────────────────────
 
   describe('accept', () => {
     it('throws NotFoundException when request does not exist', async () => {
@@ -216,7 +214,6 @@ describe('RequestsService', () => {
     });
   });
 
-  // ─── decline ─────────────────────────────────────────────────────────────────
 
   describe('decline', () => {
     it('throws NotFoundException when request does not exist', async () => {
@@ -263,7 +260,6 @@ describe('RequestsService', () => {
     });
   });
 
-  // ─── cancel ──────────────────────────────────────────────────────────────────
 
   describe('cancel', () => {
     it('throws NotFoundException when request does not exist', async () => {
@@ -309,7 +305,6 @@ describe('RequestsService', () => {
     });
   });
 
-  // ─── expire ──────────────────────────────────────────────────────────────────
 
   describe('expire', () => {
     it('is a no-op when request does not exist', async () => {
@@ -353,7 +348,6 @@ describe('RequestsService', () => {
     });
   });
 
-  // ─── list ─────────────────────────────────────────────────────────────────────
 
   describe('list', () => {
     it('returns requests for a user with amounts converted from BigInt', async () => {

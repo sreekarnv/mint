@@ -67,7 +67,6 @@ describe('KycService', () => {
     );
   });
 
-  // ─── getLimitsForTier ───────────────────────────────────────────────────────
 
   describe('getLimitsForTier', () => {
     it.each([
@@ -83,7 +82,6 @@ describe('KycService', () => {
     });
   });
 
-  // ─── getOrCreateProfile ─────────────────────────────────────────────────────
 
   describe('getOrCreateProfile', () => {
     it('returns existing profile when found', async () => {
@@ -110,7 +108,6 @@ describe('KycService', () => {
     });
   });
 
-  // ─── getTierCached ──────────────────────────────────────────────────────────
 
   describe('getTierCached', () => {
     it('returns cached tier when Redis hit', async () => {
@@ -155,7 +152,6 @@ describe('KycService', () => {
     });
   });
 
-  // ─── submitForReview ────────────────────────────────────────────────────────
 
   describe('submitForReview', () => {
     it('throws if profile is not BASIC tier', async () => {
@@ -239,7 +235,6 @@ describe('KycService', () => {
     });
   });
 
-  // ─── upgradeTier ────────────────────────────────────────────────────────────
 
   describe('upgradeTier', () => {
     it('throws for invalid upgrade path', async () => {
@@ -312,7 +307,6 @@ describe('KycService', () => {
     });
   });
 
-  // ─── listPendingQueue ───────────────────────────────────────────────────────
 
   describe('listPendingQueue', () => {
     it('returns paginated items with correct shape', async () => {
@@ -362,7 +356,6 @@ describe('KycService', () => {
     });
   });
 
-  // ─── rejectProfile ──────────────────────────────────────────────────────────
 
   describe('rejectProfile', () => {
     it('updates status to REJECTED with reason and clears cache', async () => {

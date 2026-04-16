@@ -76,7 +76,6 @@ describe('SplitsService', () => {
     service = new SplitsService(mockPrisma as any, mockKafka as any);
   });
 
-  // ─── create ──────────────────────────────────────────────────────────────────
 
   describe('create', () => {
     const validData = {
@@ -166,7 +165,6 @@ describe('SplitsService', () => {
     });
   });
 
-  // ─── get ─────────────────────────────────────────────────────────────────────
 
   describe('get', () => {
     it('throws NotFoundException when split does not exist', async () => {
@@ -204,7 +202,6 @@ describe('SplitsService', () => {
     });
   });
 
-  // ─── list ─────────────────────────────────────────────────────────────────────
 
   describe('list', () => {
     it('returns splits with paidCount and participantCount', async () => {
@@ -232,7 +229,6 @@ describe('SplitsService', () => {
     });
   });
 
-  // ─── pay ─────────────────────────────────────────────────────────────────────
 
   describe('pay', () => {
     it('throws NotFoundException when split does not exist', async () => {

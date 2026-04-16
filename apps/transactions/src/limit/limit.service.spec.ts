@@ -32,7 +32,6 @@ describe('LimitService', () => {
     mockKycClient.GetLimits.mockReturnValue(of(LIMITS));
   });
 
-  // ─── checkAll ────────────────────────────────────────────────────────────────
 
   describe('checkAll', () => {
     it('throws when amount exceeds per-transaction limit', async () => {
@@ -42,32 +41,29 @@ describe('LimitService', () => {
     });
 
     it('passes and increments Redis counters when within all limits', async () => {
-      mockRedis.incrby.mockResolvedValue(5000); // well under limits
+      mockRedis.incrby.mockResolvedValue(5000);
 
       await service.checkAll('u-1', 5000);
 
-      expect(mockRedis.incrby).toHaveBeenCalledTimes(2); // daily + monthly
+      expect(mockRedis.incrby).toHaveBeenCalledTimes(2);
     });
 
     it('throws and rolls back when daily limit is exceeded', async () => {
-      // First incrby (daily) returns value over limit; second (monthly) would pass
       mockRedis.incrby
-        .mockResolvedValueOnce(200_001) // daily over limit
+        .mockResolvedValueOnce(200_001)
         .mockResolvedValue(100);
 
       await expect(service.checkAll('u-1', 1000)).rejects.toThrow(
         'Daily limit exceeded',
       );
-      expect(mockRedis.decrby).toHaveBeenCalledTimes(1); // rollback daily
+      expect(mockRedis.decrby).toHaveBeenCalledTimes(1);
     });
 
     it('sets TTL on first increment (daily)', async () => {
-      // incrby returns the amount itself → first time → set TTL
       mockRedis.incrby.mockResolvedValue(5000);
 
       await service.checkAll('u-1', 5000);
 
-      // TTL should be set for daily key (86400s)
       expect(mockRedis.expire).toHaveBeenCalledWith(
         expect.stringMatching(/^limit:daily:/),
         86400,
@@ -76,8 +72,8 @@ describe('LimitService', () => {
 
     it('throws and rolls back when monthly limit is exceeded', async () => {
       mockRedis.incrby
-        .mockResolvedValueOnce(5000) // daily fine
-        .mockResolvedValueOnce(1_000_001); // monthly over limit
+        .mockResolvedValueOnce(5000)
+        .mockResolvedValueOnce(1_000_001);
 
       await expect(service.checkAll('u-1', 1000)).rejects.toThrow(
         'Monthly limit exceeded',
@@ -86,7 +82,6 @@ describe('LimitService', () => {
     });
   });
 
-  // ─── recordTransaction ───────────────────────────────────────────────────────
 
   describe('recordTransaction', () => {
     it('increments both daily and monthly counters', async () => {

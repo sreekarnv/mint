@@ -31,7 +31,6 @@ describe('ContactsService', () => {
     service = new ContactsService(mockPrisma as any, mockRedis as any);
   });
 
-  // ─── addContact ─────────────────────────────────────────────────────────────
 
   describe('addContact', () => {
     it('throws when owner tries to add themselves', async () => {
@@ -64,7 +63,6 @@ describe('ContactsService', () => {
     });
   });
 
-  // ─── removeContact ───────────────────────────────────────────────────────────
 
   describe('removeContact', () => {
     it('throws when contact not found', async () => {
@@ -88,7 +86,6 @@ describe('ContactsService', () => {
     });
   });
 
-  // ─── listContacts ────────────────────────────────────────────────────────────
 
   describe('listContacts', () => {
     it('returns contacts ordered by createdAt desc', async () => {

@@ -63,7 +63,6 @@ describe('FraudService', () => {
     );
   });
 
-  // ─── evaluate ────────────────────────────────────────────────────────────────
 
   describe('evaluate', () => {
     it('calls all six rules and returns the decision engine result', async () => {
@@ -146,7 +145,6 @@ describe('FraudService', () => {
     });
   });
 
-  // ─── listReviewQueue ─────────────────────────────────────────────────────────
 
   describe('listReviewQueue', () => {
     it('returns paginated REVIEW cases with correct shape', async () => {
@@ -192,7 +190,6 @@ describe('FraudService', () => {
     });
   });
 
-  // ─── updateUserStats ─────────────────────────────────────────────────────────
 
   describe('updateUserStats', () => {
     it('upserts with correct create payload on first transaction', async () => {
