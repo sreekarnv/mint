@@ -1,4 +1,3 @@
-import os
 import pytest
 
 from fastapi import FastAPI
@@ -9,15 +8,7 @@ from wallet.db import get_db
 from wallet.routes.wallet_admin import wallet_admin_route
 from wallet.routes.wallet_user import wallet_user_route
 
-
 from helpers import make_session_mock
-
-
-os.environ.setdefault("APP_PORT", "4002")
-os.environ.setdefault("APP_HOST", "localhost")
-os.environ.setdefault("APP_RELOAD", "False")
-os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
-os.environ.setdefault("KAFKA_BROKERS", "localhost:9092")
 
 
 @pytest.fixture

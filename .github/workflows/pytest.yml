@@ -40,3 +40,9 @@ jobs:
 
       - name: Run tests
         run: uv run --project ${{ matrix.path }} pytest ${{ matrix.path }}/tests/ -v
+        env:
+          APP_PORT: "4002"
+          APP_HOST: "localhost"
+          APP_RELOAD: "False"
+          DATABASE_URL: "postgresql+asyncpg://test:test@localhost/test"
+          KAFKA_BROKERS: "localhost:9092"

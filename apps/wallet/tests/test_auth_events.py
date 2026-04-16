@@ -1,16 +1,9 @@
-import os
 import pytest
 
 from unittest.mock import AsyncMock, MagicMock
 from wallet.kafka.consumers.auth_events import handle_auth_events
 from wallet.kafka.consumers.schema import KafkaEnvelope
 from wallet.models.wallet import Wallet
-
-os.environ.setdefault("APP_PORT", "4002")
-os.environ.setdefault("APP_HOST", "localhost")
-os.environ.setdefault("APP_RELOAD", "False")
-os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
-os.environ.setdefault("KAFKA_BROKERS", "localhost:9092")
 
 
 def make_envelope(event: str, payload_extra: dict = {}) -> KafkaEnvelope:

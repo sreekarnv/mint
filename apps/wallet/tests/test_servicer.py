@@ -1,4 +1,3 @@
-import os
 import grpc
 import pytest
 
@@ -9,13 +8,6 @@ from wallet.models.balance_history import BalanceHistory
 from wallet.models.wallet import Wallet, WalletStatus
 
 from helpers import make_get_db, make_session_mock
-
-
-os.environ.setdefault("APP_PORT", "4002")
-os.environ.setdefault("APP_HOST", "localhost")
-os.environ.setdefault("APP_RELOAD", "False")
-os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
-os.environ.setdefault("KAFKA_BROKERS", "localhost:9092")
 
 
 def make_wallet(

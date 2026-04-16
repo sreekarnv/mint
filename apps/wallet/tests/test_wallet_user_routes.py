@@ -1,19 +1,9 @@
-import os
-
-
 from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 from wallet.models.balance_history import BalanceHistory
 from wallet.models.wallet import WalletStatus
-
-
-os.environ.setdefault("APP_PORT", "4002")
-os.environ.setdefault("APP_HOST", "localhost")
-os.environ.setdefault("APP_RELOAD", "False")
-os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
-os.environ.setdefault("KAFKA_BROKERS", "localhost:9092")
 
 
 def make_wallet(id="w-1", user_id="u-1", balance=10000, currency="USD"):
