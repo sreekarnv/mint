@@ -1,7 +1,11 @@
-import { ScoreRequest } from './base-rule.service';
-jest.mock('../generated/prisma/client', () => ({ PrismaClient: class {} }));
-jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: class {} }));
+jest.mock('../generated/prisma/client', () => ({ PrismaClient: class {} }), {
+  virtual: true,
+});
+jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: class {} }), {
+  virtual: true,
+});
 
+import { ScoreRequest } from './base-rule.service';
 import { LargeAmountRuleService } from './large-amount-rule.service';
 
 const mockPrisma = {
