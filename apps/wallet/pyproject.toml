@@ -40,3 +40,15 @@ sources  = ["src"]
 
 [tool.uv.sources]
 mint-shared = { workspace = true }
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.27.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
