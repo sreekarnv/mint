@@ -1,0 +1,53 @@
+name: Pytest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'shared-py/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'shared-py/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+
+jobs:
+  test:
+    name: ${{ matrix.service }} Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: wallet
+            path: apps/wallet
+            proto_src: libs/proto/wallet.proto
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --project ${{ matrix.path }} --extra test
+
+      - name: Generate proto files
+        if: matrix.proto_src != ''
+        run: uv run --project ${{ matrix.path }} python scripts/generate_proto.py
+
+      - name: Run tests
+        run: uv run --project ${{ matrix.path }} pytest ${{ matrix.path }}/tests/ -v
+        env:
+          APP_PORT: "4002"
+          APP_HOST: "localhost"
+          APP_RELOAD: "False"
+          DATABASE_URL: "postgresql+asyncpg://test:test@localhost/test"
+          KAFKA_BROKERS: "localhost:9092"
