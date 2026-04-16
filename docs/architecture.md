@@ -26,20 +26,20 @@ graph TD
 
 ## Communication Patterns
 
-### Synchronous — gRPC
+### Synchronous - gRPC
 
 Used for blocking operations where the caller needs a result before proceeding.
 
-| Caller | Target | Port | Purpose |
-|--------|--------|------|---------|
-| transactions | fraud | 50052 | Score every transaction before settlement |
-| transactions | kyc | 50053 | Check per-transaction and daily/monthly limits |
-| transactions | wallet | 50051 | Debit sender, credit recipient |
-| admin | kyc | 50053 | Fetch KYC profile and pending queue |
-| admin | wallet | 50051 | Fetch wallet status for user management |
-| admin | fraud | 50052 | Fetch and action fraud cases |
+| Caller       | Target | Port  | Purpose                                        |
+| ------------ | ------ | ----- | ---------------------------------------------- |
+| transactions | fraud  | 50052 | Score every transaction before settlement      |
+| transactions | kyc    | 50053 | Check per-transaction and daily/monthly limits |
+| transactions | wallet | 50051 | Debit sender, credit recipient                 |
+| admin        | kyc    | 50053 | Fetch KYC profile and pending queue            |
+| admin        | wallet | 50051 | Fetch wallet status for user management        |
+| admin        | fraud  | 50052 | Fetch and action fraud cases                   |
 
-### Asynchronous — Kafka
+### Asynchronous - Kafka
 
 Used for fan-out side effects: audit logging, analytics, notifications, and cross-service reactions.
 

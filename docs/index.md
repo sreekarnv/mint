@@ -1,6 +1,44 @@
 # Mint
 
-A production-style fintech platform built as a polyglot microservices monorepo. Covers authentication, multi-currency wallets, payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
+A production-style fintech platform built as a polyglot microservices monorepo. Covers authentication, multi-currency wallets, real-time payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
+
+---
+
+## What's Inside
+
+**12 independently deployable services** communicating over HTTP, gRPC, and Kafka. Two are written in Python (FastAPI), nine in TypeScript (NestJS), plus a Next.js 15 web app.
+
+| Layer | What's there |
+|-------|-------------|
+| **API gateway** | nginx — routing, rate limiting, SSE proxy |
+| **Auth** | RSA-signed JWTs, JWKS endpoint, refresh tokens, RBAC |
+| **Payments** | Idempotent transfers with a formal state machine |
+| **Fraud** | Rules-based scoring engine, called synchronously on every transaction |
+| **Wallets** | gRPC settlement interface with idempotent debit/credit |
+| **KYC** | Document upload → tier promotion → spend limit enforcement |
+| **Analytics** | Kafka-driven spend aggregation, category classification, budget alerts |
+| **Social** | Contacts, money requests with expiry, bill splits |
+| **Webhooks** | User-registered endpoints, HMAC-signed payloads, delivery retry |
+| **Audit** | Immutable append-only log — PostgreSQL trigger prevents UPDATE/DELETE |
+| **Observability** | End-to-end distributed traces across HTTP, gRPC, and Kafka |
+
+---
+
+## Key Design Properties
+
+**Every transaction is safe to retry.** The transactions service accepts an `Idempotency-Key` header. Duplicate requests return the cached response from Redis rather than executing twice.
+
+**Fraud scores every payment before any money moves.** The fraud service (gRPC-only) runs six rules in parallel and returns ALLOW / REVIEW / BLOCK. Blocked transactions never reach wallet settlement.
+
+**KYC gates spend limits.** The kyc service exposes per-transaction, daily, and monthly caps via gRPC. Transactions that exceed the caller's tier are rejected before the fraud check.
+
+**Audit trail is tamper-proof.** Every Kafka event from every service is written to an append-only PostgreSQL table. A database trigger rejects any UPDATE or DELETE.
+
+**Traces span async boundaries.** OpenTelemetry trace context is forwarded in Kafka message headers via `KafkaTraceInterceptor`. A single transfer request produces one trace that spans fraud scoring, wallet debit/credit, analytics ingestion, notification delivery, and webhook dispatch.
+
+**Database isolation.** Each service owns exactly one PostgreSQL database with its own credentials. No service can query another service's tables.
+
+---
 
 ## Services
 
@@ -18,6 +56,8 @@ A production-style fintech platform built as a polyglot microservices monorepo. 
 | admin | NestJS | 4009 | Admin console — user management, fraud review |
 | audit | NestJS | 4010 | Immutable append-only audit log |
 
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -31,3 +71,5 @@ A production-style fintech platform built as a polyglot microservices monorepo. 
 | API gateway | nginx |
 | Observability | OpenTelemetry, Grafana Tempo, Grafana |
 | Containerisation | Docker, Docker Compose |
+| Testing | Jest (NestJS), pytest + pytest-asyncio (Python) |
+| CI | GitHub Actions |
