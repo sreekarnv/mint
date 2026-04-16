@@ -1,7 +1,11 @@
-import { ScoreRequest } from './base-rule.service';
-jest.mock('../generated/prisma/client', () => ({ PrismaClient: class {} }));
-jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: class {} }));
+jest.mock('../generated/prisma/client', () => ({ PrismaClient: class {} }), {
+  virtual: true,
+});
+jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: class {} }), {
+  virtual: true,
+});
 
+import { ScoreRequest } from './base-rule.service';
 import { LargeAmountRuleService } from './large-amount-rule.service';
 
 const mockPrisma = {
@@ -26,7 +30,6 @@ function makeReq(overrides: Partial<ScoreRequest> = {}): ScoreRequest {
   };
 }
 
-// Stats where mean=10000, stddev=0 → threshold = mean + 3*stddev = 10000
 function makeStats(overrides: Record<string, any> = {}) {
   return {
     count: 10,
@@ -63,7 +66,6 @@ describe('LargeAmountRuleService', () => {
   });
 
   it('does not fire when amount is within 3 standard deviations', async () => {
-    // mean=10000, stddev=0 → threshold=10000. Amount of 10000 is not > 10000.
     mockPrisma.userTransferStats.findUnique.mockResolvedValue(makeStats());
 
     const result = await service.evaluate(

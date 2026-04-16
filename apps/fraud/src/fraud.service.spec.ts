@@ -1,5 +1,9 @@
-jest.mock('./generated/prisma/client', () => ({ PrismaClient: class {} }));
-jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: class {} }));
+jest.mock('./generated/prisma/client', () => ({ PrismaClient: class {} }), {
+  virtual: true,
+});
+jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: class {} }), {
+  virtual: true,
+});
 jest.mock('geoip-lite', () => ({ lookup: jest.fn() }));
 
 import { FraudService } from './fraud.service';
@@ -62,8 +66,6 @@ describe('FraudService', () => {
       mockSanctioned as any,
     );
   });
-
-  // ─── evaluate ────────────────────────────────────────────────────────────────
 
   describe('evaluate', () => {
     it('calls all six rules and returns the decision engine result', async () => {
@@ -146,8 +148,6 @@ describe('FraudService', () => {
     });
   });
 
-  // ─── listReviewQueue ─────────────────────────────────────────────────────────
-
   describe('listReviewQueue', () => {
     it('returns paginated REVIEW cases with correct shape', async () => {
       const createdAt = new Date('2025-01-01T00:00:00Z');
@@ -191,8 +191,6 @@ describe('FraudService', () => {
       );
     });
   });
-
-  // ─── updateUserStats ─────────────────────────────────────────────────────────
 
   describe('updateUserStats', () => {
     it('upserts with correct create payload on first transaction', async () => {

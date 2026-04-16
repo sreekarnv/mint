@@ -33,7 +33,6 @@ describe('SseService', () => {
       const obs = makeObserver();
       service.register('u-1', obs as any);
       service.deregister('u-1', obs as any);
-      // broadcast should be a no-op (no entry in map)
       expect(() => service.broadcast('u-1', {})).not.toThrow();
     });
 
