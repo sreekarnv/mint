@@ -1,6 +1,6 @@
 # Mint
 
-A production-style fintech platform built with a microservices architecture. Covers authentication, wallet based payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
+A production-style fintech platform built as a polyglot microservices monorepo. Covers authentication, wallet management, payments, KYC, fraud detection, analytics, social features, webhooks, an admin console, and a tamper-proof audit log.
 
 <p align="left">
   <a href="https://nestjs.com/" target="_blank">
@@ -47,9 +47,11 @@ A production-style fintech platform built with a microservices architecture. Cov
   </a>
 </p>
 
+> Looking for the original version built with Express, MongoDB, RabbitMQ, and React? See the [v1 branch](https://github.com/sreekarnv/mint/tree/v1).
+
 ## Frontend
 
-A Next.js web app serves both the user facing product and the admin console through the same nginx gateway.
+A Next.js 15 app serves both the user-facing product and the admin console through the same nginx gateway.
 
 <table>
   <tr>
@@ -80,45 +82,36 @@ A Next.js web app serves both the user facing product and the admin console thro
   </tr>
 </table>
 
-> Looking for the original version built with Express, MongoDB, RabbitMQ, and React? See the [v1 branch](https://github.com/sreekarnv/mint/tree/v1).
-
-## Docs
-
-- [Architecture](docs/architecture.md) - service map, communication patterns, JWT flow
-- [Services](docs/services.md) - each service: endpoints, DB, Kafka topics
-- [Infrastructure](docs/infrastructure.md) - nginx, Kafka, Postgres, Redis, MinIO, observability
-- [Running](docs/running.md) - dev and production setup
-
 ## Services
 
-| Service       | Stack            | Port | Description                                  |
-| ------------- | ---------------- | ---- | -------------------------------------------- |
-| web           | Next.js 15       | 3000 | User app and admin console                   |
-| auth          | Python / FastAPI | 4001 | JWT issuance, refresh, RBAC                  |
-| wallet        | Python / FastAPI | 4002 | gRPC settlement interface                    |
-| transactions  | NestJS           | 4003 | Transfers, top-ups, idempotency              |
-| fraud         | NestJS (gRPC)    | \*   | Real-time fraud scoring on every transaction |
-| kyc           | NestJS           | 4004 | Document upload, tier management             |
-| analytics     | NestJS           | 4005 | Spend insights, category budgets             |
-| notifications | NestJS           | 4006 | Persistent notifications + SSE stream        |
-| social        | NestJS           | 4007 | Contacts, money requests, bill splits        |
-| webhook       | NestJS           | 4008 | User-registered webhooks + delivery log      |
-| admin         | NestJS           | 4009 | Admin console API (user mgmt, fraud review)  |
-| audit         | NestJS           | 4010 | Immutable append-only audit log              |
-
-\* fraud is gRPC-only, called internally by the transactions service.
+| Service       | Stack              | Port | Description                                  |
+| ------------- | ------------------ | ---- | -------------------------------------------- |
+| web           | Next.js 15         | 3000 | User app and admin console                   |
+| auth          | Python / FastAPI   | 4001 | JWT issuance, refresh, RBAC                  |
+| wallet        | Python / FastAPI   | 4002 | Balances, gRPC settlement interface          |
+| transactions  | NestJS             | 4003 | Transfers, top-ups, idempotency              |
+| fraud         | NestJS (gRPC only) | —    | Real-time fraud scoring on every transaction |
+| kyc           | NestJS             | 4004 | Document upload, tier management             |
+| analytics     | NestJS             | 4005 | Spend insights, category budgets             |
+| notifications | NestJS             | 4006 | Persistent notifications + SSE stream        |
+| social        | NestJS             | 4007 | Contacts, money requests, bill splits        |
+| webhook       | NestJS             | 4008 | User-registered webhooks + delivery log      |
+| admin         | NestJS             | 4009 | Admin console API                            |
+| audit         | NestJS             | 4010 | Immutable append-only audit log              |
 
 ## Running
 
 ```bash
+# Generate RSA keys (first time only)
+sh scripts/generate-keys.sh
+
+# Start everything
 docker compose -f docker-compose.dev.yml up -d --build
 ```
 
-The app is available at **http://localhost**. The admin console is at **http://localhost/app-admin**.
+The app is at **http://localhost**. The admin console is at **http://localhost/app-admin**.
 
-### Admin User
-
-Create an admin user in the auth service database.
+Create an admin user:
 
 ```bash
 docker exec -it mint-auth uv run python /app/apps/auth/src/create_admin.py \
@@ -127,10 +120,22 @@ docker exec -it mint-auth uv run python /app/apps/auth/src/create_admin.py \
   --name "Admin User"
 ```
 
-Migrations run automatically before each service starts. API docs are at `/api-docs` on every service.
+Migrations run automatically on startup. Swagger UI is at `/api-docs` on every service.
 
 ## Observability
 
-Every service ships OpenTelemetry traces to a local collector, stored in Tempo and visualised in Grafana at http://localhost:4000. Trace context is propagated across HTTP, gRPC, and Kafka so a single top-up request produces one trace spanning all downstream consumers.
+Every service exports OpenTelemetry traces to a local collector. Trace context is propagated across HTTP, gRPC, and Kafka — a single transfer produces one trace spanning fraud scoring, wallet settlement, analytics ingestion, notification delivery, and webhook dispatch.
+
+Grafana is at **http://localhost:4000**.
 
 ![Grafana Tempo showing a distributed trace for a top-up request](.github/assets/grafana-traces.png)
+
+## Docs
+
+Full documentation at [sreekarnv.github.io/mint](https://sreekarnv.github.io/mint).
+
+- [Architecture](https://sreekarnv.github.io/mint/architecture/) — service map, communication patterns, auth flow, transfer flow
+- [Design Decisions](https://sreekarnv.github.io/mint/design-decisions/) — polyglot rationale, gRPC vs Kafka, idempotency, fraud scoring, audit immutability
+- [Services](https://sreekarnv.github.io/mint/services/) — endpoints, databases, Kafka topics per service
+- [Infrastructure](https://sreekarnv.github.io/mint/infrastructure/) — nginx, Kafka, Postgres, Redis, MinIO, observability
+- [Running](https://sreekarnv.github.io/mint/running/) — dev and production setup
