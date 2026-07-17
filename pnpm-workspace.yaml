@@ -1,2 +1,13 @@
 packages:
-  - 'apps/web'
+  - apps/web
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - msgpackr-extract
+  - msw
+  - prisma
+  - protobufjs
+  - sharp
+  - unrs-resolver
